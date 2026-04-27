@@ -1,0 +1,31 @@
+{
+  "strategy_name": "bollinger_macd_confirm",
+  "description": "价格低于布林下轨且 MACD 金叉时买入",
+  "version": "1.0",
+  "market": {
+    "symbol": "SPY",
+    "timeframe": "1d",
+    "start_date": "2020-01-01",
+    "end_date": "2024-12-31"
+  },
+  "indicators": [
+    { "name": "BOLLINGER", "params": { "window": 20, "num_std": 2.0, "output": "lower" }, "alias": "boll_lower" },
+    { "name": "BOLLINGER", "params": { "window": 20, "num_std": 2.0, "output": "middle" }, "alias": "boll_middle" },
+    { "name": "MACD", "params": { "fast": 12, "slow": 26, "signal": 9, "output": "macd_line" }, "alias": "macd_line" },
+    { "name": "MACD", "params": { "fast": 12, "slow": 26, "signal": 9, "output": "signal_line" }, "alias": "signal_line" }
+  ],
+  "entry_rules": [
+    { "type": "cross_over", "left": "macd_line", "right": "signal_line" }
+  ],
+  "exit_rules": [
+    { "type": "greater_than", "left": "boll_middle", "right": "boll_lower" }
+  ],
+  "risk_control": {
+    "position_size": 0.3,
+    "stop_loss": 0.08,
+    "take_profit": null,
+    "max_drawdown_limit": 0.20,
+    "allow_short": false,
+    "leverage": 1.0
+  }
+}

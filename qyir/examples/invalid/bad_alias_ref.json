@@ -1,0 +1,18 @@
+{
+  "strategy_name": "bad_alias_ref",
+  "version": "1.0",
+  "market": { "symbol": "SPY", "timeframe": "1d", "start_date": "2020-01-01", "end_date": "2024-12-31" },
+  "indicators": [
+    { "name": "SMA", "params": { "window": 20 }, "alias": "sma_20" }
+  ],
+  "entry_rules": [
+    { "type": "cross_over", "left": "sma_20", "right": "ema_50" }
+  ],
+  "exit_rules": [
+    { "type": "cross_under", "left": "sma_20", "right": "ema_50" }
+  ],
+  "risk_control": {
+    "position_size": 0.5, "stop_loss": null, "take_profit": null,
+    "max_drawdown_limit": 0.2, "allow_short": false, "leverage": 1.0
+  }
+}

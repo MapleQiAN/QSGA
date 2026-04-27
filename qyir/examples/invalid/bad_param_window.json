@@ -1,0 +1,18 @@
+{
+  "strategy_name": "bad_param_window",
+  "version": "1.0",
+  "market": { "symbol": "SPY", "timeframe": "1d", "start_date": "2020-01-01", "end_date": "2024-12-31" },
+  "indicators": [
+    { "name": "SMA", "params": { "window": 0 }, "alias": "bad_sma" }
+  ],
+  "entry_rules": [
+    { "type": "greater_than", "left": "bad_sma", "right": 100 }
+  ],
+  "exit_rules": [
+    { "type": "less_than", "left": "bad_sma", "right": 50 }
+  ],
+  "risk_control": {
+    "position_size": 0.5, "stop_loss": null, "take_profit": null,
+    "max_drawdown_limit": 0.2, "allow_short": false, "leverage": 1.0
+  }
+}
