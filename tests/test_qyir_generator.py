@@ -158,6 +158,31 @@ def test_generate_qyir_semantic_failure_is_structured():
     ]
 
 
+def test_generate_qyir_rejects_unsafe_query_before_llm():
+    class FailingLLMClient:
+        def generate(self, prompt: str) -> str:
+            raise AssertionError("LLM must not be called for rejected requests")
+
+    result = generate_qyir(
+        "帮我生成一个稳赚不赔、一个月翻倍的策略",
+        client=FailingLLMClient(),
+        validator=passing_validator,
+        semantic_validator=passing_semantic_validator,
+    )
+
+    assert result.success is False
+    assert result.rejected is True
+    assert result.rejection_reason is not None
+    assert "guaranteed-return" in result.rejection_reason
+    assert result.attempts == 0
+    assert result.errors == [
+        {
+            "path": "safe_rejection",
+            "message": result.rejection_reason,
+        }
+    ]
+
+
 def test_run_qsga_success_prints_required_lines(monkeypatch, capsys):
     monkeypatch.setattr(
         run_qsga,
@@ -191,3 +216,29 @@ def test_run_qsga_failure_returns_nonzero(monkeypatch, capsys):
     assert exit_code == 1
     assert "QYIR generation failed." in captured.err
     assert "[json] Invalid JSON from LLM" in captured.err
+
+
+def test_run_qsga_rejection_prints_rejected_message(monkeypatch, capsys):
+    monkeypatch.setattr(
+        run_qsga,
+        "generate_qyir",
+        lambda query: SimpleNamespace(
+            success=False,
+            rejected=True,
+            rejection_reason="Unsafe request detected: guaranteed-return expectation.",
+            qyir=None,
+            errors=[
+                {
+                    "path": "safe_rejection",
+                    "message": "Unsafe request detected: guaranteed-return expectation.",
+                }
+            ],
+        ),
+    )
+
+    exit_code = run_qsga.main(["--query", "稳赚不赔"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "QYIR request rejected." in captured.err
+    assert "Unsafe request detected" in captured.err

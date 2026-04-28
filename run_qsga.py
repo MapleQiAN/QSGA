@@ -25,7 +25,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if not result.success:
-        print("QYIR generation failed.", file=sys.stderr)
+        if getattr(result, "rejected", False):
+            print("QYIR request rejected.", file=sys.stderr)
+        else:
+            print("QYIR generation failed.", file=sys.stderr)
         for error in result.errors:
             print(f"[{error['path']}] {error['message']}", file=sys.stderr)
         return 1
