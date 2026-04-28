@@ -1,0 +1,7 @@
+| Method | Schema Validity ↑ | Semantic Consistency ↑ | Compile Success ↑ | Backtest Success ↑ | Risk Violation ↓ | E2E Success ↑ |
+| --- | --- | --- | --- | --- | --- | --- |
+| direct_code | 0.000 | 0.615 | 0.846 | 0.615 | 0.231 | 0.500 |
+| direct_json | 1.000 | 0.800 | 1.000 | 1.000 | 0.508 | 0.500 |
+| qsga_no_repair | 0.600 | 0.477 | 0.600 | 0.600 | 0.354 | 0.362 |
+| qsga_no_risk_audit | 1.000 | 0.800 | 1.000 | 1.000 | 0.000 | 0.825 |
+| qsga_full | 1.000 | 0.800 | 1.000 | 1.000 | 0.508 | 0.500 |
