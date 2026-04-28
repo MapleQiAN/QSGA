@@ -21,6 +21,7 @@ class GenerationResult:
     attempts: int = 0
     rejected: bool = False
     rejection_reason: str | None = None
+    repair_trace: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _issue(path: str, message: str) -> dict[str, str]:
@@ -90,10 +91,30 @@ def generate_qyir(
             last_errors = [
                 _issue(issue.path, issue.message) for issue in semantic_validation.issues
             ]
+            repair = _attempt_repair(query, data, validate, verify_semantics)
+            if repair.success:
+                return GenerationResult(
+                    success=True,
+                    qyir=repair.qyir,
+                    attempts=attempt,
+                    repair_trace=repair.trace_dicts(),
+                )
+            if repair.trace:
+                last_errors = repair.errors
             feedback = "; ".join(f"{error['path']}: {error['message']}" for error in last_errors)
             continue
 
         last_errors = [_issue(issue.path, issue.message) for issue in validation.issues]
+        repair = _attempt_repair(query, data, validate, verify_semantics)
+        if repair.success:
+            return GenerationResult(
+                success=True,
+                qyir=repair.qyir,
+                attempts=attempt,
+                repair_trace=repair.trace_dicts(),
+            )
+        if repair.trace:
+            last_errors = repair.errors
         feedback = "; ".join(f"{error['path']}: {error['message']}" for error in last_errors)
 
     return GenerationResult(success=False, errors=last_errors, attempts=max_retries + 1)
@@ -109,3 +130,20 @@ def _load_semantic_validator() -> Callable[[str, dict[str, Any]], Any]:
     from verifier.semantic_verifier import semantic_verify
 
     return semantic_verify
+
+
+def _attempt_repair(
+    query: str,
+    qyir: dict[str, Any],
+    validator: Callable[[dict[str, Any]], Any],
+    semantic_validator: Callable[[str, dict[str, Any]], Any],
+) -> Any:
+    from repair.repair_agent import repair_qyir
+
+    return repair_qyir(
+        query,
+        qyir,
+        validator=validator,
+        semantic_validator=semantic_validator,
+        max_rounds=2,
+    )
