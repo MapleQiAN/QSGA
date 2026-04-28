@@ -197,6 +197,39 @@ def test_run_qsga_success_prints_required_lines(monkeypatch, capsys):
     assert "QYIR generated successfully." in captured.out
     assert "Schema verification passed." in captured.out
     assert "Semantic verification passed." in captured.out
+    assert "[5] Compilation verification passed." in captured.out
+    assert "[6] Backtest completed." in captured.out
+    assert "[7] Risk audit completed." in captured.out
+    assert "[8] Final strategy generated." in captured.out
+
+
+def test_run_qsga_writes_phase9_report(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        run_qsga,
+        "generate_qyir",
+        lambda query: SimpleNamespace(success=True, qyir=valid_qyir(), errors=[]),
+    )
+    report_path = tmp_path / "report.json"
+
+    exit_code = run_qsga.main(
+        [
+            "--query",
+            "稳一点的双均线策略",
+            "--symbol",
+            "QQQ",
+            "--output-json",
+            str(report_path),
+        ]
+    )
+
+    assert exit_code == 0
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["user_query"] == "稳一点的双均线策略"
+    assert report["final_qyir"]["market"]["symbol"] == "QQQ"
+    assert report["compilation_verification"]["passed"] is True
+    assert "backtest_metrics" in report
+    assert "risk_report" in report
+    assert "strategy_explanation" in report
 
 
 def test_run_qsga_failure_returns_nonzero(monkeypatch, capsys):
