@@ -11,6 +11,7 @@ Thumbs.db
 # Logs and temporary files
 *.log
 *.tmp
+.worktrees/
 
 # Python artifacts
 __pycache__/
