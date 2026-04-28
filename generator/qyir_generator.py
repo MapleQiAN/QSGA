@@ -8,6 +8,7 @@ from typing import Any, Callable
 
 from generator.llm_client import LLMClient, OpenAILLMClient
 from generator.prompt import build_qyir_prompt
+from verifier.safe_rejection import should_reject
 
 
 @dataclass
@@ -18,6 +19,8 @@ class GenerationResult:
     qyir: dict[str, Any] | None = None
     errors: list[dict[str, str]] = field(default_factory=list)
     attempts: int = 0
+    rejected: bool = False
+    rejection_reason: str | None = None
 
 
 def _issue(path: str, message: str) -> dict[str, str]:
@@ -48,6 +51,17 @@ def generate_qyir(
             success=False,
             errors=[_issue("query", "Query must not be empty")],
             attempts=0,
+        )
+
+    rejection = should_reject(query)
+    if rejection.rejected:
+        reason = rejection.reason or "Unsafe request detected."
+        return GenerationResult(
+            success=False,
+            errors=[_issue("safe_rejection", reason)],
+            attempts=0,
+            rejected=True,
+            rejection_reason=reason,
         )
 
     llm = client if client is not None else OpenAILLMClient()
