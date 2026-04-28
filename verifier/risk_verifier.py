@@ -162,7 +162,7 @@ def _audit_backtest_metrics(
         issues.append(
             RiskIssue(
                 type="risk_warning",
-                severity="high",
+                severity="medium",
                 path="backtest_metrics.max_drawdown",
                 message=f"The backtest max drawdown exceeds {drawdown_limit:.1%}.",
                 recommendation="Reduce position size, add stop-loss, or use a more conservative exit rule.",
@@ -204,7 +204,7 @@ def _audit_backtest_metrics(
         issues.append(
             RiskIssue(
                 type="risk_warning",
-                severity="high",
+                severity="medium",
                 path="backtest_metrics.risk_return_balance",
                 message="The strategy has high total return but extreme max drawdown.",
                 recommendation="Do not rely on return alone; reduce risk exposure and re-run backtest.",

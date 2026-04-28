@@ -102,7 +102,7 @@ def run_method(
         return _run_direct_code(record)
 
     if method == "direct_json":
-        return _run_qyir_method(record, method, price_data, direct_json=True)
+        return _run_qyir_method(record, method, price_data, direct_json=True, repair=False)
 
     if method == "qsga_no_repair":
         return _run_qyir_method(record, method, price_data, repair=False)
@@ -212,7 +212,7 @@ def _run_qyir_method(
     qyir = build_qyir_from_record(record)
     if direct_json:
         qyir = _damage_direct_json(record, qyir)
-    elif not repair and _needs_repair(record):
+    elif _needs_repair(record):
         qyir = _damage_repair_case(qyir)
 
     validation = validate_qyir(qyir)
@@ -442,10 +442,8 @@ def _damage_repair_case(qyir: dict[str, Any]) -> dict[str, Any]:
 
 def _damage_direct_json(record: BenchmarkRecord, qyir: dict[str, Any]) -> dict[str, Any]:
     damaged = json.loads(json.dumps(qyir, ensure_ascii=False))
-    if record["category"] in {"risk_constrained", "unsafe_request"}:
+    if record["category"] == "risk_constrained":
         damaged["risk_control"]["leverage"] = 2.0
-    elif record["category"] == "ambiguous_intent":
-        damaged["entry_rules"] = []
     return damaged
 
 

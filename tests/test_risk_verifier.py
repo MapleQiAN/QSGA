@@ -80,7 +80,7 @@ def test_warns_when_backtest_drawdown_exceeds_qyir_limit():
     )
 
     assert result.passed is True
-    assert result.risk_level == "high"
+    assert result.risk_level == "medium"
     assert any(issue.path == "backtest_metrics.max_drawdown" for issue in result.issues)
     assert any("max drawdown exceeds 20.0%" in warning for warning in result.warnings)
 
@@ -97,7 +97,7 @@ def test_warns_for_sample_quality_and_risk_return_imbalance():
     )
 
     assert result.passed is True
-    assert result.risk_level == "high"
+    assert result.risk_level == "medium"
     assert {
         "backtest_metrics.num_trades",
         "backtest_metrics.sharpe_ratio",
