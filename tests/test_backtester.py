@@ -165,6 +165,15 @@ class TestRunBacktest:
         assert result.metrics["total_return"] > 0
         assert result.metrics["num_trades"] == 1
 
+    def test_position_signal_does_not_capture_same_day_return(self):
+        signals = _make_signals(
+            prices=[100, 110],
+            positions=[0, 1],
+        )
+        result = run_backtest(signals, {"position_size": 1.0})
+        assert result.success
+        assert result.metrics["total_return"] == pytest.approx(0.0)
+
     def test_missing_columns(self):
         df = pd.DataFrame({"close": [100, 101]})
         result = run_backtest(df)
@@ -180,6 +189,15 @@ class TestRunBacktest:
         assert result.success
         # Stop loss should trigger
         assert any(t.exit_reason == "stop_loss" for t in result.trades)
+
+    def test_stop_loss_changes_equity_curve(self):
+        signals = _make_signals(
+            prices=[100, 100, 90, 80],
+            positions=[0, 1, 1, 1],
+        )
+        result = run_backtest(signals, {"position_size": 1.0, "stop_loss": 0.08})
+        assert result.success
+        assert result.metrics["total_return"] == pytest.approx(-0.1)
 
     def test_with_take_profit(self):
         # Price rises 15% after entry
@@ -231,6 +249,6 @@ class TestPipeline:
         qyir_path = "qyir/examples/ma_cross.json"
 
         result = run_backtest_pipeline(qyir_path, data_path)
-        # May succeed or fail depending on data date range
-        # Just verify it runs without exception
-        assert isinstance(result, BacktestResult)
+        assert result.success, result.errors
+        for key in ["total_return", "sharpe_ratio", "max_drawdown", "num_trades"]:
+            assert key in result.metrics

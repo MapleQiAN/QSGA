@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
+import sys
 
 from pydantic import ValidationError
 
@@ -83,3 +84,19 @@ def validate_qyir_file(filepath: str | Path) -> ValidationResult:
 
     # Delegate to dict-based validator
     return validate_qyir(data)
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    """CLI entry point for `python -m qyir.validator <file>`."""
+    args = list(sys.argv[1:] if argv is None else argv)
+    if len(args) != 1:
+        print("Usage: python -m qyir.validator <qyir_file.json>")
+        return 2
+
+    result = validate_qyir_file(args[0])
+    print(result.summary)
+    return 0 if result.valid else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

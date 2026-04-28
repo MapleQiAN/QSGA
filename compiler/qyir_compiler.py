@@ -14,6 +14,7 @@ Output DataFrame columns:
 
 from __future__ import annotations
 
+import argparse
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -81,8 +82,12 @@ def compile_qyir(
     start_date = market.get("start_date")
     end_date = market.get("end_date")
     if start_date and end_date:
-        start_dt = pd.Timestamp(start_date)
-        end_dt = pd.Timestamp(end_date)
+        try:
+            start_dt = pd.Timestamp(start_date)
+            end_dt = pd.Timestamp(end_date)
+        except Exception as e:
+            result.add_error(f"Invalid market date range: {e}")
+            return result
         mask = (df["date"] >= start_dt) & (df["date"] <= end_dt)
         df = df.loc[mask].reset_index(drop=True)
         if len(df) == 0:
@@ -233,3 +238,31 @@ def compile_qyir_file(
         return result
 
     return compile_qyir(qyir_data, price_data)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entry point for `python -m compiler.qyir_compiler`."""
+    parser = argparse.ArgumentParser(description="Compile QYIR into trading signals.")
+    parser.add_argument("--qyir", required=True, help="Path to QYIR JSON file.")
+    parser.add_argument("--data", required=True, help="Path to price CSV file.")
+    parser.add_argument("--output", help="Optional path to save generated signals as CSV.")
+    args = parser.parse_args(argv)
+
+    result = compile_qyir_file(args.qyir, args.data)
+    if not result.success:
+        print("Signals generation failed.")
+        for error in result.errors:
+            print(f"- {error}")
+        return 1
+
+    if args.output:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        result.signals.to_csv(output_path, index=False)
+
+    print("Signals generated successfully.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
