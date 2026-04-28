@@ -67,6 +67,22 @@ def leverage_failing_validator(data: dict) -> SimpleNamespace:
     )
 
 
+def passing_semantic_validator(query: str, data: dict) -> SimpleNamespace:
+    return SimpleNamespace(valid=True, issues=[])
+
+
+def failing_semantic_validator(query: str, data: dict) -> SimpleNamespace:
+    return SimpleNamespace(
+        valid=False,
+        issues=[
+            SimpleNamespace(
+                path="risk_control.position_size",
+                message="Conservative intent conflicts with high position size.",
+            )
+        ],
+    )
+
+
 def test_generate_qyir_valid_json_passes_schema():
     client = FakeLLMClient([json.dumps(valid_qyir(), ensure_ascii=False)])
 
@@ -74,6 +90,7 @@ def test_generate_qyir_valid_json_passes_schema():
         "我想做一个稳一点的双均线策略，不要杠杆",
         client=client,
         validator=passing_validator,
+        semantic_validator=passing_semantic_validator,
     )
 
     assert result.success is True
@@ -90,6 +107,7 @@ def test_generate_qyir_retries_invalid_json_then_succeeds():
         client=client,
         max_retries=1,
         validator=passing_validator,
+        semantic_validator=passing_semantic_validator,
     )
 
     assert result.success is True
@@ -109,6 +127,7 @@ def test_generate_qyir_schema_failure_is_structured():
         client=client,
         max_retries=1,
         validator=leverage_failing_validator,
+        semantic_validator=passing_semantic_validator,
     )
 
     assert result.success is False
@@ -116,6 +135,27 @@ def test_generate_qyir_schema_failure_is_structured():
     assert result.errors
     assert all(set(error) == {"path", "message"} for error in result.errors)
     assert any("leverage" in error["message"] for error in result.errors)
+
+
+def test_generate_qyir_semantic_failure_is_structured():
+    client = FakeLLMClient([json.dumps(valid_qyir()), json.dumps(valid_qyir())])
+
+    result = generate_qyir(
+        "稳一点",
+        client=client,
+        max_retries=1,
+        validator=passing_validator,
+        semantic_validator=failing_semantic_validator,
+    )
+
+    assert result.success is False
+    assert result.attempts == 2
+    assert result.errors == [
+        {
+            "path": "risk_control.position_size",
+            "message": "Conservative intent conflicts with high position size.",
+        }
+    ]
 
 
 def test_run_qsga_success_prints_required_lines(monkeypatch, capsys):
@@ -131,6 +171,7 @@ def test_run_qsga_success_prints_required_lines(monkeypatch, capsys):
     assert exit_code == 0
     assert "QYIR generated successfully." in captured.out
     assert "Schema verification passed." in captured.out
+    assert "Semantic verification passed." in captured.out
 
 
 def test_run_qsga_failure_returns_nonzero(monkeypatch, capsys):

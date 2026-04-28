@@ -32,6 +32,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print("QYIR generated successfully.")
     print("Schema verification passed.")
+    print("Semantic verification passed.")
     print(json.dumps(result.qyir, ensure_ascii=False, indent=2))
     return 0
 

@@ -40,6 +40,7 @@ def generate_qyir(
     client: LLMClient | None = None,
     max_retries: int = 2,
     validator: Callable[[dict[str, Any]], Any] | None = None,
+    semantic_validator: Callable[[str, dict[str, Any]], Any] | None = None,
 ) -> GenerationResult:
     """Generate, parse, and validate QYIR from a Chinese natural-language query."""
     if not query.strip():
@@ -51,6 +52,9 @@ def generate_qyir(
 
     llm = client if client is not None else OpenAILLMClient()
     validate = validator if validator is not None else _load_qyir_validator()
+    verify_semantics = (
+        semantic_validator if semantic_validator is not None else _load_semantic_validator()
+    )
     last_errors: list[dict[str, str]] = []
     feedback: str | None = None
 
@@ -65,7 +69,15 @@ def generate_qyir(
 
         validation = validate(data)
         if validation.valid:
-            return GenerationResult(success=True, qyir=data, attempts=attempt)
+            semantic_validation = verify_semantics(query, data)
+            if semantic_validation.valid:
+                return GenerationResult(success=True, qyir=data, attempts=attempt)
+
+            last_errors = [
+                _issue(issue.path, issue.message) for issue in semantic_validation.issues
+            ]
+            feedback = "; ".join(f"{error['path']}: {error['message']}" for error in last_errors)
+            continue
 
         last_errors = [_issue(issue.path, issue.message) for issue in validation.issues]
         feedback = "; ".join(f"{error['path']}: {error['message']}" for error in last_errors)
@@ -77,3 +89,9 @@ def _load_qyir_validator() -> Callable[[dict[str, Any]], Any]:
     from qyir.validator import validate_qyir
 
     return validate_qyir
+
+
+def _load_semantic_validator() -> Callable[[str, dict[str, Any]], Any]:
+    from verifier.semantic_verifier import semantic_verify
+
+    return semantic_verify
