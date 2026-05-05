@@ -1,0 +1,6 @@
+case_id,category,method,should_reject,rejected,syntax_success,interface_success,runtime_success,trade_validity,semantic_match,risk_violation,backtest_success,end_to_end_success,errors
+qsi_006,trend_following,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,True,True,False,
+qsi_030,mean_reversion,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_032,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,False,False,False,False,False,False,runtime_error: NameError: name 'isinstance' is not defined
+qsi_054,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_059,ambiguous_intent,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,False,True,False,

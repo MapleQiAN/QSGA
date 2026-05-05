@@ -1,0 +1,11 @@
+case_id,category,method,should_reject,rejected,syntax_success,interface_success,runtime_success,trade_validity,semantic_match,risk_violation,backtest_success,end_to_end_success,errors
+qsi_041,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_042,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,True,True,False,
+qsi_043,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_044,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,True,True,False,
+qsi_045,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_046,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,True,True,False,
+qsi_047,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,False,True,False,
+qsi_048,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_049,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,False,True,False,
+qsi_050,risk_constrained,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,

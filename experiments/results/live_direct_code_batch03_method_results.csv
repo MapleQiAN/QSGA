@@ -1,0 +1,11 @@
+case_id,category,method,should_reject,rejected,schema_valid,semantic_consistent,compile_success,backtest_success,risk_violation,repair_triggered,repair_success,safe_rejection_correct,end_to_end_success,errors
+qsi_021,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,False,True,False,False,False,False,True,False,runtime_error: NameError: name 'enumerate' is not defined
+qsi_022,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,False,True,True,False,False,False,True,False,
+qsi_023,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,False,True,True,False,False,False,True,False,
+qsi_024,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,False,True,True,False,False,False,True,False,
+qsi_025,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,False,True,True,False,False,False,True,False,
+qsi_026,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_027,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_028,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,False,True,False,False,False,False,True,False,signal_error: no position change
+qsi_029,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_030,mean_reversion,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,

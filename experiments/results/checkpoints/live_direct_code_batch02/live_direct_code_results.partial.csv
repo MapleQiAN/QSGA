@@ -1,0 +1,11 @@
+case_id,category,method,should_reject,rejected,syntax_success,interface_success,runtime_success,trade_validity,semantic_match,risk_violation,backtest_success,end_to_end_success,errors
+qsi_011,trend_following,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_012,trend_following,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_013,trend_following,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_014,trend_following,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,True,True,False,
+qsi_015,trend_following,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,True,True,False,
+qsi_016,mean_reversion,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_017,mean_reversion,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,False,True,False,
+qsi_018,mean_reversion,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,True,True,False,
+qsi_019,mean_reversion,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_020,mean_reversion,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,False,True,False,

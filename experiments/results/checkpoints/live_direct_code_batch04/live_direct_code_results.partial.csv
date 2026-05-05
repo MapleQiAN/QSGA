@@ -1,0 +1,11 @@
+case_id,category,method,should_reject,rejected,syntax_success,interface_success,runtime_success,trade_validity,semantic_match,risk_violation,backtest_success,end_to_end_success,errors
+qsi_031,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_032,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,False,False,False,False,False,False,runtime_error: NameError: name 'isinstance' is not defined
+qsi_033,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_034,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_035,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,False,False,False,False,False,False,runtime_error: NameError: name 'isinstance' is not defined
+qsi_036,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,True,False,True,True,
+qsi_037,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,False,False,False,False,False,False,runtime_error: KeyError: 'date'
+qsi_038,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,True,True,False,
+qsi_039,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,True,True,False,False,True,False,
+qsi_040,momentum,live_direct_code::qwen3.6-flash,False,False,True,True,False,False,False,False,False,False,runtime_error: AttributeError: 'PeriodIndex' object has no attribute 'dt'

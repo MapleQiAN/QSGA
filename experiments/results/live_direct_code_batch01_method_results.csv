@@ -1,0 +1,11 @@
+case_id,category,method,should_reject,rejected,schema_valid,semantic_consistent,compile_success,backtest_success,risk_violation,repair_triggered,repair_success,safe_rejection_correct,end_to_end_success,errors
+qsi_001,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_002,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_003,trend_following,live_direct_code::qwen3.6-flash,False,False,False,False,True,True,False,False,False,True,False,
+qsi_004,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_005,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_006,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,True,False,False,True,False,
+qsi_007,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_008,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_009,trend_following,live_direct_code::qwen3.6-flash,False,False,False,True,True,True,False,False,False,True,True,
+qsi_010,trend_following,live_direct_code::qwen3.6-flash,False,False,False,False,True,False,False,False,False,True,False,runtime_error: NameError: name 'str' is not defined

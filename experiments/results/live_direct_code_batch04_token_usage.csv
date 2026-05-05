@@ -1,0 +1,2 @@
+model,method,calls,prompt_tokens,completion_tokens,total_tokens,api_errors
+qwen3.6-flash,live_direct_code::qwen3.6-flash,10,1699,42411,44110,0
