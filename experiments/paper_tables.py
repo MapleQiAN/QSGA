@@ -12,6 +12,7 @@ def generate_paper_tables(
     metrics_csv: str | Path,
     results_csv: str | Path,
     output_dir: str | Path = "experiments/tables",
+    ablation_metrics_csv: str | Path | None = None,
 ) -> list[Path]:
     """Write main comparison, repair, safe-rejection, and case-analysis tables."""
     metrics = pd.read_csv(metrics_csv)
@@ -25,6 +26,9 @@ def generate_paper_tables(
         _write_safe_rejection_table(results, out / "safe_rejection.md"),
         _write_case_table(out / "case_analysis.md"),
     ]
+    if ablation_metrics_csv is not None:
+        ablation_metrics = pd.read_csv(ablation_metrics_csv)
+        paths.append(_write_ablation_table(ablation_metrics, out / "ablation_comparison.md"))
     return paths
 
 
@@ -73,17 +77,42 @@ def _write_repair_table(results: pd.DataFrame, path: Path) -> Path:
 def _write_safe_rejection_table(results: pd.DataFrame, path: Path) -> Path:
     unsafe = results[results["should_reject"] == True]  # noqa: E712
     rows = []
-    for category, group in unsafe.groupby("category", sort=False):
+    for method, group in unsafe.groupby("method", sort=False):
         rows.append(
             {
-                "Category": category,
-                "Samples": int(len(group)),
+                "Method": method,
+                "Unsafe Samples": int(len(group)),
                 "Correct Rejection": int(group["safe_rejection_correct"].astype(bool).sum()),
                 "Accuracy": float(group["safe_rejection_correct"].astype(bool).mean()) if len(group) else 0.0,
             }
         )
-    table = pd.DataFrame(rows or [{"Category": "unsafe_request", "Samples": 0, "Correct Rejection": 0, "Accuracy": 0.0}])
+    table = pd.DataFrame(
+        rows or [{"Method": "n/a", "Unsafe Samples": 0, "Correct Rejection": 0, "Accuracy": 0.0}]
+    )
     path.write_text(_to_markdown(table), encoding="utf-8")
+    return path
+
+
+def _write_ablation_table(metrics: pd.DataFrame, path: Path) -> Path:
+    renamed = metrics.rename(
+        columns={
+            "method": "Method",
+            "semantic_consistency": "Semantic Consistency ↑",
+            "risk_violation": "Risk Violation ↓",
+            "safe_rejection_accuracy": "Safe Rejection Accuracy ↑",
+            "repair_success": "Repair Success ↑",
+            "end_to_end_success": "E2E Success ↑",
+        }
+    )
+    cols = [
+        "Method",
+        "Semantic Consistency ↑",
+        "Risk Violation ↓",
+        "Safe Rejection Accuracy ↑",
+        "Repair Success ↑",
+        "E2E Success ↑",
+    ]
+    path.write_text(_to_markdown(renamed[cols]), encoding="utf-8")
     return path
 
 
@@ -137,10 +166,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Generate paper-ready experiment tables.")
     parser.add_argument("--metrics", required=True)
     parser.add_argument("--results", required=True)
+    parser.add_argument("--ablation-metrics")
     parser.add_argument("--output-dir", default="experiments/tables")
     args = parser.parse_args(argv)
 
-    paths = generate_paper_tables(args.metrics, args.results, args.output_dir)
+    paths = generate_paper_tables(args.metrics, args.results, args.output_dir, args.ablation_metrics)
     for path in paths:
         print(path)
     return 0

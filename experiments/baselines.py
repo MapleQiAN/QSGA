@@ -226,10 +226,10 @@ def _run_qyir_method(
     schema_valid = validation.valid
     errors = [f"{issue.path}: {issue.message}" for issue in validation.issues]
 
-    semantic_consistent = True
+    semantic_consistent = schema_valid and expected_slots_match(qyir, record)
     if semantic and schema_valid:
         semantic_result = semantic_verify(query, qyir)
-        semantic_consistent = semantic_result.passed and expected_slots_match(qyir, record)
+        semantic_consistent = semantic_consistent and semantic_result.passed
         errors.extend(f"{issue.path}: {issue.message}" for issue in semantic_result.issues)
     elif semantic:
         semantic_consistent = False
@@ -245,16 +245,35 @@ def _run_qyir_method(
             backtest = run_backtest(compilation.signals, qyir.get("risk_control", {}))
             backtest_success = backtest.success
             errors.extend(backtest.errors)
-            if risk_audit and backtest.success:
+            if backtest.success:
                 risk = audit_risk(qyir, backtest.metrics)
-                risk_violation = any(issue.severity in {"high", "rejected"} for issue in risk.issues)
+                risk_violation = _has_risk_constraint_violation(risk)
+                if risk_audit and risk_violation and repair:
+                    repaired_qyir = _repair_risk_constraint(qyir, risk)
+                    repaired_compilation = compile_qyir(repaired_qyir, price_data)
+                    if repaired_compilation.success and repaired_compilation.signals is not None:
+                        repaired_backtest = run_backtest(
+                            repaired_compilation.signals,
+                            repaired_qyir.get("risk_control", {}),
+                        )
+                        if repaired_backtest.success:
+                            repaired_risk = audit_risk(repaired_qyir, repaired_backtest.metrics)
+                            repaired_violation = _has_risk_constraint_violation(repaired_risk)
+                            repair_triggered = True
+                            repair_success = not repaired_violation
+                            if repair_success:
+                                qyir = repaired_qyir
+                                compilation = repaired_compilation
+                                backtest = repaired_backtest
+                                risk = repaired_risk
+                                risk_violation = False
 
     e2e = (
         schema_valid
-        and (semantic_consistent or not semantic)
+        and semantic_consistent
         and compile_success
         and backtest_success
-        and (not risk_violation or not risk_audit)
+        and not risk_violation
         and not expected_reject
     )
     return _result(
@@ -445,6 +464,37 @@ def _damage_direct_json(record: BenchmarkRecord, qyir: dict[str, Any]) -> dict[s
     if record["category"] == "risk_constrained":
         damaged["risk_control"]["leverage"] = 2.0
     return damaged
+
+
+def _has_risk_constraint_violation(risk: Any) -> bool:
+    """Count risk-constraint failures, excluding pure performance-quality warnings."""
+    constraint_paths = {
+        "risk_control.position_size",
+        "risk_control.leverage",
+        "risk_control.stop_loss",
+        "backtest_metrics.max_drawdown",
+        "backtest_metrics.risk_return_balance",
+    }
+    return any(issue.severity == "rejected" or issue.path in constraint_paths for issue in risk.issues)
+
+
+def _repair_risk_constraint(qyir: dict[str, Any], risk: Any) -> dict[str, Any]:
+    """Apply deterministic risk repair used by the experiment harness."""
+    repaired = json.loads(json.dumps(qyir, ensure_ascii=False))
+    risk_control = repaired.setdefault("risk_control", {})
+    paths = {issue.path for issue in risk.issues}
+
+    if "risk_control.leverage" in paths:
+        risk_control["leverage"] = 1.0
+    if "risk_control.stop_loss" in paths and risk_control.get("stop_loss") is None:
+        risk_control["stop_loss"] = 0.08
+    if "risk_control.position_size" in paths:
+        risk_control["position_size"] = min(float(risk_control.get("position_size", 1.0)), 0.5)
+    if "backtest_metrics.max_drawdown" in paths or "backtest_metrics.risk_return_balance" in paths:
+        current = float(risk_control.get("position_size", 1.0))
+        risk_control["position_size"] = max(0.1, round(current * 0.5, 3))
+
+    return repaired
 
 
 def _result(

@@ -24,6 +24,7 @@ AI 可以自动推进科研流程，但不得替代人类承担学术责任。�
 | `MULTI_AGENT_PROTOCOL.md` | 多 Agent 并行协作协议 |
 | `HUMAN_REVIEW_AND_DECISIONS.md` | 全自动执行与人工审核机制 |
 | `QUALITY_GUARDRAILS.md` | 科研质量护栏与评估标准 |
+| `CCF_C_REVIEWER_AGENT.md` | CCF C 会审稿人 Agent 规范、评分表和投稿风险检查 |
 | `DECISIONS.md` | 人类决策登记表与待审批队列 |
 | `AUDIT_LOG.md` | 关键操作、工具调用、审批和失败重试的审计记录 |
 | `RISKS.md` | 风险、冲突、不确定性和升级项 |
@@ -48,7 +49,7 @@ AI 可以自动推进科研流程，但不得替代人类承担学术责任。�
 | 自动化执行 | `automation-workflows` | GitHub/Codex, shell tools | 运行记录、结果表 |
 | 结果分析 | `bmad-technical-research` | spreadsheets/statistical tools | 统计摘要、图表、失败分析 |
 | 写作与修订 | `documents` 或 Markdown 编辑 | `bmad-advanced-elicitation` | 论文草稿、回应审稿意见 |
-| 审稿模拟 | `bmad-advanced-elicitation` | 多 reviewer Agent | 问题清单、修订建议 |
+| 审稿模拟 | `bmad-review-adversarial-general` | `bmad-review-edge-case-hunter`, `CCF_C_REVIEWER_AGENT.md` | CCF C 审稿报告、拒稿风险、修订建议 |
 | 归档复现 | `automation-workflows` | GitHub, storage tools | artifact manifest、复现说明 |
 
 ## 4. AI 执行总控逻辑

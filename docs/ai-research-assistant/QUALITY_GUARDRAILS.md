@@ -149,6 +149,7 @@ AI 产出必须标注置信度：
 3. Reproducibility：代码、数据、参数是否可复现。
 4. Clarity：表达是否清楚。
 5. Ethics：是否存在伦理、署名、风险披露问题。
+6. CCF C Reviewer Agent：按 CCF C 会审稿视角检查是否达到最低投稿可信度。
 
 每个 reviewer Agent 必须给出：
 
@@ -158,6 +159,23 @@ AI 产出必须标注置信度：
 4. 拒稿风险。
 5. 必须修改项。
 6. 可选修改项。
+
+### CCF C Reviewer Gate
+
+论文进入投稿前，必须完成 `CCF_C_REVIEWER_AGENT.md` 定义的 CCF C 审稿检查。
+
+通过条件：
+
+| 检查项 | 通过标准 |
+|---|---|
+| 推荐等级 | 不低于 `Borderline`，且人类明确接受风险 |
+| 一票否决项 | 无未解决项 |
+| P0/P1 风险 | 已解决，或已写入 `DECISIONS.md` 并经人类确认 |
+| 主张强度 | 摘要、贡献点、结论均通过 Claim Strength Audit |
+| 实验充分性 | baseline、主实验、消融、失败案例或边界分析足以支撑主张 |
+| 复现性 | 核心实验至少达到 R3 |
+
+若推荐等级为 `Weak Reject-level` 或 `Reject-level`，不得进入投稿动作，只能继续补证据、补实验、改写定位或等待人类决策。
 
 ## 9. 论文主张强度控制
 
@@ -195,7 +213,7 @@ AI 默认应使用保守表述。强主张必须进入人审。
 | Statistics Gate | 统计方法、效应量、不确定性、多重比较已审核 |
 | Ethics Gate | 无未解决 E2+ 风险 |
 | Hallucination Gate | 无未证实 claim 进入正文 |
-| Review Gate | 至少完成 3 类 Reviewer 模拟审稿 |
+| Review Gate | 至少完成 3 类 Reviewer 模拟审稿，且包含 CCF C Reviewer Agent |
 | Archive Gate | 文献、数据、代码、实验、决策、AI 使用记录已归档 |
 | Human Approval Gate | 人类确认最终结论、署名、投稿和公开发布 |
 

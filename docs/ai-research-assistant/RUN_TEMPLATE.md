@@ -27,6 +27,7 @@ AI Orchestrator：
 | Domain Analyst | `bmad-domain-research` | 领域地图 | todo |  |
 | Literature Scout | `Hugging Face` | 文献检索 | todo |  |
 | Paper Reader | `bmad-technical-research` | 论文卡片 | todo |  |
+| CCF C Reviewer Agent | `bmad-review-adversarial-general` | CCF C 审稿检查 | todo |  |
 | Reviewer Agent | `bmad-advanced-elicitation` | 红队审查 | todo |  |
 
 ## 4. 任务图
@@ -78,6 +79,7 @@ Used for:
 | 实验可复现 | pending |  |
 | 冲突已处理 | pending |  |
 | 决策项已登记 | pending |  |
+| CCF C 审稿已完成 | pending |  |
 
 ## 10. 下一步
 

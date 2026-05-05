@@ -29,7 +29,7 @@
 | S6 实验执行 | todo | 异常时 | Execution Agent |  |
 | S7 结果分析 | todo | 是 | Statistics Agent |  |
 | S8 论文写作 | todo | 是 | Writer Agent |  |
-| S9 审稿模拟 | todo | 是 | Reviewer Agents |  |
+| S9 CCF C 审稿模拟 | todo | 是 | CCF C Reviewer Agent / Reviewer Agents |  |
 | S10 归档发布 | todo | 是 | Archivist Agent |  |
 
 ## 4. 当前待解决问题

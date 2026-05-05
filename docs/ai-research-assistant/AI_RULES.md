@@ -11,6 +11,7 @@ AI 全流程科研助手的总规则与协作约定。具体科研流程、质�
 - `@MULTI_AGENT_PROTOCOL.md`：多 Agent 并行协作、任务池、交接报告、冲突处理和周期汇总规则。
 - `@HUMAN_REVIEW_AND_DECISIONS.md`：全自动执行边界、人工审核门、决策状态机、升级规则。
 - `@QUALITY_GUARDRAILS.md`：引用真实性、事实抽取、复现、统计、伦理、幻觉防控和最终质量门禁。
+- `@CCF_C_REVIEWER_AGENT.md`：CCF C 会审稿人 Agent 的评分维度、拒稿风险和投稿前检查。
 - `@DECISIONS.md`：人类决策队列。遇到无法独立决定的问题写入此处，继续做不依赖该决策的任务。
 - `@AUDIT_LOG.md`：关键操作审计日志。检索、精读、实验、结论、人审、发布尝试都必须留痕。
 - `@RISKS.md`：风险、冲突、不确定性和升级项登记表。
@@ -63,6 +64,7 @@ AI 全流程科研助手的总规则与协作约定。具体科研流程、质�
 | 实验执行 | Execution Agent | `automation-workflows`, GitHub/Codex |
 | 统计分析 | Statistics Agent | `Spreadsheets`, `bmad-technical-research` |
 | 写作 | Writer Agent | `Documents`, technical writing skills |
+| CCF C 审稿 | CCF C Reviewer Agent | `bmad-review-adversarial-general`, `bmad-review-edge-case-hunter` |
 | 审稿模拟 | Reviewer Agents | `bmad-advanced-elicitation`, adversarial review skills |
 | 伦理合规 | Ethics Agent | `bmad-domain-research`, browser tools |
 | 归档复现 | Archivist Agent | `automation-workflows`, GitHub |
@@ -83,7 +85,7 @@ AI 全流程科研助手的总规则与协作约定。具体科研流程、质�
 4. **实验阶段**：AI 可设计草案和执行已批准实验，但主指标、baseline、数据集和高成本任务必须人审。
 5. **分析阶段**：AI 可汇总结果和生成图表，但最终结论、强主张和是否补实验必须人审。
 6. **写作阶段**：AI 可写草稿，不得把未审核假设写成发现，不得凭空补引用。
-7. **审稿阶段**：AI 可模拟 reviewer，不得把模拟审稿意见伪装成真实审稿意见。
+7. **审稿阶段**：AI 必须至少启动一次 `CCF C Reviewer Agent`，按 CCF C 会议审稿视角检查问题、创新性、实验、复现、写作和伦理；不得把模拟审稿意见伪装成真实审稿意见。
 8. **发布阶段**：投稿、预印本、公开仓库、公开数据、邮件发送、署名和利益冲突声明永远必须人审。
 
 ## 工具与 skills/plugins 选择
@@ -132,4 +134,5 @@ AI 全流程科研助手的总规则与协作约定。具体科研流程、质�
 6. 继续执行非阻塞任务。
 7. 汇总 Agent 输出，检查证据链、风险、冲突和质量门。
 8. 更新审计日志、风险表、文献矩阵、实验计划、结果日志或草稿状态。
-9. 输出短总结：本轮完成什么、等待什么人审、下一轮自动做什么。
+9. 若进入写作或投稿前阶段，运行 `CCF C Reviewer Agent` 并把 P0/P1 风险写入 `RISKS.md` 或 `DECISIONS.md`。
+10. 输出短总结：本轮完成什么、等待什么人审、下一轮自动做什么。

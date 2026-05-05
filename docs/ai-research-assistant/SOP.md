@@ -19,7 +19,7 @@
 | S6 实验执行与记录 | 自动 | 异常时 | `automation-workflows`, GitHub/Codex |
 | S7 结果分析与解释 | 半自动 | 是 | `bmad-technical-research` |
 | S8 论文写作 | 半自动 | 是 | `documents`, Markdown 编辑 |
-| S9 审稿模拟与修订 | 半自动 | 是 | `bmad-advanced-elicitation` |
+| S9 CCF C 审稿模拟与修订 | 半自动 | 是 | `bmad-review-adversarial-general`, `bmad-review-edge-case-hunter` |
 | S10 发布、归档、复现包 | 半自动 | 是 | `automation-workflows`, GitHub |
 
 ## 3. S0 任务接收与范围界定
@@ -253,11 +253,11 @@ Non-blocked work AI will continue:
 3. Limitations 是否充分。
 4. 投稿版本。
 
-## 12. S9 审稿模拟与修订
+## 12. S9 CCF C 审稿模拟与修订
 
 ### 目标
 
-用多个 reviewer Agent 模拟审稿，提前发现拒稿风险。
+用多个 reviewer Agent 模拟审稿，并至少启动一次 `CCF C Reviewer Agent`，以 CCF C 类会议审稿标准提前发现拒稿风险。
 
 ### AI 自动执行
 
@@ -268,10 +268,40 @@ Non-blocked work AI will continue:
 3. Reproducibility Reviewer：检查复现材料。
 4. Clarity Reviewer：检查结构和表达。
 5. Ethics Reviewer：检查伦理和风险声明。
+6. CCF C Reviewer Agent：按 CCF C 会审稿视角给出评分、拒稿风险、必改项和投稿建议。
+
+`CCF C Reviewer Agent` 必须检查：
+
+1. 问题是否足够清晰，是否适合形成会议论文。
+2. 贡献是否超过简单工程拼装。
+3. Related Work 是否遗漏明显直接相关工作。
+4. Baseline、主实验、消融和失败案例是否足够支撑结论。
+5. 结论强度是否超过证据。
+6. 复现材料是否足够让第三方复跑。
+7. Limitations 和伦理声明是否诚实。
+8. 是否存在 `CCF_C_REVIEWER_AGENT.md` 中的一票否决项。
+
+### 阶段输出
+
+必须生成：
+
+1. `CCF C Reviewer Report`
+2. P0/P1 拒稿风险清单
+3. 必须补充的实验或证据
+4. Claim Strength Audit
+5. 投稿建议：`Accept-level` / `Weak Accept-level` / `Borderline` / `Weak Reject-level` / `Reject-level`
 
 ### 必须人审
 
 人类决定哪些审稿意见必须采纳。AI 可以提出建议，但不得擅自删除研究主张。
+
+若 CCF C Reviewer Agent 给出 `Weak Reject-level` 或 `Reject-level`，AI 必须写入 `DECISIONS.md`，由人类决定：
+
+1. 是否补实验。
+2. 是否降低主张。
+3. 是否更换投稿目标。
+4. 是否重构贡献点。
+5. 是否延后投稿。
 
 ## 13. S10 发布、归档、复现包
 

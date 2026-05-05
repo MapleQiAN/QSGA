@@ -28,6 +28,26 @@ def test_run_full_method_returns_rows_for_subset() -> None:
     assert all(result.compile_success for result in results)
 
 
+def test_semantic_ablation_is_still_scored_against_gold_slots() -> None:
+    record = next(record for record in load_benchmark() if record["category"] == "ambiguous_intent")
+
+    result = run_methods([record], ["wo_semantic_verification"])[0]
+
+    assert result.schema_valid is True
+    assert result.semantic_consistent is False
+    assert result.end_to_end_success is False
+
+
+def test_full_method_can_repair_risk_constraint_violations() -> None:
+    record = load_benchmark()[0]
+
+    result = run_methods([record], ["qsga_full"])[0]
+
+    assert result.repair_triggered is True
+    assert result.repair_success is True
+    assert result.risk_violation is False
+
+
 def test_metric_aggregation_uses_expected_columns() -> None:
     rows = [
         {
@@ -106,8 +126,9 @@ def test_generate_paper_tables(tmp_path) -> None:
     metrics.to_csv(metrics_csv, index=False)
     results.to_csv(results_csv, index=False)
 
-    paths = generate_paper_tables(metrics_csv, results_csv, tmp_path / "tables")
+    paths = generate_paper_tables(metrics_csv, results_csv, tmp_path / "tables", metrics_csv)
 
-    assert len(paths) == 4
+    assert len(paths) == 5
     assert all(path.exists() for path in paths)
     assert "QSGA Result" in (tmp_path / "tables" / "case_analysis.md").read_text(encoding="utf-8")
+    assert (tmp_path / "tables" / "ablation_comparison.md").exists()

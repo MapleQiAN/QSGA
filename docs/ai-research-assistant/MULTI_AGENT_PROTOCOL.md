@@ -17,6 +17,7 @@
 | Execution Agent | `automation-workflows`, shell/GitHub | 运行实验、记录日志 | run logs、result files |
 | Statistics Agent | statistical tools/spreadsheets | 统计分析、图表、显著性 | tables、figures |
 | Writer Agent | `documents`, Markdown editor | 论文草稿 | manuscript draft |
+| CCF C Reviewer Agent | `bmad-review-adversarial-general`, `bmad-review-edge-case-hunter` | 按 CCF C 会审稿标准检查创新性、实验、复现和拒稿风险 | CCF C reviewer report |
 | Reviewer Agents | `bmad-advanced-elicitation` | 模拟审稿、红队检查 | review report |
 | Archivist Agent | `automation-workflows`, GitHub | 归档复现材料 | artifact manifest |
 
@@ -192,6 +193,7 @@ Done / Blocked / Waiting Human Review / Failed。
 2. Experiment Designer 和 Statistics Agent 对指标选择不同。
 3. Writer Agent 的贡献表述超出实验支持。
 4. Reviewer Agent 认为主张过强。
+5. CCF C Reviewer Agent 给出 `Weak Reject-level` 或 `Reject-level`。
 
 解决流程：
 
@@ -315,3 +317,5 @@ Orchestrator Agent 每个周期必须输出：
 4. 是否有未处理冲突。
 5. 是否有被阻塞但可替代推进的任务。
 6. 是否违反必须人审规则。
+7. 若处于论文初稿后阶段，是否已有 `CCF_C_REVIEWER_AGENT.md` 格式的审稿报告。
+8. CCF C 审稿报告中的 P0/P1 问题是否已写入 `RISKS.md` 或 `DECISIONS.md`。
