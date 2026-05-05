@@ -9,6 +9,7 @@ import pandas as pd
 from experiments.baselines import build_qyir_from_record, load_benchmark, run_methods
 from experiments.eval_metrics import compute_metrics
 from experiments.paper_tables import generate_paper_tables
+from experiments.run_live_llm import normalize_model_name, select_records
 from qyir.validator import validate_qyir
 
 
@@ -132,3 +133,19 @@ def test_generate_paper_tables(tmp_path) -> None:
     assert all(path.exists() for path in paths)
     assert "QSGA Result" in (tmp_path / "tables" / "case_analysis.md").read_text(encoding="utf-8")
     assert (tmp_path / "tables" / "ablation_comparison.md").exists()
+
+
+def test_live_llm_subset_selection_is_reproducible_and_stratified() -> None:
+    records = load_benchmark()
+
+    first = select_records(records, case_limit=12, seed=20260505)
+    second = select_records(records, case_limit=12, seed=20260505)
+
+    assert [record["id"] for record in first] == [record["id"] for record in second]
+    assert len(first) == 12
+    assert len({record["category"] for record in first}) > 1
+
+
+def test_live_llm_model_aliases_match_approved_display_names() -> None:
+    assert normalize_model_name("Qwen3.6-Plus") == "qwen3.6-plus"
+    assert normalize_model_name("Qwen3.6-Plus(0402)") == "qwen3.6-plus-2026-04-02"

@@ -1,0 +1,7 @@
+model,method,calls,prompt_tokens,completion_tokens,total_tokens,api_errors
+qwen3.6-flash,live_raw_qyir::qwen3.6-flash,10,5349,33481,38830,0
+qwen3.6-flash,live_qsga_qyir::qwen3.6-flash,10,5349,34762,40111,0
+deepseek-v4-flash,live_raw_qyir::deepseek-v4-flash,10,4877,10042,14919,0
+deepseek-v4-flash,live_qsga_qyir::deepseek-v4-flash,10,4877,10473,15350,0
+kimi-k2.6,live_raw_qyir::kimi-k2.6,10,4767,2695,7462,0
+kimi-k2.6,live_qsga_qyir::kimi-k2.6,10,4767,2691,7458,0

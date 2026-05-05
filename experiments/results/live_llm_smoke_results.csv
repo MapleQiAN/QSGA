@@ -1,0 +1,3 @@
+case_id,category,method,should_reject,rejected,schema_valid,semantic_consistent,compile_success,backtest_success,risk_violation,repair_triggered,repair_success,safe_rejection_correct,end_to_end_success,errors
+qsi_001,trend_following,live_raw_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,backtest_metrics.max_drawdown: The backtest max drawdown exceeds 20.0%.; backtest_metrics.sharpe_ratio: The strategy Sharpe ratio is low.
+qsi_001,trend_following,live_qsga_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,backtest_metrics.max_drawdown: The backtest max drawdown exceeds 20.0%.; backtest_metrics.sharpe_ratio: The strategy Sharpe ratio is low.

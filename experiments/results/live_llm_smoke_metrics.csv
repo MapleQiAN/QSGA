@@ -1,0 +1,3 @@
+method,schema_validity,semantic_consistency,compile_success,backtest_success,risk_violation,repair_success,safe_rejection_accuracy,end_to_end_success
+live_raw_qyir::qwen3.6-flash,1.0,1.0,1.0,1.0,0.0,0.0,0.0,1.0
+live_qsga_qyir::qwen3.6-flash,1.0,1.0,1.0,1.0,0.0,0.0,0.0,1.0

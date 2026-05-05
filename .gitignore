@@ -13,6 +13,10 @@ Thumbs.db
 *.tmp
 .worktrees/
 
+# Local secrets
+docs/*API KEY*.txt
+docs/*api key*.txt
+
 # Python artifacts
 __pycache__/
 *.py[cod]
