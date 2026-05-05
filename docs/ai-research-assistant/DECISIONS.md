@@ -17,7 +17,7 @@
 
 ### DEC-20260505-001
 
-Status: waiting_human
+Status: applied
 Owner: human
 Raised by: Codex
 Date: 2026-05-05
@@ -63,19 +63,19 @@ What AI will continue doing:
 
 Human decision:
 
-pending
+Option 1 approved by human on 2026-05-05: add live LLM experiments. Human provided a local LiveLLM API key and allowed the following domestic models: Qwen3.6-Plus, Qwen3.6-Plus(0402), Qwen3.6-Flash, Qwen3.5-Plus, Qwen3.5-Flash, GLM-5.1, GLM-5, MiniMax-M2.5, Kimi-K2.6, Kimi-K2.5, DeepSeek-V4-Flash, DeepSeek-V4-Pro.
 
 Decision rationale:
 
-pending
+Human wants to continue toward CCF C-level evidence rather than stop at deterministic prototype framing. AI chose a budget-bounded representative subset instead of using all allowed models: qwen3.6-flash, deepseek-v4-flash, and kimi-k2.6 for the 12-case pilot, with qwen3.6-plus used only for a one-case probe because it was slower and more token-heavy.
 
 Follow-up actions:
 
-pending
+Implemented `experiments/run_live_llm.py`; ran smoke, model probe, and a 3-model 12-case stratified live pilot. Outputs are stored under `experiments/results/live_llm_*`. Continue with cautious claim updates, larger live runs only if budget/time allow, and no secret publication.
 
 ### DEC-20260505-002
 
-Status: waiting_human
+Status: approved
 Owner: human
 Raised by: Codex
 Date: 2026-05-05
@@ -121,19 +121,19 @@ What AI will continue doing:
 
 Human decision:
 
-pending
+Option 1 approved by human on 2026-05-05: allow public full reproducibility package.
 
 Decision rationale:
 
-pending
+Human selected full-public release, but this approval does not include publishing local secrets or private API keys.
 
 Follow-up actions:
 
-pending
+Added `docs/*API KEY*.txt` and `docs/*api key*.txt` to `.gitignore`. Before any actual public release, run a final secret scan and license/privacy check; do not publish `docs/LiveLLM API KEY.txt`.
 
 ### DEC-20260505-003
 
-Status: waiting_human
+Status: applied
 Owner: human
 Raised by: Codex
 Date: 2026-05-05
@@ -178,19 +178,19 @@ What AI will continue doing:
 
 Human decision:
 
-pending
+Option 1 approved by human on 2026-05-05: keep strict CCF C-level standard and continue addressing P1 evidence gaps.
 
 Decision rationale:
 
-pending
+Human explicitly required continuing under a CCF C submission standard.
 
 Follow-up actions:
 
-pending
+Added live LLM pilot evidence and updated the draft/reviewer posture conservatively. Remaining P1 items include PDF-level citation verification, larger live evaluation if making broad LLM claims, and final human review.
 
 ### DEC-20260505-004
 
-Status: waiting_human
+Status: superseded
 Owner: human
 Raised by: Codex
 Date: 2026-05-05
@@ -238,15 +238,15 @@ What AI will continue doing:
 
 Human decision:
 
-pending
+Superseded by DEC-20260505-001 and DEC-20260505-003 human decisions on 2026-05-05.
 
 Decision rationale:
 
-pending
+The human approved live LLM supplementation and required continued CCF C-level rigor.
 
 Follow-up actions:
 
-pending
+Track live LLM evidence through EXP-20260505-003, RESULTS_LOG, RISKS, and the paper draft. Do not use the pilot to overclaim general LLM performance.
 
 ## 决策模板
 

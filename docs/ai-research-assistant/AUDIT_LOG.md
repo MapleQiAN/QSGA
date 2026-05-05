@@ -204,3 +204,21 @@
 - 可复现信息：`.venv\Scripts\python.exe -m pytest tests -q` -> `171 passed in 2.35s`
 - 失败信息：formal deliverables no longer contain stale pre-fix metrics; historical SubAgent reports still contain pre-fix observations
 - 后续动作：final SubAgent consistency review; live LLM and PDF-level citation audit remain pending
+
+## AUDIT-20260505-010
+
+- 时间：2026-05-05 20:05:00 +08:00
+- 操作 Agent：Codex
+- 操作类型：Human-Decision / Experiment-Design / Execute
+- 输入：Human decisions DEC-20260505-001/002/003; `docs/LiveLLM API KEY.txt`; QSI-Bench v1
+- 输出：live LLM runner, smoke/probe outputs, 3-model 12-case live pilot
+- 使用工具 / Skill / Plugin：apply_patch; shell; Aliyun Bailian OpenAI-compatible API
+- 关联任务：live LLM evidence supplementation
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：High
+- 是否需要人审：Yes
+- 人审状态：Approved for experiment; final claims still require review
+- 证据来源：`experiments/run_live_llm.py`; `experiments/results/live_llm_metrics.csv`; `experiments/results/live_llm_raw_outputs.jsonl`; `experiments/results/live_llm_token_usage.csv`
+- 可复现信息：`.venv\Scripts\python.exe -m experiments.run_live_llm --models qwen3.6-flash deepseek-v4-flash kimi-k2.6 --case-limit 12 --seed 20260505 --max-retries 0 --max-tokens 800 --output experiments\results\live_llm_results.csv --raw-output experiments\results\live_llm_raw_outputs.jsonl --metadata-output experiments\results\live_llm_run_metadata.json --usage-output experiments\results\live_llm_token_usage.csv`
+- 失败信息：20-case 4-model run timed out; qwen3.6-plus was kept as one-case probe only
+- 后续动作：update paper claims conservatively; keep API key ignored; do not publish secrets

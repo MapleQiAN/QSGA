@@ -44,7 +44,7 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | C05 | Removing risk audit increases risk violation to 0.508 and lowers E2E Success to 0.5125. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
 | C06 | Removing repair lowers E2E Success to 0.375. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
 | C07 | Removing safe rejection lowers safe rejection accuracy to 0.000. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
-| C08 | Current experiments are deterministic and do not prove online LLM generalization. | `experiments/baselines.py` module docstring; no live LLM call in runners | Strong | verified local |
+| C08 | Main 80-case experiments are deterministic and the small live pilot does not prove online LLM generalization. | `experiments/baselines.py` module docstring; `experiments/results/live_llm_metrics.csv` | Strong | verified local |
 | C09 | Constrained decoding controls output structure, but QSGA focuses on strategy semantics, compilation, risk auditing, and repair. | P04 plus QYIR design | Medium | needs PDF-level citation check |
 | C10 | Tool-using agents motivate but do not replace explicit domain IR. | P05, P06 plus QSGA architecture | Medium | needs PDF-level citation check |
 | C11 | Direct trading-code benchmarks are closer comparators than broad financial LLM papers. | P13, P14, P15, P16 | Medium | needs PDF-level citation check |
@@ -52,6 +52,8 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | C13 | Current benchmark results do not measure raw natural-language slot extraction because QYIR candidates are constructed from expected slots. | `experiments/baselines.py`; `subagent_experiment_audit.md`; `subagent_adversarial_review.md` | Strong | verified local |
 | C14 | Ambiguous-intent handling is not empirically demonstrated as clarification success in current CSVs. | `experiments/results/baseline_results.csv`; category breakdown | Strong | verified local |
 | C15 | A deterministic no-oracle slot extractor reaches E2E Success 0.7625, below oracle-slot QSGA but above simulated baselines in the current harness. | `experiments/results/no_oracle_metrics.csv`; `experiments/run_no_oracle.py` | Strong but scoped | verified local |
+| C16 | In a 3-model 12-case live LLM pilot, live_qsga_qyir improves measured E2E over live_raw_qyir for qwen3.6-flash, deepseek-v4-flash, and kimi-k2.6. | `experiments/results/live_llm_metrics.csv`; `experiments/results/live_llm_raw_outputs.jsonl` | Weak to medium; pilot only | verified local |
+| C17 | The live pilot is not sufficient to claim broad live LLM generalization because the sample is small and absolute E2E remains low. | `experiments/results/live_llm_metrics.csv`; `docs/ai-research-assistant/RESULTS_LOG.md` | Strong | verified local |
 
 ## Forbidden or Downgraded Claims
 
@@ -61,7 +63,7 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | QSGA is safe for real-money trading. | Forbidden |
 | QSGA achieves SOTA. | Forbidden |
 | QSGA fully understands vague financial intent. | Forbidden |
-| QSGA has been validated on live LLM outputs. | Forbidden unless new experiments are added |
+| QSGA has been broadly validated on live LLM outputs. | Forbidden; current evidence is only a small live QYIR pilot |
 | QYIR improves semantic verification independently in current ablation. | Downgrade: current ablation does not show independent gain |
-| Current baselines prove superiority over direct LLM-to-code. | Forbidden unless live or saved LLM outputs are added |
+| Current baselines prove superiority over direct LLM-to-code. | Forbidden; live pilot covers QYIR prompting, not executable live-code generation |
 | The 0.000 risk-violation result means financial safety. | Forbidden; it only means zero counted violations under current harness |

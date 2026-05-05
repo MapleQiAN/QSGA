@@ -22,12 +22,13 @@
 
 1. Loaded AI research assistant SOP, quality guardrails, CCF C reviewer rules, and paper matrix requirements.
 2. Loaded QSGA final paper idea and QYIR v1 specification.
-3. Reproduced test suite: 171 passed.
+3. Reproduced test suite: 173 passed after adding live-runner tests.
 4. Re-ran baseline, ablation, and no-oracle experiments after the safe-rejection paraphrase fix.
 5. Recomputed metrics and synchronized the draft, reproducibility package, and result logs.
 6. Created a CCF C candidate paper draft.
 7. Created citation/claim matrix, reviewer report, and reproducibility package.
 8. Registered human decisions and risks required before submission.
+9. After human approval, added and ran a budget-bounded live LLM QYIR pilot with saved raw outputs and token usage.
 
 ## Deviations
 
@@ -38,13 +39,15 @@
 
 ```text
 .venv\Scripts\python.exe -m pytest tests -q
-171 passed in 2.35s
+173 passed in 2.25s
 ```
 
 Metrics reproduced from:
 
 - `experiments/results/baseline_metrics.csv`
 - `experiments/results/ablation_metrics.csv`
+- `experiments/results/no_oracle_metrics.csv`
+- `experiments/results/live_llm_metrics.csv`
 
 ## Outputs
 
@@ -63,6 +66,8 @@ Metrics reproduced from:
 - Updated `docs/ai-research-assistant/EXPERIMENT_PLAN.md`
 - Updated `docs/ai-research-assistant/RESULTS_LOG.md`
 - Updated `docs/ai-research-assistant/DRAFT_STATUS.md`
+- Added `experiments/run_live_llm.py`
+- Added `experiments/results/live_llm_*`
 
 ## SubAgent Findings Integrated
 
@@ -74,4 +79,4 @@ Metrics reproduced from:
 
 ## Revision Outcome
 
-The paper was downgraded from broad "LLM strategy generation" language to scoped deterministic prototype language. A no-oracle deterministic slot extractor was added and reached E2E 0.7625, compared with oracle-slot E2E 0.8375. This is more defensible, but the paper is not yet a strong empirical CCF C submission without live LLM experiments and stronger baselines.
+The paper was downgraded from broad "LLM strategy generation" language to scoped deterministic prototype language. A no-oracle deterministic slot extractor was added and reached E2E 0.7625, compared with oracle-slot E2E 0.8375. A small live LLM QYIR pilot was then added after human approval: live_qsga_qyir improved E2E over live_raw_qyir for qwen3.6-flash, deepseek-v4-flash, and kimi-k2.6, but absolute success remained limited and risk violations remained. The current posture is stronger as an IR/prototype study with supplementary live evidence, but still not enough for broad empirical live LLM claims.

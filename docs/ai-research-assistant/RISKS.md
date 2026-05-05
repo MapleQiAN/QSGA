@@ -69,11 +69,11 @@ Related decision: DEC-20260505-001
 
 Risk:
 
-当前实验是 deterministic prototype evaluation，不包含 live LLM 输出，因此不能强声称 QSGA 对真实 LLM 生成有普遍改进。
+主实验仍是 deterministic prototype evaluation；现已补充小规模 live LLM QYIR pilot，但样本量和 baseline 覆盖不足，因此不能强声称 QSGA 对真实 LLM 生成有普遍改进。
 
 Evidence:
 
-`experiments/baselines.py` module docstring；复现实验命令未调用 OpenAI 或其他 LLM API；2026-05-05 检查当前环境 `OPENAI_API_KEY=missing`。
+`experiments/baselines.py` module docstring；`experiments/results/live_llm_metrics.csv` 显示 live pilot 仅 12-case subset，且 E2E 仍较低。
 
 Impact:
 
@@ -81,7 +81,7 @@ Impact:
 
 Mitigation:
 
-追加 live LLM 实验，或在论文中明确限定为 deterministic prototype evaluation。
+已追加 budget-bounded live pilot；论文必须继续限定为 deterministic prototype + small live pilot evidence。若要强 live claim，需要扩大 live benchmark 并加入 executable direct-code baseline。
 
 Human review required:
 
@@ -89,7 +89,7 @@ Yes
 
 Resolution:
 
-pending
+partially mitigated by `experiments/run_live_llm.py` and live pilot; remains open for broad live LLM claims
 
 ### RISK-20260505-002
 
@@ -209,7 +209,7 @@ Impact:
 
 Mitigation:
 
-正文已改为 oracle-slot deterministic prototype evaluation；已新增 deterministic no-oracle slot extraction 实验。投稿前仍建议新增 live LLM generation 实验。
+正文已改为 oracle-slot deterministic prototype evaluation；已新增 deterministic no-oracle slot extraction 实验和小规模 live QYIR pilot。投稿前若要强 live claim，仍建议扩大 live LLM generation 实验。
 
 Human review required:
 
@@ -217,7 +217,7 @@ Yes
 
 Resolution:
 
-partially mitigated in `docs/paper/qsga_ccf_c_draft.md` and `experiments/run_no_oracle.py`; remains blocker for live LLM claims
+partially mitigated in `docs/paper/qsga_ccf_c_draft.md`, `experiments/run_no_oracle.py`, and `experiments/run_live_llm.py`; remains blocker for broad live LLM claims
 
 ### RISK-20260505-006
 
@@ -241,7 +241,7 @@ Impact:
 
 Mitigation:
 
-正文已将 baselines 标注为 simulated；投稿前应补真实模型输出或删除强比较主张。
+正文已将 main baselines 标注为 simulated；live pilot 补充了真实 QYIR 模型输出，但还不是 executable direct-code baseline。投稿前应补真实 direct-code 输出或删除强 direct-code 比较主张。
 
 Human review required:
 
@@ -249,7 +249,7 @@ Yes
 
 Resolution:
 
-partially mitigated in draft; remains blocker for empirical submission
+partially mitigated in draft and live QYIR pilot; remains blocker for broad empirical submission
 
 ### RISK-20260505-007
 

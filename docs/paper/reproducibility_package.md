@@ -21,7 +21,7 @@ Run tests:
 Observed result on 2026-05-05:
 
 ```text
-171 passed in 2.35s
+173 passed in 2.25s
 ```
 
 Run baseline experiments:
@@ -58,6 +58,24 @@ Aggregate no-oracle metrics:
 
 ```powershell
 .venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\no_oracle_results.csv --output experiments\results\no_oracle_metrics.csv
+```
+
+Run the budget-bounded live LLM pilot:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_live_llm --models qwen3.6-flash deepseek-v4-flash kimi-k2.6 --case-limit 12 --seed 20260505 --max-retries 0 --max-tokens 800 --output experiments\results\live_llm_results.csv --raw-output experiments\results\live_llm_raw_outputs.jsonl --metadata-output experiments\results\live_llm_run_metadata.json --usage-output experiments\results\live_llm_token_usage.csv
+```
+
+Replay saved live raw outputs without spending more tokens:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_live_llm --replay-raw-output experiments\results\live_llm_raw_outputs.jsonl --replay-metadata experiments\results\live_llm_run_metadata.json --output experiments\results\live_llm_results.csv
+```
+
+Aggregate live pilot metrics:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_llm_results.csv --output experiments\results\live_llm_metrics.csv
 ```
 
 Generate paper tables:
@@ -98,10 +116,22 @@ No-oracle result:
 |---|---:|---:|
 | qsga_no_oracle_slots | 0.708 | 0.763 |
 
+Live LLM pilot result:
+
+| Method | Risk Violation | Safe Rejection Accuracy | E2E Success |
+|---|---:|---:|---:|
+| live_raw_qyir::qwen3.6-flash | 0.400 | 0.000 | 0.250 |
+| live_qsga_qyir::qwen3.6-flash | 0.300 | 1.000 | 0.417 |
+| live_raw_qyir::deepseek-v4-flash | 0.300 | 0.000 | 0.083 |
+| live_qsga_qyir::deepseek-v4-flash | 0.300 | 1.000 | 0.250 |
+| live_raw_qyir::kimi-k2.6 | 0.300 | 0.000 | 0.083 |
+| live_qsga_qyir::kimi-k2.6 | 0.300 | 1.000 | 0.417 |
+
 ## Known Reproducibility Limits
 
-1. Current experiments are deterministic prototype experiments and do not call live LLM APIs.
-2. Oracle-slot results depend on QSI-Bench v1 expected slots; no-oracle results use deterministic query parsing.
-3. Results depend on the curated QSI-Bench v1 labels and `spy_sample.csv`.
-4. No container image or CI workflow is included yet.
-5. Public release requires human approval.
+1. Main 80-case experiments are deterministic prototype experiments; the live extension is only a 12-case pilot.
+2. Live LLM reproduction requires a valid API key and must not publish local secret files.
+3. Oracle-slot results depend on QSI-Bench v1 expected slots; no-oracle results use deterministic query parsing.
+4. Results depend on the curated QSI-Bench v1 labels and `spy_sample.csv`.
+5. No container image or CI workflow is included yet.
+6. Public release requires a final secret/license check even though the human approved publication in principle.

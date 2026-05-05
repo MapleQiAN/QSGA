@@ -8,9 +8,9 @@
 | Introduction | draft | pending Level A | checked local claims | required | four contributions retained |
 | Related Work | draft | Level B | pending PDF claim check | required | metadata/link-level only |
 | Method | draft | n/a | checked against QYIR spec/code | required | QYIR/QSGA sections complete |
-| Experiments | draft | n/a | checked against experiment scripts | required | live LLM limitation explicit |
-| Results | draft | n/a | reproduced metrics | required | descriptive rates only |
-| Limitations | draft | n/a | checked | required | deterministic prototype limitation included |
+| Experiments | draft | n/a | checked against experiment scripts | required | deterministic main experiments plus budget-bounded live pilot |
+| Results | draft | n/a | reproduced metrics | required | descriptive rates only; live pilot is small |
+| Limitations | draft | n/a | checked | required | deterministic prototype and small-live-pilot limitations included |
 | Ethics Statement | draft | n/a | checked | required | no investment advice claim |
 | Appendix | draft | n/a | checked | optional | artifact map and reproducibility package |
 
@@ -19,7 +19,7 @@
 | 项目 | 状态 | 备注 |
 |---|---|---|
 | CCF C Reviewer Report | done | `docs/paper/ccf_c_reviewer_report.md` |
-| Recommendation | Weak Reject-level / Borderline as prototype | oracle-slot and simulated-baseline P1 risks remain |
+| Recommendation | Borderline as IR/prototype with live pilot; Weak Reject if framed as broad empirical LLM benchmark | oracle-slot and small-live-pilot risks remain |
 | P0/P1 风险已登记 | done | `RISKS.md`, `DECISIONS.md` |
 | 一票否决项检查 | open | public release/submission requires human approval |
 | Claim Strength Audit | done | `docs/paper/citation_and_claim_matrix.md` and reviewer report |
@@ -36,6 +36,7 @@
 | C06 | Experiments/Limitations | Current QSGA evaluation is oracle-slot deterministic validation | `experiments/baselines.py` | 强 | draft |
 | C07 | Results/Limitations | Ambiguous cases are not currently measured as clarification success | `baseline_results.csv` category breakdown | 强 | draft |
 | C08 | Results | No-oracle deterministic slot extraction reaches 0.7625 E2E | `no_oracle_metrics.csv` | 中 | draft |
+| C09 | Results/Limitations | Live QSGA wrapper improves E2E over raw live QYIR prompting in a 3-model 12-case pilot, but absolute success remains limited | `live_llm_metrics.csv` | 弱到中 | draft |
 
 ## 4. 禁止进入终稿的内容
 

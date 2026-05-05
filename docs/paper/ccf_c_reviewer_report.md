@@ -13,12 +13,14 @@
   - `benchmark/qsi_bench_v1.jsonl`
   - `experiments/results/*.csv`
   - `experiments/tables/*.md`
+  - `experiments/results/live_llm_*.csv`
   - `experiments/baselines.py`
+  - `experiments/run_live_llm.py`
   - `docs/paper/qsga_ccf_c_draft.md`
 
 ## Summary
 
-The draft has a coherent systems/methods paper shape: it identifies a bounded natural-language quantitative strategy construction task, introduces QYIR as an explicit intermediate representation, and supports the design with a reproducible 80-sample deterministic prototype evaluation. After adversarial and experiment-audit review, the evidence issue became sharper: the original QSGA numbers were oracle-slot deterministic results because QYIR candidates were constructed from benchmark expected slots, and the direct-code/direct-JSON baselines were simulated rather than live LLM outputs. The draft has now been revised to disclose this and a deterministic no-oracle slot-extraction experiment was added, reaching 0.7625 E2E success. This mitigates the oracle issue but does not replace live LLM evidence. The recommendation is Weak Reject-level for a standard empirical LLM paper, or Borderline for a clearly scoped prototype/IR feasibility study.
+The draft has a coherent systems/methods paper shape: it identifies a bounded natural-language quantitative strategy construction task, introduces QYIR as an explicit intermediate representation, and supports the design with a reproducible 80-sample deterministic prototype evaluation. After adversarial and experiment-audit review, the evidence issue became sharper: the original QSGA numbers were oracle-slot deterministic results because QYIR candidates were constructed from benchmark expected slots, and the direct-code/direct-JSON baselines were simulated rather than live LLM outputs. The draft has now been revised to disclose this, a deterministic no-oracle slot-extraction experiment was added, reaching 0.7625 E2E success, and a small live LLM QYIR pilot with saved raw outputs was run. The live pilot partially mitigates the no-live-evidence objection, but its 12-case scale and low absolute E2E rates do not support broad empirical LLM claims. The recommendation is Borderline for a clearly scoped prototype/IR feasibility study with live pilot evidence, or Weak Reject-level if framed as a standard broad empirical LLM paper.
 
 ## Score Table
 
@@ -26,11 +28,11 @@ The draft has a coherent systems/methods paper shape: it identifies a bounded na
 |---|---:|---|---|---|
 | Problem Fit | 4 | clear bounded task and failure taxonomy | target venue may expect stronger empirical novelty | keep scope explicit |
 | Novelty | 3 | QYIR + risk-aware repair framing | could be viewed as engineering integration | emphasize IR semantics and repair locality |
-| Technical Soundness | 3 | real validators, compiler, backtester, tests, no-oracle extractor | simulated baselines and no live LLM outputs | add live LLM evaluation |
+| Technical Soundness | 3 | real validators, compiler, backtester, tests, no-oracle extractor, live QYIR pilot | main baselines still simulated; live pilot is small | expand live evaluation and direct-code baseline |
 | Related Work | 3 | credible related areas identified | citations are metadata-level, not PDF-level verified | upgrade key citations to Level A |
-| Experiment Design | 3 | 80-sample benchmark, deterministic ablations, no-oracle run | simulated baselines, single data source | add live LLM baselines and robustness |
+| Experiment Design | 3 | 80-sample benchmark, deterministic ablations, no-oracle run, 3-model live pilot | simulated baselines, single data source, small live subset | expand live LLM baselines and robustness |
 | Reproducibility | 4 | 171 tests pass; scripts and CSVs available | no container or CI evidence | add exact reproduction commands |
-| Result Validity | 3 | metrics reproducible; no-oracle E2E 0.7625 added | comparative claims remain weak without live baselines | keep claims scoped to deterministic prototype |
+| Result Validity | 3 | metrics reproducible; no-oracle E2E 0.7625; live QSGA improves over raw QYIR in pilot | live absolute success remains low; no executable live-code baseline | keep claims scoped to IR/prototype plus pilot |
 | Clarity | 4 | draft structure is readable | method/results could use diagrams in final PDF | add final figures |
 | Limitations | 4 | deterministic scope and financial safety limitations included | needs human approval before submission | keep limitations prominent |
 | Ethics and Compliance | 4 | no investment-advice claim; no private data | public release not approved | keep human gate |
@@ -45,9 +47,9 @@ The draft has a coherent systems/methods paper shape: it identifies a bounded na
 
 | Severity | Weakness | Evidence | Fix |
 |---|---|---|---|
-| Major | Deterministic prototype may be considered too synthetic | `experiments/baselines.py` states live LLM calls are avoided | add live LLM evaluation or explicitly submit as prototype/system study |
+| Major | Main 80-case evidence may be considered too synthetic | deterministic main harness; live pilot is only 12 cases | submit as prototype/system study or expand live evaluation |
 | Major | QYIR candidates are constructed from expected slots in the oracle run | experiment audit found `build_qyir_from_record(record)` uses gold slots | no-oracle run added; keep oracle result labeled as such |
-| Critical | Direct-code/direct-JSON baselines are simulated | experiment audit found category-level and damaged-QYIR approximations | add saved live model outputs or remove strong comparative claims |
+| Critical | Direct-code/direct-JSON baselines are simulated in the main run | experiment audit found category-level and damaged-QYIR approximations; live pilot covers QYIR prompting only | add executable live-code baseline or remove strong direct-code comparative claims |
 | Major | Related-work verification is not yet submission-grade | citation matrix Level B | check PDFs and map key claims to sections |
 | Major | Semantic verification ablation does not show gain | `wo_semantic_verification` equals full QSGA | remove standalone semantic-verifier contribution claim |
 | Major | Safe rejection evidence is partly shared-rule driven | safe rejection is high across methods | rely on `wo_safe_rejection` ablation and disclose limitation |
@@ -58,9 +60,9 @@ The draft has a coherent systems/methods paper shape: it identifies a bounded na
 
 | Risk ID | Risk | Severity | Blocker | Suggested mitigation |
 |---|---|---|---|---|
-| R-001 | No live LLM generation experiment | P1 | yes for strong LLM claims | add live-model run or downgrade claims |
+| R-001 | Live LLM generation evidence is small | P1 | yes for strong LLM claims | expand beyond 12-case pilot or keep as supplementary evidence |
 | R-002 | Oracle-slot construction uses expected slots | P1 | partially mitigated | no-oracle deterministic slot extraction added; live LLM still needed |
-| R-003 | Simulated baselines are not fair live LLM competitors | P1 | yes for comparative claims | add saved raw model outputs |
+| R-003 | Simulated baselines are not fair live LLM competitors | P1 | yes for comparative claims | add executable live-code baseline or remove strong direct-code claims |
 | R-004 | Citation verification only Level B | P1 | yes before submission | PDF-level citation audit |
 | R-005 | Single-symbol sample data | P2 | no if scope remains prototype | add more symbols or disclose |
 | R-006 | Semantic ablation no independent effect | P2 | no | frame as engineering gate |
@@ -68,8 +70,8 @@ The draft has a coherent systems/methods paper shape: it identifies a bounded na
 
 ## Required Experiments or Evidence
 
-1. Add live LLM-backed QYIR generation with fixed model, prompt, temperature, and saved raw outputs.
-2. Replace or supplement simulated direct-code/direct-JSON baselines with real model outputs.
+1. Expand live LLM-backed QYIR generation beyond the current 12-case pilot if making strong live-model claims.
+2. Replace or supplement simulated direct-code/direct-JSON baselines with executable real model outputs.
 3. Add exact reproduction commands and environment details to the appendix.
 4. Upgrade at least the core related-work citations to PDF-level verification, especially direct trading-code benchmark papers.
 5. Expand qualitative cases with before/after QYIR fragments and verifier errors.
@@ -82,19 +84,19 @@ The draft has a coherent systems/methods paper shape: it identifies a bounded na
 | QYIR improves semantic slot alignment | partly supported | full and semantic ablation same | "QYIR exposes semantic slots and supports slot-level checks" |
 | Safe rejection reduces unsafe acceptance | supported by ablation | deterministic rule-based | "safe rejection mechanism reduces unsafe acceptance in QSI-Bench v1" |
 | QSGA handles financial risk | too broad if phrased strongly | historical/sample risk audit only | "audits selected historical risk constraints" |
-| CCF C publishable | not yet | human approval and evidence gaps remain | "Weak Reject-level without live LLM baselines; Borderline as prototype study" |
+| CCF C publishable | borderline if scoped | human approval and evidence gaps remain | "Borderline as an IR/prototype study with live pilot; not enough for broad empirical LLM claims" |
 
 ## Recommendation
 
-Weak Reject-level for a standard empirical CCF C submission in the current evidence state; Borderline only as a clearly framed prototype / IR feasibility study.
+Borderline for a clearly framed prototype / IR feasibility study with supplementary live pilot evidence; Weak Reject-level for a standard broad empirical LLM submission.
 
-The draft has improved by disclosing oracle-slot construction, simulated baselines, category-level failures, and related direct trading-code benchmarks. A no-oracle deterministic slot-extraction experiment has been added, so the largest oracle objection is partially mitigated. It still needs live LLM experiments before it can credibly claim model-backed end-to-end natural-language strategy generation performance.
+The draft has improved by disclosing oracle-slot construction, simulated baselines, category-level failures, and related direct trading-code benchmarks. A no-oracle deterministic slot-extraction experiment has been added, and a small live QYIR pilot now supplies saved raw model outputs. It still needs a larger live evaluation and an executable live-code baseline before it can credibly claim broad model-backed end-to-end natural-language strategy generation performance.
 
 ## Human Decisions Required
 
 | Decision | Why human review is needed | Blocked scope | AI can continue |
 |---|---|---|---|
-| Whether to add live LLM experiments | affects cost, model choice, and claims | final empirical claims | polish deterministic draft |
+| Whether to expand live LLM experiments | affects cost, model choice, and claims | final empirical claims | polish scoped prototype draft |
 | Whether to submit as prototype/system paper | affects target venue and framing | target venue and abstract | prepare conservative version |
 | Whether to publicize code/data | external release and licensing | publication package | prepare internal reproducibility docs |
 | Authorship and acknowledgments | academic responsibility | submission | leave placeholders |

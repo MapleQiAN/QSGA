@@ -7,6 +7,7 @@
 | RUN-20260505-001 | EXP-20260505-001 | working tree clean before edits | n/a | deterministic baseline harness | QSI-Bench v1 + `spy_sample.csv` | completed | `experiments/results/baseline_metrics.csv` | `docs/ai-research-assistant/runs/2026-05-05-qsga-paper-run.md` |
 | RUN-20260505-002 | EXP-20260505-002 | working tree clean before edits | n/a | deterministic ablation harness | QSI-Bench v1 + `spy_sample.csv` | completed | `experiments/results/ablation_metrics.csv` | `docs/ai-research-assistant/runs/2026-05-05-qsga-paper-run.md` |
 | RUN-20260505-003 | EXP-20260505-004 | working tree with paper/code additions | n/a | deterministic no-oracle slot extractor | QSI-Bench v1 + `spy_sample.csv` | completed | `experiments/results/no_oracle_metrics.csv` | `experiments/results/no_oracle_results.csv` |
+| RUN-20260505-004 | EXP-20260505-003 | working tree with live LLM runner | 20260505 | live LLM pilot: qwen3.6-flash, deepseek-v4-flash, kimi-k2.6; temperature 0; max_retries 0 | QSI-Bench v1 12-case stratified subset + `spy_sample.csv` | completed pilot | `experiments/results/live_llm_metrics.csv` | `experiments/results/live_llm_raw_outputs.jsonl`; `experiments/results/live_llm_run_metadata.json`; `experiments/results/live_llm_token_usage.csv` |
 
 ## 2. 结果解释
 
@@ -20,6 +21,8 @@
 | CONC-20260505-006 | Current QSGA result is oracle-slot verification-chain validation, not raw NL generation | `experiments/baselines.py`: `build_qyir_from_record(record)` uses `expected_slots`; subagent audits | descriptive code evidence | none | blocks strong end-to-end claims | 强：The current experiment validates downstream verification after expected slots are available. |
 | CONC-20260505-007 | Ambiguous intent clarification is not empirically demonstrated | category breakdown: ambiguous_intent 0/10 E2E for `qsga_full` | descriptive rates only | intended framework supports clarification | no clarification metric exists | 强：Ambiguous cases are failures in current E2E evaluation. |
 | CONC-20260505-008 | Deterministic no-oracle slot extraction partially mitigates oracle leakage | `no_oracle_metrics.csv`: E2E 0.7625, semantic consistency 0.708 | descriptive rates only | still deterministic, not live LLM | ambiguous 0/10 remains | 中：No-oracle extractor supports a stronger prototype claim, but not live LLM generalization. |
+| CONC-20260505-009 | Live QSGA wrapper improves measured E2E over raw live QYIR generation in a small pilot | `live_llm_metrics.csv`: qwen3.6-flash 0.417 vs 0.250, deepseek-v4-flash 0.250 vs 0.083, kimi-k2.6 0.417 vs 0.083 | descriptive rates only, n=12 cases/model | qwen3.6-plus only one-case probe; small subset; no direct-code execution baseline | low absolute success and risk violations remain | 弱到中：A budget-bounded live pilot suggests the verification/safe-rejection wrapper improves measured reliability over raw QYIR prompting, but it is not a full live benchmark. |
+| CONC-20260505-010 | Live pilot confirms unsafe-request gate effect on real model runs | `live_llm_metrics.csv`: live_qsga_qyir safe_rejection_accuracy 1.000 for all three pilot models; live_raw_qyir 0.000 | descriptive rates only, unsafe subset has 2 cases in pilot | detector is deterministic and keyword-heavy | subtle unsafe requests not tested | 中：In the live pilot subset, the QSGA safe-rejection gate prevents the raw models from attempting unsafe requests. |
 
 ## 3. 失败实验
 
@@ -30,6 +33,8 @@
 | FAIL-20260505-003 | RUN-20260505-001 | oracle-slot construction | `experiments/baselines.py` | invalidates strong raw NL generation claim | mitigated by draft downgrade; no-oracle experiment still needed |
 | FAIL-20260505-004 | RUN-20260505-001 | simulated baselines | `experiments/baselines.py` | weakens comparative claims | mitigated by baseline wording; live baseline still needed |
 | FAIL-20260505-005 | RUN-20260505-001 | ambiguous cases not clarified | `experiments/results/baseline_results.csv` | weakens boundary-control claim | add clarification metric or keep limitation |
+| FAIL-20260505-006 | RUN-20260505-004 | qwen3.6-plus too slow/token-heavy for 20-case batch in current run | timed-out 20-case command; no complete output files written | cannot include qwen3.6-plus in batch metrics without more time/budget | keep qwen3.6-plus as one-case probe or run a separate capped batch |
+| FAIL-20260505-007 | RUN-20260505-004 | live pilot absolute E2E remains low and risk violations remain | `experiments/results/live_llm_metrics.csv` | prevents strong live LLM generalization claims | frame as pilot evidence; improve prompts/repair or run larger benchmark later |
 
 ## 4. 强结论检查
 

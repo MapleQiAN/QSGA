@@ -24,7 +24,7 @@ The current package is defensible only as a deterministic prototype / IR feasibi
 
 | Result | Value |
 |---|---:|
-| tests | 171 passed |
+| tests | 173 passed |
 | oracle-slot QSGA E2E | 0.8375 |
 | no-oracle slot extraction E2E | 0.7625 |
 | direct_code E2E | 0.5000 |
