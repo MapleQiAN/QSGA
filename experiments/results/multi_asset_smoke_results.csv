@@ -1,0 +1,6 @@
+case_id,symbol,period,compile_success,backtest_success,risk_audit_runnable,end_to_end_success,errors
+qsi_001,SPY,2020-2024,True,True,True,True,
+qsi_001,QQQ,2020-2024,True,True,True,True,
+qsi_001,GLD,2020-2024,True,True,True,True,
+qsi_001,SPY,2021-2023,True,True,True,True,
+qsi_001,QQQ,2021-2023,True,True,True,True,

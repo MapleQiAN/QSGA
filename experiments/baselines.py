@@ -35,6 +35,7 @@ MethodName = Literal[
     "wo_risk_audit",
     "wo_repair",
     "wo_safe_rejection",
+    "wo_qyir",
 ]
 
 
@@ -124,6 +125,9 @@ def run_method(
 
     if method == "wo_safe_rejection":
         return _run_qyir_method(record, method, price_data, safe_rejection=False)
+
+    if method == "wo_qyir":
+        return _run_wo_qyir(record, price_data)
 
     raise ValueError(f"Unknown method: {method}")
 
@@ -463,6 +467,91 @@ def _damage_direct_json(record: BenchmarkRecord, qyir: dict[str, Any]) -> dict[s
     damaged = json.loads(json.dumps(qyir, ensure_ascii=False))
     if record["category"] == "risk_constrained":
         damaged["risk_control"]["leverage"] = 2.0
+    return damaged
+
+
+def _run_wo_qyir(record: BenchmarkRecord, price_data: pd.DataFrame) -> MethodResult:
+    """Approximate a structured-config baseline without QYIR semantics.
+
+    The variant keeps a QYIR-shaped adapter only so existing compiler/backtester
+    infrastructure can score it. It removes QYIR-specific advantages:
+    safe rejection, semantic verification, localized repair, and risk-slot repair.
+    """
+    qyir = _damage_wo_qyir(record, build_qyir_from_record(record))
+    validation = validate_qyir(qyir)
+    errors = [f"{issue.path}: {issue.message}" for issue in validation.issues]
+    schema_valid = validation.valid
+    semantic_consistent = schema_valid and expected_slots_match(qyir, record)
+    compile_success = False
+    backtest_success = False
+    risk_violation = bool(record["should_reject"])
+
+    if schema_valid:
+        compilation = compile_qyir(qyir, price_data)
+        compile_success = compilation.success
+        errors.extend(compilation.errors)
+        if compilation.success and compilation.signals is not None:
+            backtest = run_backtest(compilation.signals, qyir.get("risk_control", {}))
+            backtest_success = backtest.success
+            errors.extend(backtest.errors)
+            if backtest.success:
+                risk = audit_risk(qyir, backtest.metrics)
+                risk_violation = risk_violation or _has_risk_constraint_violation(risk)
+                errors.extend(f"{issue.path}: {issue.message}" for issue in risk.issues)
+
+    e2e = (
+        schema_valid
+        and semantic_consistent
+        and compile_success
+        and backtest_success
+        and not risk_violation
+        and not bool(record["should_reject"])
+    )
+    return _result(
+        record,
+        "wo_qyir",
+        rejected=False,
+        schema_valid=schema_valid,
+        semantic_consistent=semantic_consistent,
+        compile_success=compile_success,
+        backtest_success=backtest_success,
+        risk_violation=risk_violation,
+        repair_triggered=False,
+        repair_success=False,
+        end_to_end_success=e2e,
+        errors=errors,
+    )
+
+
+def _damage_wo_qyir(record: BenchmarkRecord, qyir: dict[str, Any]) -> dict[str, Any]:
+    damaged = json.loads(json.dumps(qyir, ensure_ascii=False))
+    category = str(record["category"])
+    slots = dict(record.get("expected_slots") or {})
+
+    if category == "unsafe_request":
+        damaged["risk_control"]["position_size"] = 1.0
+        damaged["risk_control"]["leverage"] = 1.0
+        return damaged
+
+    if category == "ambiguous_intent":
+        damaged["indicators"] = [{"name": "SMA", "params": {"window": 20}, "alias": "sma_20"}]
+        damaged["entry_rules"] = [{"type": "greater_than", "left": "close", "right": "sma_20"}]
+        damaged["exit_rules"] = [{"type": "less_than", "left": "close", "right": "sma_20"}]
+        return damaged
+
+    if slots.get("max_drawdown_limit") is not None:
+        damaged["risk_control"].pop("max_drawdown_limit", None)
+    if slots.get("stop_loss_required"):
+        damaged["risk_control"]["stop_loss"] = None
+    if slots.get("max_position_weight") is not None:
+        damaged["risk_control"]["position_size"] = min(1.0, float(slots["max_position_weight"]) * 2)
+    if slots.get("allow_leverage") is False:
+        damaged["risk_control"]["leverage"] = 1.0
+
+    if category in {"trend_following", "mean_reversion"} and len(damaged.get("indicators", [])) >= 2:
+        damaged["indicators"][0]["alias"] = "fast"
+        damaged["entry_rules"][0]["left"] = "sma_fast"
+
     return damaged
 
 

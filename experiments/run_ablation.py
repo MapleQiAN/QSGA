@@ -17,7 +17,7 @@ def main(argv: list[str] | None = None) -> int:
     records = load_benchmark(args.benchmark)
     results = run_methods(
         records,
-        ["qsga_full", "wo_semantic_verification", "wo_risk_audit", "wo_repair", "wo_safe_rejection"],
+        ["qsga_full", "wo_qyir", "wo_semantic_verification", "wo_risk_audit", "wo_repair", "wo_safe_rejection"],
         data_path=args.data,
     )
     results_to_csv(results, args.output)
@@ -27,4 +27,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

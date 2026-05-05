@@ -109,6 +109,7 @@ class AuditedOpenAIClient:
         case_id: str,
         audit: list[RawCall],
         max_tokens: int,
+        system_prompt: str = SYSTEM_PROMPT,
     ) -> None:
         from openai import OpenAI
 
@@ -117,6 +118,7 @@ class AuditedOpenAIClient:
         self.case_id = case_id
         self.audit = audit
         self.max_tokens = max_tokens
+        self.system_prompt = system_prompt
         self._attempt = 0
         self._client = OpenAI(api_key=api_key, base_url=base_url)
 
@@ -131,7 +133,7 @@ class AuditedOpenAIClient:
             response = self._client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0,
