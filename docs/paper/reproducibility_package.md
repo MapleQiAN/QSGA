@@ -21,7 +21,7 @@ Run tests:
 Observed result on 2026-05-05:
 
 ```text
-173 passed in 2.25s
+176 passed in 3.53s
 ```
 
 Run baseline experiments:
@@ -60,6 +60,12 @@ Aggregate no-oracle metrics:
 .venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\no_oracle_results.csv --output experiments\results\no_oracle_metrics.csv
 ```
 
+Run synthetic multi-asset smoke:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_multi_asset_smoke --output experiments\results\multi_asset_smoke_results.csv
+```
+
 Run the budget-bounded live LLM pilot:
 
 ```powershell
@@ -76,6 +82,24 @@ Aggregate live pilot metrics:
 
 ```powershell
 .venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_llm_results.csv --output experiments\results\live_llm_metrics.csv
+```
+
+Run executable live direct-code baseline after API approval:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_live_direct_code --models qwen3.6-flash --case-limit 0 --max-tokens 1200 --output experiments\results\live_direct_code_results.csv --method-output experiments\results\live_direct_code_method_results.csv --raw-output experiments\results\live_direct_code_raw_outputs.jsonl --metadata-output experiments\results\live_direct_code_metadata.json --usage-output experiments\results\live_direct_code_token_usage.csv
+```
+
+Replay saved live direct-code raw outputs without spending more tokens:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_live_direct_code --replay-raw-output experiments\results\live_direct_code_raw_outputs.jsonl --replay-metadata experiments\results\live_direct_code_metadata.json --output experiments\results\live_direct_code_replay_results.csv --method-output experiments\results\live_direct_code_replay_method_results.csv
+```
+
+Aggregate live direct-code metrics:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_direct_code_method_results.csv --output experiments\results\live_direct_code_metrics.csv
 ```
 
 Generate paper tables:
@@ -105,10 +129,19 @@ Ablation result:
 | Variant | E2E Success |
 |---|---:|
 | qsga_full | 0.838 |
+| wo_qyir | 0.163 |
 | wo_semantic_verification | 0.838 |
 | wo_risk_audit | 0.512 |
 | wo_repair | 0.375 |
 | wo_safe_rejection | 0.650 |
+
+Synthetic multi-asset smoke:
+
+| Check | Result |
+|---|---:|
+| compile success | 5/5 |
+| backtest success | 5/5 |
+| risk-audit runnable | 5/5 |
 
 No-oracle result:
 
@@ -127,6 +160,12 @@ Live LLM pilot result:
 | live_raw_qyir::kimi-k2.6 | 0.300 | 0.000 | 0.083 |
 | live_qsga_qyir::kimi-k2.6 | 0.300 | 1.000 | 0.417 |
 
+Executable live direct-code result:
+
+| Method | Syntax | Interface | Runtime | Trade Validity | Semantic Match | Risk Violation | Backtest | E2E |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| live_direct_code::qwen3.6-flash | 1.000 | 1.000 | 0.925 | 0.850 | 0.375 | 0.300 | 0.850 | 0.350 |
+
 ## Known Reproducibility Limits
 
 1. Main 80-case experiments are deterministic prototype experiments; the live extension is only a 12-case pilot.
@@ -134,4 +173,5 @@ Live LLM pilot result:
 3. Oracle-slot results depend on QSI-Bench v1 expected slots; no-oracle results use deterministic query parsing.
 4. Results depend on the curated QSI-Bench v1 labels and `spy_sample.csv`.
 5. No container image or CI workflow is included yet.
-6. Public release requires a final secret/license check even though the human approved publication in principle.
+6. Executable live direct-code comparison currently covers one model and one constrained prompt only.
+7. Public release requires a final secret/license check even though the human approved publication in principle.

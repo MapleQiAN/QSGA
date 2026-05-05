@@ -222,3 +222,21 @@
 - 可复现信息：`.venv\Scripts\python.exe -m experiments.run_live_llm --models qwen3.6-flash deepseek-v4-flash kimi-k2.6 --case-limit 12 --seed 20260505 --max-retries 0 --max-tokens 800 --output experiments\results\live_llm_results.csv --raw-output experiments\results\live_llm_raw_outputs.jsonl --metadata-output experiments\results\live_llm_run_metadata.json --usage-output experiments\results\live_llm_token_usage.csv`
 - 失败信息：20-case 4-model run timed out; qwen3.6-plus was kept as one-case probe only
 - 后续动作：update paper claims conservatively; keep API key ignored; do not publish secrets
+
+## AUDIT-20260505-011
+
+- 时间：2026-05-05 21:40:00 +08:00
+- 操作 Agent：Codex + SubAgents
+- 操作类型：Implement / Execute / Verify / Revise
+- 输入：`docs/Newest Goal.md`; `docs/ai-research-assistant/*`; QSI-Bench v1; `docs/LiveLLM API KEY.txt`
+- 输出：`wo_qyir` ablation, synthetic multi-asset smoke, executable live direct-code qwen3.6-flash 80-case baseline, PDF-level related-work scaffold, updated paper/repro docs
+- 使用工具 / Skill / Plugin：spawn_agent; apply_patch; shell; arXiv PDF verification by subagent; Aliyun Bailian OpenAI-compatible API
+- 关联任务：CCF C submission hardening
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：High
+- 是否需要人审：Yes
+- 人审状态：Experiment already approved; final claims/submission still require review
+- 证据来源：`experiments/results/live_direct_code_metrics.csv`; `experiments/results/live_direct_code_raw_outputs.jsonl`; `experiments/results/ablation_metrics.csv`; `experiments/results/multi_asset_smoke_results.csv`; `docs/paper/related_work_verified.md`
+- 可复现信息：`.venv\Scripts\python.exe -m experiments.run_live_direct_code --models qwen3.6-flash --case-ids ... --max-tokens 900`; replay via `.venv\Scripts\python.exe -m experiments.run_live_direct_code --replay-raw-output experiments\results\live_direct_code_raw_outputs.jsonl --replay-metadata experiments\results\live_direct_code_metadata.json`
+- 失败信息：single 80-case live direct-code run timed out before final write; reran in 8 checkpointed 10-case batches and merged results
+- 后续动作：run full tests; update CCF C reviewer report v2; finish figure generation and optional safe paraphrase set

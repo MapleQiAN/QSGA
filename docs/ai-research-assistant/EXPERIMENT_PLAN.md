@@ -14,6 +14,31 @@ Human review required: yes
 | EXP-20260505-003 | Live LLM generation produces valid QYIR candidates under fixed prompts | QSI-Bench v1 stratified 12-case subset; `spy_sample.csv` | live_raw_qyir, live_qsga_qyir | same as above plus token usage and raw-output audit | model subset pilot | API cost, capped by model/sample selection | completed pilot |
 | EXP-20260505-004 | No-oracle slot extraction can recover QSI-Bench expected slots from user_query | QSI-Bench v1, 80 samples | oracle-slot QSGA | semantic consistency, downstream E2E | compare oracle vs extracted slots | local CPU | completed |
 | EXP-20260505-005 | Ambiguous intent handling can be measured as clarification success | ambiguous subset + paraphrase extension | current safe rejection / clarification rules | clarification accuracy, false accept, false reject | w/o clarification | local CPU | pending design |
+| EXP-20260505-006 | QYIR adds value beyond a generic structured object | QSI-Bench v1, 80 samples; `data/raw/spy_sample.csv` | qsga_full | same as ablation metrics | wo_qyir | local CPU | completed |
+| EXP-20260505-007 | The pipeline remains runnable across synthetic symbols and periods | synthetic SPY/QQQ/GLD-like OHLCV samples | qsi_001 QYIR | compile success, backtest success, risk-audit runnable | none | local CPU | completed smoke |
+| EXP-20260505-008 | Executable live direct-code baseline can be collected under fixed interface | QSI-Bench v1, 80 samples | live_direct_code | syntax, interface, runtime, trade validity, semantic match, risk violation, E2E | model comparison optional | API cost | harness ready; live run pending |
+
+## 2.1 Frozen Protocol for Current Paper Scope
+
+Current submission scope is IR-first verification-guided prototype / system study.
+
+Frozen result families:
+
+1. Oracle-slot deterministic main run: `experiments/results/baseline_results.csv` and `baseline_metrics.csv`.
+2. Deterministic ablations: `experiments/results/ablation_results.csv` and `ablation_metrics.csv`, including `wo_qyir`.
+3. No-oracle deterministic extractor: `experiments/results/no_oracle_results.csv` and `no_oracle_metrics.csv`.
+4. Live QYIR pilot: 12-case stratified subset, saved raw outputs, descriptive rates only.
+5. Synthetic multi-asset smoke: compile/backtest/risk-audit runnability only; no return or robustness claim.
+
+Denominators:
+
+- schema, semantic, compile, backtest, and risk metrics: 65 non-unsafe cases unless a live subset states otherwise.
+- safe rejection: 15 unsafe cases unless a live subset states otherwise.
+- E2E: all cases in the selected benchmark split.
+
+Open protocol gap:
+
+- EXP-20260505-005 remains pending. Ambiguous intent is currently counted as failure, not clarification success.
 
 ## 3. 预注册模板
 

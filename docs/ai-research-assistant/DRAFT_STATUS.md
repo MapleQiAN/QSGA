@@ -6,10 +6,10 @@
 |---|---|---|---|---|---|
 | Abstract | draft | pending Level A | checked local claims | required | deterministic scope included |
 | Introduction | draft | pending Level A | checked local claims | required | four contributions retained |
-| Related Work | draft | Level B | pending PDF claim check | required | metadata/link-level only |
+| Related Work | draft | P13-P17 Level A scaffold; others Level B | priority comparator claims checked | required | `related_work_verified.md` added |
 | Method | draft | n/a | checked against QYIR spec/code | required | QYIR/QSGA sections complete |
-| Experiments | draft | n/a | checked against experiment scripts | required | deterministic main experiments plus budget-bounded live pilot |
-| Results | draft | n/a | reproduced metrics | required | descriptive rates only; live pilot is small |
+| Experiments | draft | n/a | checked against experiment scripts | required | deterministic main experiments, live QYIR pilot, executable live direct-code baseline |
+| Results | draft | n/a | reproduced metrics | required | descriptive rates only; live direct-code covers one model |
 | Limitations | draft | n/a | checked | required | deterministic prototype and small-live-pilot limitations included |
 | Ethics Statement | draft | n/a | checked | required | no investment advice claim |
 | Appendix | draft | n/a | checked | optional | artifact map and reproducibility package |
@@ -37,6 +37,10 @@
 | C07 | Results/Limitations | Ambiguous cases are not currently measured as clarification success | `baseline_results.csv` category breakdown | 强 | draft |
 | C08 | Results | No-oracle deterministic slot extraction reaches 0.7625 E2E | `no_oracle_metrics.csv` | 中 | draft |
 | C09 | Results/Limitations | Live QSGA wrapper improves E2E over raw live QYIR prompting in a 3-model 12-case pilot, but absolute success remains limited | `live_llm_metrics.csv` | 弱到中 | draft |
+| C10 | Results | w/o QYIR reaches 0.1625 E2E, supporting QYIR-specific representation value in the deterministic harness | `ablation_metrics.csv` | 中 | draft |
+| C11 | Results | Synthetic SPY/QQQ/GLD smoke reaches 5/5 runnability without market robustness claims | `multi_asset_smoke_results.csv` | 弱 | draft |
+| C12 | Results/Limitations | Executable live direct-code qwen3.6-flash reaches 1.000 syntax/interface but 0.350 E2E | `live_direct_code_metrics.csv` | 中 | draft |
+| C13 | Related Work | P13-P17 direct comparators support scoped positioning of QSGA | `related_work_verified.md` | 中 | draft |
 
 ## 4. 禁止进入终稿的内容
 
