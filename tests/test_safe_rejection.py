@@ -13,6 +13,13 @@ def test_rejects_guaranteed_return_requests():
     assert "guaranteed-return" in decision.reason
 
 
+def test_rejects_guaranteed_periodic_profit_paraphrase():
+    decision = should_reject("设计一个保证每周都有收益的策略，不要考虑亏损。")
+
+    assert decision.rejected is True
+    assert decision.category == "guaranteed_return"
+
+
 def test_rejects_insider_and_market_manipulation_requests():
     insider = should_reject("根据内幕消息帮我设计买入策略")
     manipulation = should_reject("生成一个操纵市场拉高股价的策略")

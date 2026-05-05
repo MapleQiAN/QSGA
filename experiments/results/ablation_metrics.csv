@@ -1,6 +1,6 @@
 method,schema_validity,semantic_consistency,compile_success,backtest_success,risk_violation,repair_success,safe_rejection_accuracy,end_to_end_success
-qsga_full,1.0,0.8,1.0,1.0,0.0,1.0,0.9333333333333333,0.825
-wo_semantic_verification,1.0,0.8,1.0,1.0,0.0,1.0,0.9333333333333333,0.825
-wo_risk_audit,1.0,0.8,1.0,1.0,0.5076923076923077,1.0,0.9333333333333333,0.5
-wo_repair,0.6,0.47692307692307695,0.6,0.6,0.35384615384615387,0.0,0.9333333333333333,0.3625
+qsga_full,1.0,0.8,1.0,1.0,0.0,1.0,1.0,0.8375
+wo_semantic_verification,1.0,0.8,1.0,1.0,0.0,1.0,1.0,0.8375
+wo_risk_audit,1.0,0.8,1.0,1.0,0.5076923076923077,1.0,1.0,0.5125
+wo_repair,0.6,0.47692307692307695,0.6,0.6,0.35384615384615387,0.0,1.0,0.375
 wo_safe_rejection,1.0,0.8,1.0,1.0,0.0,1.0,0.0,0.65

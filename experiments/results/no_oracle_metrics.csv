@@ -1,0 +1,2 @@
+method,schema_validity,semantic_consistency,compile_success,backtest_success,risk_violation,repair_success,safe_rejection_accuracy,end_to_end_success
+qsga_no_oracle_slots,1.0,0.7076923076923077,1.0,1.0,0.0,0.0,1.0,0.7625
