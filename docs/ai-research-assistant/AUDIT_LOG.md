@@ -258,3 +258,39 @@
 - 可复现信息：`.\\scripts\\reproduce_all.ps1` -> `178 passed`; replayed 160 live QYIR rows; replayed 80 live direct-code rows; safe paraphrase total 35 accuracy 1.000
 - 失败信息：initial script used system Python/Anaconda and produced live direct-code E2E 0.3375; fixed scripts to prefer `.venv` Python and restored E2E 0.350
 - 后续动作：before public release, run secret/license checks over raw outputs, metadata, prompts, and ignored key files
+
+## AUDIT-20260506-002
+
+- 时间：2026-05-06 16:20:00 +08:00
+- 操作 Agent：Codex
+- 操作类型：Generate / Execute / Revise
+- 输入：latest reviewer-risk suggestions; `docs/paper/qsga_ccf_c_draft.md`; saved live direct-code raw outputs; QSI-Bench v1
+- 输出：progress checkpoint file, semantic slot-corruption experiment, live direct-code shared-rejection replay, revised paper framing
+- 使用工具 / Skill / Plugin：apply_patch; shell
+- 关联任务：QSGA paper hardening after reviewer-risk feedback
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：High
+- 是否需要人审：Yes
+- 人审状态：Pending for final claims/submission
+- 证据来源：`docs/ai-research-assistant/CURRENT_PROGRESS.md`; `experiments/results/semantic_corruption_metrics.csv`; `experiments/results/live_direct_code_shared_rejection_metrics.csv`; `docs/paper/qsga_ccf_c_draft.md`
+- 可复现信息：`.venv\Scripts\python.exe -m experiments.run_semantic_corruption ...`; `.venv\Scripts\python.exe -m experiments.run_live_direct_code_wrapper ...`; `.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_direct_code_shared_rejection_results.csv --output experiments\results\live_direct_code_shared_rejection_metrics.csv`
+- 失败信息：initial semantic-corruption case list included queries without extractor-detectable explicit slots, producing detection 0.286; replaced cases with explicit slot phrasings and reran to 1.000 detection
+- 后续动作：tests and reproduce script completed; final claim framing still needs human review before submission or public release
+
+## AUDIT-20260506-003
+
+- 时间：2026-05-06 20:40:00 +08:00
+- 操作 Agent：Codex
+- 操作类型：Implement / Recompute / Revise
+- 输入：human reviewer-risk feedback on oracle-slot ordering, live QYIR/direct-code narrative conflict, defensive abstract, and ambiguous-intent scoring
+- 输出：clarification-aware metric columns; regenerated baseline/no-oracle/ablation/live replay metrics; paper reordered into no-oracle main result, oracle-slot upper bound, and live diagnostic evidence; claim and risk docs synchronized
+- 使用工具 / Skill / Plugin：apply_patch; shell
+- 关联任务：QSGA paper narrative hardening and clarification metric implementation
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：High
+- 是否需要人审：Yes
+- 人审状态：Pending for final claims/submission
+- 证据来源：`experiments/results/no_oracle_metrics.csv`; `experiments/results/baseline_metrics.csv`; `experiments/results/live_qyir_80_metrics.csv`; `docs/paper/qsga_ccf_c_draft.md`; `docs/paper/claim_policy.md`
+- 可复现信息：`.\\scripts\\reproduce_all.ps1` -> `179 passed`; regenerated baseline/no-oracle/ablation metrics; replayed 160 live QYIR rows and 80 live direct-code rows without new API calls
+- 失败信息：live QSGA QYIR construction success remains 0.0909 despite E2E rising to 0.375 through clarification and safe rejection; must remain diagnostic bottleneck evidence
+- 后续动作：final claim framing still needs human review before submission or public release

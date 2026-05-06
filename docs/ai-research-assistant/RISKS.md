@@ -133,7 +133,7 @@ Related decision: none
 
 Risk:
 
-`wo_semantic_verification` 与 full QSGA 指标相同，不能将 semantic verifier 写成独立贡献的经验增益来源。
+`wo_semantic_verification` 与 full QSGA 指标相同，不能将 semantic verifier 写成 oracle-slot 主实验中独立贡献的经验增益来源。
 
 Evidence:
 
@@ -145,7 +145,7 @@ Impact:
 
 Mitigation:
 
-将其表述为多阶段验证链的一部分，并承认当前 deterministic 设置未显示独立指标增益。
+将其表述为多阶段验证链的一部分，并承认 oracle-slot deterministic 设置未显示独立指标增益。已新增 schema-valid slot-corruption 实验，隔离证明 semantic verifier 能发现 schema validation 无法发现的显式意图槽冲突。
 
 Human review required:
 
@@ -153,7 +153,7 @@ No
 
 Resolution:
 
-mitigated in `docs/paper/qsga_ccf_c_draft.md`
+mitigated in `docs/paper/qsga_ccf_c_draft.md` and `experiments/results/semantic_corruption_metrics.csv`
 
 ### RISK-20260505-004
 
@@ -241,7 +241,7 @@ Impact:
 
 Mitigation:
 
-正文已将 main baselines 标注为 simulated；live pilot 补充了真实 QYIR 模型输出，但还不是 executable direct-code baseline。投稿前应补真实 direct-code 输出或删除强 direct-code 比较主张。
+正文已将 main baselines 标注为 simulated；已补充 executable live direct-code baseline 和 shared-rejection replay。投稿前仍不得声称 broad direct-code superiority 或 broad QSGA superiority。
 
 Human review required:
 
@@ -249,7 +249,39 @@ Yes
 
 Resolution:
 
-partially mitigated in draft and live QYIR pilot; remains blocker for broad empirical submission
+partially mitigated in draft, live QYIR pilot, executable live direct-code baseline, and shared-rejection replay; remains blocker for broad empirical claims
+
+### RISK-20260506-001
+
+Status: open
+Priority: P2
+Raised by: Codex
+Related task: live QYIR/direct-code interpretation
+Related decision: DEC-20260505-001
+
+Risk:
+
+`live_direct_code_shared_rejection` E2E 高于 `live_qsga_qyir`，但该 replay 只证明共享拒绝门对 direct-code unsafe rows 有帮助，不能证明 direct code 获得 QYIR 的 semantic localization、risk slots 或 repairability。
+
+Evidence:
+
+`experiments/results/live_direct_code_shared_rejection_metrics.csv` reports E2E 0.5375; `experiments/results/live_qyir_80_metrics.csv` reports live QSGA QYIR E2E 0.375 and construction success 0.0909.
+
+Impact:
+
+若正文把 shared wrapper 结果解释为 direct-code 已经等价于 QSGA，或反过来声称 live QYIR 更强，都会造成证据错配。
+
+Mitigation:
+
+正文将 live QYIR 写成 bottleneck diagnostic，并将 shared direct-code replay 写成 boundary-control evidence only；QYIR claim 限定在 interpretable slots、semantic localization、risk-slot auditing、localized repair。
+
+Human review required:
+
+Yes
+
+Resolution:
+
+open until human review of final claim framing
 
 ### RISK-20260505-007
 
@@ -261,19 +293,19 @@ Related decision: none
 
 Risk:
 
-当前 ambiguous_intent 10 个样本在 `qsga_full` 中 E2E 成功为 0/10；系统意图上应 clarification，但实验没有 clarification success 指标。
+旧口径下 ambiguous_intent 10 个样本在 `qsga_full` 中 E2E 成功为 0/10；现已加入 clarification success 指标，但该指标仍是 deterministic single-turn gate，不等于真实多轮澄清能力。
 
 Evidence:
 
-category breakdown from `experiments/results/baseline_results.csv`; `docs/paper/subagent_experiment_audit.md`。
+`experiments/results/baseline_metrics.csv` and `experiments/results/no_oracle_metrics.csv` show clarification accuracy 1.000; `docs/paper/subagent_experiment_audit.md` records the original gap.
 
 Impact:
 
-不能声称当前实验已经验证模糊请求澄清能力。
+不能声称当前实验已经验证真实 live 多轮澄清能力。
 
 Mitigation:
 
-正文已新增 category breakdown 并明确 ambiguous cases 当前计为 failure；后续可增加 `clarified=True` 或 clarification outcome。
+正文已新增 clarification metric，并把 ambiguous cases 从 construction success 拆出；后续仍需 live constrained generation / structured dialogue evaluation。
 
 Human review required:
 
@@ -281,4 +313,4 @@ No
 
 Resolution:
 
-mitigated in draft; optional experiment remains
+partially mitigated in draft and metrics; live multi-turn clarification remains future work
