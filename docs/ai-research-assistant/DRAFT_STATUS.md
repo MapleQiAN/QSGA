@@ -8,9 +8,9 @@
 | Introduction | draft | pending Level A | checked local claims | required | four contributions retained |
 | Related Work | draft | P13-P17 Level A scaffold; others Level B | priority comparator claims checked | required | `related_work_verified.md` added |
 | Method | draft | n/a | checked against QYIR spec/code | required | QYIR/QSGA sections complete |
-| Experiments | draft | n/a | checked against experiment scripts | required | deterministic main experiments, live QYIR pilot, executable live direct-code baseline |
+| Experiments | draft | n/a | checked against experiment scripts | required | deterministic main experiments, 80-case live QYIR, executable live direct-code baseline |
 | Results | draft | n/a | reproduced metrics | required | descriptive rates only; live direct-code covers one model |
-| Limitations | draft | n/a | checked | required | deterministic prototype and small-live-pilot limitations included |
+| Limitations | draft | n/a | checked | required | deterministic prototype, single-model live scope, and ambiguity limits included |
 | Ethics Statement | draft | n/a | checked | required | no investment advice claim |
 | Appendix | draft | n/a | checked | optional | artifact map and reproducibility package |
 
@@ -19,7 +19,7 @@
 | 项目 | 状态 | 备注 |
 |---|---|---|
 | CCF C Reviewer Report | done | `docs/paper/ccf_c_reviewer_report.md` |
-| Recommendation | Borderline as IR/prototype with live pilot; Weak Reject if framed as broad empirical LLM benchmark | oracle-slot and small-live-pilot risks remain |
+| Recommendation | Borderline as IR/prototype with single-model live diagnostics; Weak Reject if framed as broad empirical LLM benchmark | oracle-slot, single-model live, and ambiguity risks remain |
 | P0/P1 风险已登记 | done | `RISKS.md`, `DECISIONS.md` |
 | 一票否决项检查 | open | public release/submission requires human approval |
 | Claim Strength Audit | done | `docs/paper/citation_and_claim_matrix.md` and reviewer report |
@@ -36,7 +36,7 @@
 | C06 | Experiments/Limitations | Current QSGA evaluation is oracle-slot deterministic validation | `experiments/baselines.py` | 强 | draft |
 | C07 | Results/Limitations | Ambiguous cases are not currently measured as clarification success | `baseline_results.csv` category breakdown | 强 | draft |
 | C08 | Results | No-oracle deterministic slot extraction reaches 0.7625 E2E | `no_oracle_metrics.csv` | 中 | draft |
-| C09 | Results/Limitations | Live QSGA wrapper improves E2E over raw live QYIR prompting in a 3-model 12-case pilot, but absolute success remains limited | `live_llm_metrics.csv` | 弱到中 | draft |
+| C09 | Results/Limitations | Live QSGA wrapper improves E2E over raw live QYIR prompting in the qwen3.6-flash 80-case run, but absolute success remains limited and live direct-code E2E is higher | `live_qyir_80_metrics.csv`; `live_direct_code_metrics.csv` | 弱到中 | draft |
 | C10 | Results | w/o QYIR reaches 0.1625 E2E, supporting QYIR-specific representation value in the deterministic harness | `ablation_metrics.csv` | 中 | draft |
 | C11 | Results | Synthetic SPY/QQQ/GLD smoke reaches 5/5 runnability without market robustness claims | `multi_asset_smoke_results.csv` | 弱 | draft |
 | C12 | Results/Limitations | Executable live direct-code qwen3.6-flash reaches 1.000 syntax/interface but 0.350 E2E | `live_direct_code_metrics.csv` | 中 | draft |

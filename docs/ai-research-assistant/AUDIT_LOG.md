@@ -240,3 +240,21 @@
 - 可复现信息：`.venv\Scripts\python.exe -m experiments.run_live_direct_code --models qwen3.6-flash --case-ids ... --max-tokens 900`; replay via `.venv\Scripts\python.exe -m experiments.run_live_direct_code --replay-raw-output experiments\results\live_direct_code_raw_outputs.jsonl --replay-metadata experiments\results\live_direct_code_metadata.json`
 - 失败信息：single 80-case live direct-code run timed out before final write; reran in 8 checkpointed 10-case batches and merged results
 - 后续动作：run full tests; update CCF C reviewer report v2; finish figure generation and optional safe paraphrase set
+
+## AUDIT-20260506-001
+
+- 时间：2026-05-06 14:55:00 +08:00
+- 操作 Agent：Codex
+- 操作类型：Verify / Synchronize / Reproduce
+- 输入：`scripts/reproduce_all.ps1`, `scripts/reproduce_all.sh`, saved live QYIR raw outputs, saved live direct-code raw outputs, safe paraphrase benchmark
+- 输出：one-command reproduce scripts now include safe paraphrase, live QYIR replay metrics, and live direct-code replay metrics; package docs synchronized to 178-test state
+- 使用工具 / Skill / Plugin：automation-workflows; apply_patch; shell
+- 关联任务：RUN-20260506-CONTINUE-019DF854
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：Medium
+- 是否需要人审：Yes
+- 人审状态：Pending for final release/submission
+- 证据来源：`scripts/reproduce_all.ps1`; `scripts/reproduce_all.sh`; `REPRODUCE.md`; `docs/paper/reproducibility_package.md`; `experiments/results/live_qyir_80_metrics.csv`; `experiments/results/live_direct_code_metrics.csv`; `experiments/results/safe_paraphrase_metrics.csv`
+- 可复现信息：`.\\scripts\\reproduce_all.ps1` -> `178 passed`; replayed 160 live QYIR rows; replayed 80 live direct-code rows; safe paraphrase total 35 accuracy 1.000
+- 失败信息：initial script used system Python/Anaconda and produced live direct-code E2E 0.3375; fixed scripts to prefer `.venv` Python and restored E2E 0.350
+- 后续动作：before public release, run secret/license checks over raw outputs, metadata, prompts, and ignored key files

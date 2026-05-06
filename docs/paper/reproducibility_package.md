@@ -1,12 +1,13 @@
 # QSGA Reproducibility Package
 
-Date: 2026-05-05
+Date: 2026-05-06
 
 ## Environment
 
 - OS observed in this run: Windows, PowerShell
 - Python executable used: `.venv\Scripts\python.exe`
 - Python dependencies: see `pyproject.toml` and `uv.lock`
+- Bundled reproduce scripts prefer `.venv` Python when it is present, then fall back to `python`.
 - Data file: `data/raw/spy_sample.csv`
 - Benchmark file: `benchmark/qsi_bench_v1.jsonl`
 
@@ -21,7 +22,7 @@ Run tests:
 Observed result on 2026-05-05:
 
 ```text
-176 passed in 3.53s
+178 passed in 2.51s
 ```
 
 Run baseline experiments:
@@ -66,22 +67,34 @@ Run synthetic multi-asset smoke:
 .venv\Scripts\python.exe -m experiments.run_multi_asset_smoke --output experiments\results\multi_asset_smoke_results.csv
 ```
 
-Run the budget-bounded live LLM pilot:
+Run safe-rejection paraphrase regression:
 
 ```powershell
-.venv\Scripts\python.exe -m experiments.run_live_llm --models qwen3.6-flash deepseek-v4-flash kimi-k2.6 --case-limit 12 --seed 20260505 --max-retries 0 --max-tokens 800 --output experiments\results\live_llm_results.csv --raw-output experiments\results\live_llm_raw_outputs.jsonl --metadata-output experiments\results\live_llm_run_metadata.json --usage-output experiments\results\live_llm_token_usage.csv
+.venv\Scripts\python.exe -m experiments.run_safe_paraphrase --output experiments\results\safe_paraphrase_results.csv --metrics-output experiments\results\safe_paraphrase_metrics.csv
 ```
 
-Replay saved live raw outputs without spending more tokens:
+Run the bundled one-command script for deterministic experiments plus saved live replays:
 
 ```powershell
-.venv\Scripts\python.exe -m experiments.run_live_llm --replay-raw-output experiments\results\live_llm_raw_outputs.jsonl --replay-metadata experiments\results\live_llm_run_metadata.json --output experiments\results\live_llm_results.csv
+scripts\reproduce_all.ps1
 ```
 
-Aggregate live pilot metrics:
+Run the saved-output 80-case live QYIR evaluation after API approval:
 
 ```powershell
-.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_llm_results.csv --output experiments\results\live_llm_metrics.csv
+.venv\Scripts\python.exe -m experiments.run_live_llm --models qwen3.6-flash --case-limit 0 --seed 20260505 --max-retries 1 --max-tokens 1200 --output experiments\results\live_qyir_80_results.csv --raw-output experiments\results\live_qyir_80_raw_outputs.jsonl --metadata-output experiments\results\live_qyir_80_metadata.json --usage-output experiments\results\live_qyir_80_token_usage.csv
+```
+
+Replay saved 80-case live QYIR raw outputs without spending more tokens:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_live_llm --replay-raw-output experiments\results\live_qyir_80_raw_outputs.jsonl --replay-metadata experiments\results\live_qyir_80_metadata.json --output experiments\results\live_qyir_80_results.csv
+```
+
+Aggregate live QYIR metrics:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_qyir_80_results.csv --output experiments\results\live_qyir_80_metrics.csv
 ```
 
 Run executable live direct-code baseline after API approval:
@@ -149,16 +162,12 @@ No-oracle result:
 |---|---:|---:|
 | qsga_no_oracle_slots | 0.708 | 0.763 |
 
-Live LLM pilot result:
+Live QYIR 80-case result:
 
 | Method | Risk Violation | Safe Rejection Accuracy | E2E Success |
 |---|---:|---:|---:|
-| live_raw_qyir::qwen3.6-flash | 0.400 | 0.000 | 0.250 |
-| live_qsga_qyir::qwen3.6-flash | 0.300 | 1.000 | 0.417 |
-| live_raw_qyir::deepseek-v4-flash | 0.300 | 0.000 | 0.083 |
-| live_qsga_qyir::deepseek-v4-flash | 0.300 | 1.000 | 0.250 |
-| live_raw_qyir::kimi-k2.6 | 0.300 | 0.000 | 0.083 |
-| live_qsga_qyir::kimi-k2.6 | 0.300 | 1.000 | 0.417 |
+| live_raw_qyir::qwen3.6-flash | 0.077 | 0.000 | 0.075 |
+| live_qsga_qyir::qwen3.6-flash | 0.062 | 1.000 | 0.250 |
 
 Executable live direct-code result:
 
@@ -168,10 +177,10 @@ Executable live direct-code result:
 
 ## Known Reproducibility Limits
 
-1. Main 80-case experiments are deterministic prototype experiments; the live extension is only a 12-case pilot.
+1. Main 80-case deterministic experiments validate the prototype harness; the live QYIR and executable direct-code extensions are single-model qwen3.6-flash diagnostics.
 2. Live LLM reproduction requires a valid API key and must not publish local secret files.
 3. Oracle-slot results depend on QSI-Bench v1 expected slots; no-oracle results use deterministic query parsing.
 4. Results depend on the curated QSI-Bench v1 labels and `spy_sample.csv`.
 5. No container image or CI workflow is included yet.
-6. Executable live direct-code comparison currently covers one model and one constrained prompt only.
+6. Executable live direct-code comparison currently covers one model and one constrained prompt only, and current live QYIR E2E does not outperform live direct-code E2E.
 7. Public release requires a final secret/license check even though the human approved publication in principle.
