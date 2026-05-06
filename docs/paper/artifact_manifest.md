@@ -42,7 +42,7 @@ Date: 2026-05-06
 | Item | Current State |
 |---|---|
 | Python lockfile | `uv.lock` present |
-| Test status | 178 passed on 2026-05-06 via `scripts/reproduce_all.ps1` |
+| Test status | 179 passed on 2026-05-06 via `scripts/reproduce_all.ps1` |
 | CI | not provided in this artifact version |
 | Container | not provided in this artifact version |
 | Live raw outputs | QYIR 80-case qwen3.6-flash run present; executable direct-code 80-case qwen3.6-flash run present |

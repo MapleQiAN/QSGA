@@ -19,10 +19,10 @@ Run tests:
 .venv\Scripts\python.exe -m pytest tests -q
 ```
 
-Observed result on 2026-05-05:
+Observed result on 2026-05-06:
 
 ```text
-178 passed in 2.51s
+179 passed in 2.44s
 ```
 
 Run baseline experiments:
@@ -73,6 +73,12 @@ Run safe-rejection paraphrase regression:
 .venv\Scripts\python.exe -m experiments.run_safe_paraphrase --output experiments\results\safe_paraphrase_results.csv --metrics-output experiments\results\safe_paraphrase_metrics.csv
 ```
 
+Run semantic slot-corruption checks:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_semantic_corruption --output experiments\results\semantic_corruption_results.csv --metrics-output experiments\results\semantic_corruption_metrics.csv
+```
+
 Run the bundled one-command script for deterministic experiments plus saved live replays:
 
 ```powershell
@@ -112,7 +118,14 @@ Replay saved live direct-code raw outputs without spending more tokens:
 Aggregate live direct-code metrics:
 
 ```powershell
-.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_direct_code_method_results.csv --output experiments\results\live_direct_code_metrics.csv
+.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_direct_code_replay_method_results.csv --output experiments\results\live_direct_code_metrics.csv
+```
+
+Replay saved live direct-code outputs with the shared safe-rejection gate:
+
+```powershell
+.venv\Scripts\python.exe -m experiments.run_live_direct_code_wrapper --replay-raw-output experiments\results\live_direct_code_raw_outputs.jsonl --replay-metadata experiments\results\live_direct_code_metadata.json --output experiments\results\live_direct_code_shared_rejection_results.csv
+.venv\Scripts\python.exe -m experiments.eval_metrics --input experiments\results\live_direct_code_shared_rejection_results.csv --output experiments\results\live_direct_code_shared_rejection_metrics.csv
 ```
 
 Generate paper tables:
@@ -127,21 +140,27 @@ The generated Markdown tables cover the baseline, ablation, repair, and safe-rej
 
 Values below are displayed to three decimal places. Exact rates are available in the corresponding CSV files.
 
-Main result:
+Main no-oracle result:
 
-| Method | E2E Success |
-|---|---:|
-| direct_code | 0.500 |
-| direct_json | 0.400 |
-| qsga_no_repair | 0.375 |
-| qsga_no_risk_audit | 0.512 |
-| qsga_full | 0.838 |
+| Method | Semantic Consistency | Clarification Accuracy | Construction Success | E2E Success |
+|---|---:|---:|---:|---:|
+| qsga_no_oracle_slots | 0.836 | 1.000 | 0.836 | 0.887 |
+
+Upper-bound oracle-slot verification-chain result:
+
+| Method | Clarification Accuracy | Construction Success | E2E Success |
+|---|---:|---:|---:|
+| direct_code | 0.000 | 0.727 | 0.500 |
+| direct_json | 0.000 | 0.309 | 0.400 |
+| qsga_no_repair | 1.000 | 0.273 | 0.500 |
+| qsga_no_risk_audit | 1.000 | 0.473 | 0.637 |
+| qsga_full | 1.000 | 0.945 | 0.963 |
 
 Ablation result:
 
 | Variant | E2E Success |
 |---|---:|
-| qsga_full | 0.838 |
+| qsga_full | 0.963 |
 | wo_qyir | 0.163 |
 | wo_semantic_verification | 0.838 |
 | wo_risk_audit | 0.512 |
@@ -156,18 +175,12 @@ Synthetic multi-asset smoke:
 | backtest success | 5/5 |
 | risk-audit runnable | 5/5 |
 
-No-oracle result:
-
-| Method | Semantic Consistency | E2E Success |
-|---|---:|---:|
-| qsga_no_oracle_slots | 0.708 | 0.763 |
-
 Live QYIR 80-case result:
 
-| Method | Risk Violation | Safe Rejection Accuracy | E2E Success |
-|---|---:|---:|---:|
-| live_raw_qyir::qwen3.6-flash | 0.077 | 0.000 | 0.075 |
-| live_qsga_qyir::qwen3.6-flash | 0.062 | 1.000 | 0.250 |
+| Method | Risk Violation | Safe Rejection Accuracy | Clarification Accuracy | Construction Success | E2E Success |
+|---|---:|---:|---:|---:|---:|
+| live_raw_qyir::qwen3.6-flash | 0.091 | 0.000 | 0.000 | 0.109 | 0.075 |
+| live_qsga_qyir::qwen3.6-flash | 0.073 | 1.000 | 1.000 | 0.091 | 0.375 |
 
 Executable live direct-code result:
 
@@ -175,9 +188,23 @@ Executable live direct-code result:
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | live_direct_code::qwen3.6-flash | 1.000 | 1.000 | 0.925 | 0.850 | 0.375 | 0.300 | 0.850 | 0.350 |
 
+Live direct-code shared-rejection replay:
+
+| Method | Safe Rejection Accuracy | Risk Violation | E2E Success |
+|---|---:|---:|---:|
+| live_direct_code_shared_rejection::qwen3.6-flash | 1.000 | 0.164 | 0.538 |
+
+Semantic slot-corruption check:
+
+| Check | Result |
+|---|---:|
+| schema-valid corrupted cases | 7/7 |
+| pass-through without semantic verification | 1.000 |
+| detection with semantic verification | 1.000 |
+
 ## Known Reproducibility Limits
 
-1. Main 80-case deterministic experiments validate the prototype harness; the live QYIR and executable direct-code extensions are single-model qwen3.6-flash diagnostics.
+1. Main no-oracle and upper-bound oracle-slot deterministic experiments validate the prototype harness; the live QYIR and executable direct-code extensions are single-model qwen3.6-flash diagnostics.
 2. Live LLM reproduction requires a valid API key and must not publish local secret files.
 3. Oracle-slot results depend on QSI-Bench v1 expected slots; no-oracle results use deterministic query parsing.
 4. Results depend on the curated QSI-Bench v1 labels and `spy_sample.csv`.

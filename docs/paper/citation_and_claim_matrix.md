@@ -39,9 +39,10 @@ Verification note: these entries are verified at metadata/link level only. Befor
 |---|---|---|---|---|
 | C01 | QSGA studies reliable generation in a bounded rule-based strategy space, not arbitrary financial intent. | `docs/QYIR_v1_Spec.md`; QYIR supported-scope table | Strong | verified local |
 | C02 | QSI-Bench v1 contains 80 samples across six categories. | `benchmark/qsi_bench_v1.jsonl`; `benchmark/annotation_guideline.md` | Strong | verified local |
-| C03 | Oracle-slot full QSGA reaches E2E Success 0.8375 in the deterministic prototype. | `experiments/results/baseline_metrics.csv`; reproduced on 2026-05-05 | Strong but scoped | verified local |
+| C03 | Main no-oracle deterministic QSGA reaches construction success 0.8364 and overall E2E Success 0.8875 without gold slots for QYIR construction. | `experiments/results/no_oracle_metrics.csv`; reproduced on 2026-05-06 | Strong but scoped | verified local |
+| C03b | Oracle-slot full QSGA reaches construction success 0.9455 and overall E2E Success 0.9625 as an upper-bound verification-chain evaluation. | `experiments/results/baseline_metrics.csv`; reproduced on 2026-05-06 | Strong but scoped | verified local |
 | C04 | Oracle-slot full QSGA reduces counted risk-constraint violations to 0.000 under the current risk-auditor definition. | `experiments/results/baseline_metrics.csv`; `experiments/tables/main_comparison.md` | Strong but scoped | verified local |
-| C05 | Removing risk audit increases risk violation to 0.508 and lowers E2E Success to 0.5125. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
+| C05 | Removing risk audit increases construction risk violation to 0.4727 and lowers E2E Success to 0.5125. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
 | C06 | Removing repair lowers E2E Success to 0.375. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
 | C07 | Removing safe rejection lowers safe rejection accuracy to 0.000. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
 | C08 | Main 80-case experiments are deterministic and the small live pilot does not prove online LLM generalization. | `experiments/baselines.py` module docstring; `experiments/results/live_llm_metrics.csv` | Strong | verified local |
@@ -50,13 +51,14 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | C11 | Direct trading-code benchmarks are closer comparators than broad financial LLM papers. | P13, P14, P15, P16 | Medium | needs PDF-level citation check |
 | C12 | QYIR is related to domain-specific financial IR/DSL approaches, especially OQL-style option-strategy representations. | P17 plus QYIR design | Medium | needs PDF-level citation check |
 | C13 | Current benchmark results do not measure raw natural-language slot extraction because QYIR candidates are constructed from expected slots. | `experiments/baselines.py`; `subagent_experiment_audit.md`; `subagent_adversarial_review.md` | Strong | verified local |
-| C14 | Ambiguous-intent handling is not empirically demonstrated as clarification success in current CSVs. | `experiments/results/baseline_results.csv`; category breakdown | Strong | verified local |
-| C15 | A deterministic no-oracle slot extractor reaches E2E Success 0.7625, below oracle-slot QSGA but above simulated baselines in the current harness. | `experiments/results/no_oracle_metrics.csv`; `experiments/run_no_oracle.py` | Strong but scoped | verified local |
+| C14 | Ambiguous-intent handling is now measured as clarification accuracy; `qsga_full` and `qsga_no_oracle_slots` both reach 1.000 on the 10 ambiguous QSI-Bench cases. | `experiments/results/baseline_metrics.csv`; `experiments/results/no_oracle_metrics.csv`; category breakdown | Strong but scoped | verified local |
+| C15 | A deterministic no-oracle slot extractor reaches E2E Success 0.8875, below oracle-slot QSGA but above simulated baselines in the current harness. | `experiments/results/no_oracle_metrics.csv`; `experiments/run_no_oracle.py` | Strong but scoped | verified local |
 | C16 | In a 3-model 12-case live LLM pilot, live_qsga_qyir improves measured E2E over live_raw_qyir for qwen3.6-flash, deepseek-v4-flash, and kimi-k2.6. | `experiments/results/live_llm_metrics.csv`; `experiments/results/live_llm_raw_outputs.jsonl` | Weak to medium; pilot only | verified local |
 | C17 | The live pilot is not sufficient to claim broad live LLM generalization because the sample is small and absolute E2E remains low. | `experiments/results/live_llm_metrics.csv`; `docs/ai-research-assistant/RESULTS_LOG.md` | Strong | verified local |
 | C18 | Removing QYIR lowers E2E Success to 0.1625 in the deterministic ablation harness. | `experiments/results/ablation_metrics.csv`; `experiments/tables/ablation_comparison.md` | Strong but scoped | verified local |
 | C19 | A synthetic SPY/QQQ/GLD smoke check reaches 5/5 compile, backtest, and risk-audit runnability, but does not support profitability or market-robustness claims. | `experiments/results/multi_asset_smoke_results.csv`; `experiments/run_multi_asset_smoke.py` | Strong but smoke-only | verified local |
-| C20 | The executable live direct-code qwen3.6-flash baseline reaches 1.000 syntax/interface success but only 0.350 E2E Success on 80 QSI-Bench cases. | `experiments/results/live_direct_code_results.csv`; `experiments/results/live_direct_code_metrics.csv`; `experiments/results/live_direct_code_raw_outputs.jsonl` | Medium; one model and one prompt | verified local |
+| C20 | The executable live direct-code qwen3.6-flash baseline reaches 1.000 syntax/interface success but only 0.350 overall E2E Success on 80 QSI-Bench cases. | `experiments/results/live_direct_code_results.csv`; `experiments/results/live_direct_code_metrics.csv`; `experiments/results/live_direct_code_raw_outputs.jsonl` | Medium; one model and one prompt | verified local |
+| C23 | In the 80-case live qwen3.6-flash diagnostic, QSGA-wrapped QYIR reaches 0.375 overall E2E but only 0.0909 construction success, exposing live QYIR generation as the bottleneck. | `experiments/results/live_qyir_80_metrics.csv`; `experiments/results/live_qyir_80_raw_outputs.jsonl` | Medium; one model and one prompt | verified local |
 | C21 | Priority related-work comparators P13-P17 have PDF-level audit scaffolds. | `docs/paper/related_work_verified.md`; `docs/paper/citation_audit_backlog.md` | Strong for audited claims | verified PDF scaffold |
 | C22 | A 35-case safe-rejection paraphrase regression set reaches 1.000 accuracy and 0.000 unsafe-acceptance rate, but remains a small deterministic pattern-coverage test. | `benchmark/unsafe_paraphrase_bench.jsonl`; `experiments/results/safe_paraphrase_metrics.csv` | Strong but narrow | verified local |
 
@@ -67,8 +69,8 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | QSGA guarantees profitable strategies. | Forbidden |
 | QSGA is safe for real-money trading. | Forbidden |
 | QSGA achieves SOTA. | Forbidden |
-| QSGA fully understands vague financial intent. | Forbidden |
-| QSGA has been broadly validated on live LLM outputs. | Forbidden; current evidence is only a small live QYIR pilot |
+| QSGA fully understands vague financial intent. | Forbidden; current clarification metric is deterministic and single-turn |
+| QSGA has been broadly validated on live LLM outputs. | Forbidden; current evidence is single-model full live diagnostics plus a small pilot |
 | QYIR improves semantic verification independently in current ablation. | Downgrade: current ablation does not show independent gain |
 | Current baselines prove superiority over direct LLM-to-code. | Forbidden; live pilot covers QYIR prompting, not executable live-code generation |
 | The 0.000 risk-violation result means financial safety. | Forbidden; it only means zero counted violations under current harness |

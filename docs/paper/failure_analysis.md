@@ -8,7 +8,7 @@ This appendix records failure modes that should be disclosed in the CCF-C submis
 
 | Failure Type | Count | Typical Cause | Handling |
 |---|---:|---|---|
-| Ambiguous-intent E2E failure in `qsga_full` | 10 | no measured clarification-success outcome | counted as failure; future clarification metric required |
+| Ambiguous-intent clarification in `qsga_full` | 10 | deterministic ambiguity gate asks for missing details | counted as clarification success; live multi-turn clarification still untested |
 | Mean-reversion E2E failure in `qsga_full` | 3 | deterministic slot match does not cover some expected mean-reversion variants | counted as failure; case-level error string may be empty because failure is semantic-score based |
 | Live QYIR schema failure | 9 | invalid Bollinger output field in generated QYIR | schema verifier rejects or records failure |
 | Live QYIR compile failure | 3 | numeric operand compiled where a series was expected | compile failure recorded |
@@ -21,7 +21,7 @@ This appendix records failure modes that should be disclosed in the CCF-C submis
 
 The most important direct-code result is not syntax failure. The 80-case qwen3.6-flash direct-code run reaches 1.000 syntax success and 1.000 interface success, but only 0.350 E2E success. This supports the claim that parsing code and exposing a required function are insufficient for reliable strategy construction.
 
-The QSGA deterministic pipeline still fails all ambiguous-intent cases because the current benchmark scoring treats clarification as unimplemented. This must remain visible in the paper and should not be reframed as solved boundary handling.
+The QSGA deterministic pipeline now scores ambiguous-intent cases through clarification accuracy rather than forced construction. This improves the novice-interaction story, but it should not be reframed as solved dialogue: the current metric is single-turn and deterministic, and live multi-turn clarification remains future work.
 
 The live QYIR pilot exposes realistic generation failures, especially invalid indicator parameterization, unresolved aliases, and risk-audit failures. These failures strengthen the case for explicit verification but also block broad live LLM generalization claims.
 
