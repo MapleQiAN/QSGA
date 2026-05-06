@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+  <defs>
+    <style>
+      .title { font: 700 26px Arial, sans-serif; fill: #111827; }
+      .head { font: 700 20px Arial, sans-serif; fill: #111827; }
+      .label { font: 700 15px Arial, sans-serif; fill: #111827; }
+      .text { font: 14px Arial, sans-serif; fill: #334155; }
+      .small { font: 12px Arial, sans-serif; fill: #475569; }
+      .panel { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 8; }
+      .json { fill: #f8fafc; stroke: #64748b; }
+      .qyir { fill: #eff6ff; stroke: #2563eb; }
+      .slot { fill: #ffffff; stroke: #94a3b8; stroke-width: 1.5; rx: 6; }
+      .qslot { fill: #f0fdf4; stroke: #047857; stroke-width: 1.5; rx: 6; }
+      .warn { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.5; rx: 6; }
+    </style>
+  </defs>
+  <rect width="1200" height="620" fill="#f8fafc"/>
+  <text x="48" y="52" class="title">Figure 3. QYIR vs. JSON Schema</text>
+
+  <rect x="70" y="100" width="470" height="445" class="panel json"/>
+  <text x="215" y="142" class="head">JSON Schema</text>
+  <rect x="115" y="180" width="380" height="58" class="slot"/>
+  <text x="145" y="213" class="label">Surface format</text>
+  <text x="295" y="213" class="text">required keys and types</text>
+  <rect x="115" y="260" width="380" height="58" class="slot"/>
+  <text x="145" y="293" class="label">Generic object</text>
+  <text x="302" y="293" class="text">strings, numbers, arrays</text>
+  <rect x="115" y="340" width="380" height="58" class="warn"/>
+  <text x="145" y="373" class="label">Limited semantics</text>
+  <text x="308" y="373" class="text">valid shape may not trade</text>
+  <rect x="115" y="420" width="380" height="58" class="warn"/>
+  <text x="145" y="453" class="label">Weak repair signal</text>
+  <text x="316" y="453" class="text">error location may not imply action</text>
+
+  <rect x="660" y="100" width="470" height="445" class="panel qyir"/>
+  <text x="855" y="142" class="head">QYIR</text>
+  <rect x="705" y="175" width="380" height="52" class="qslot"/>
+  <text x="735" y="207" class="label">Semantic slots</text>
+  <text x="884" y="207" class="text">market, indicators, risk fields</text>
+  <rect x="705" y="245" width="380" height="52" class="qslot"/>
+  <text x="735" y="277" class="label">Alias namespace</text>
+  <text x="895" y="277" class="text">rule references must resolve</text>
+  <rect x="705" y="315" width="380" height="52" class="qslot"/>
+  <text x="735" y="347" class="label">Compile semantics</text>
+  <text x="908" y="347" class="text">rules become signals</text>
+  <rect x="705" y="385" width="380" height="52" class="qslot"/>
+  <text x="735" y="417" class="label">Risk audit fields</text>
+  <text x="904" y="417" class="text">position, leverage, drawdown</text>
+  <rect x="705" y="455" width="380" height="52" class="qslot"/>
+  <text x="735" y="487" class="label">Repair interface</text>
+  <text x="902" y="487" class="text">localized field updates</text>
+
+  <text x="92" y="575" class="small">Takeaway: JSON Schema can enforce shape; QYIR connects shape to strategy semantics, execution, risk auditing, and repair.</text>
+</svg>

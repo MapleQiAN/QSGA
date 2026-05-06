@@ -1,0 +1,29 @@
+{
+  "created_at": "2026-05-06T01:47:07.860178+00:00",
+  "benchmark_path": "benchmark\\qsi_bench_v1.jsonl",
+  "data_path": "data\\raw\\spy_sample.csv",
+  "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "models": [
+    "qwen3.6-flash"
+  ],
+  "case_count": 10,
+  "case_ids": [
+    "qsi_041",
+    "qsi_042",
+    "qsi_043",
+    "qsi_044",
+    "qsi_045",
+    "qsi_046",
+    "qsi_047",
+    "qsi_048",
+    "qsi_049",
+    "qsi_050"
+  ],
+  "seed": 20260505,
+  "max_retries": 0,
+  "max_tokens": 800,
+  "methods": [
+    "live_raw_qyir",
+    "live_qsga_qyir"
+  ]
+}

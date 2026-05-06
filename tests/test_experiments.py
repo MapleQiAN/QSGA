@@ -9,7 +9,9 @@ import pandas as pd
 from experiments.baselines import build_qyir_from_record, load_benchmark, run_methods
 from experiments.eval_metrics import compute_metrics
 from experiments.paper_tables import generate_paper_tables
+from experiments.run_live_direct_code import evaluate_direct_code, replay_live_direct_code
 from experiments.run_live_llm import normalize_model_name, select_records
+from experiments.run_multi_asset_smoke import run_multi_asset_smoke
 from qyir.validator import validate_qyir
 
 
@@ -149,3 +151,81 @@ def test_live_llm_subset_selection_is_reproducible_and_stratified() -> None:
 def test_live_llm_model_aliases_match_approved_display_names() -> None:
     assert normalize_model_name("Qwen3.6-Plus") == "qwen3.6-plus"
     assert normalize_model_name("Qwen3.6-Plus(0402)") == "qwen3.6-plus-2026-04-02"
+
+
+def test_wo_qyir_ablation_emits_canonical_result() -> None:
+    record = load_benchmark()[0]
+
+    result = run_methods([record], ["wo_qyir"])[0]
+
+    assert result.method == "wo_qyir"
+    assert result.case_id == record["id"]
+    assert result.end_to_end_success is False
+
+
+def test_live_direct_code_evaluator_accepts_required_interface() -> None:
+    record = load_benchmark()[0]
+    data = pd.read_csv("data/raw/spy_sample.csv")
+    code = """
+def generate_signals(df):
+    fast = df["close"].rolling(20).mean()
+    slow = df["close"].rolling(60).mean()
+    return (fast > slow).astype(int)
+"""
+
+    result = evaluate_direct_code(record, "live_direct_code::test", code, data)
+
+    assert result.syntax_success
+    assert result.interface_success
+    assert result.runtime_success
+    assert result.trade_validity
+    assert result.backtest_success
+
+
+def test_live_direct_code_replay_uses_saved_raw_outputs(tmp_path) -> None:
+    code = """
+def generate_signals(df):
+    fast = df["close"].rolling(20).mean()
+    slow = df["close"].rolling(60).mean()
+    return (fast > slow).astype(int)
+"""
+    raw_path = tmp_path / "raw.jsonl"
+    metadata_path = tmp_path / "metadata.json"
+    raw_path.write_text(
+        json.dumps(
+            {
+                "model": "test-model",
+                "method": "live_direct_code::test-model",
+                "case_id": "qsi_001",
+                "attempt": 1,
+                "prompt": "prompt",
+                "raw_output": code,
+                "prompt_tokens": 1,
+                "completion_tokens": 1,
+                "total_tokens": 2,
+                "error": None,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    metadata_path.write_text(
+        json.dumps({"models": ["test-model"], "case_ids": ["qsi_001"]}),
+        encoding="utf-8",
+    )
+
+    results = replay_live_direct_code(raw_output_path=raw_path, metadata_path=metadata_path)
+
+    assert len(results) == 1
+    assert results[0].method == "live_direct_code::test-model"
+    assert results[0].runtime_success
+
+
+def test_multi_asset_smoke_runs_synthetic_symbols() -> None:
+    results = run_multi_asset_smoke(case_id="qsi_001")
+
+    assert len(results) == 5
+    assert {result.symbol for result in results} == {"SPY", "QQQ", "GLD"}
+    assert all(result.compile_success for result in results)
+    assert all(result.backtest_success for result in results)
+    assert all(result.risk_audit_runnable for result in results)

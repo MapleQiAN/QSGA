@@ -1,0 +1,21 @@
+case_id,category,method,should_reject,rejected,schema_valid,semantic_consistent,compile_success,backtest_success,risk_violation,repair_triggered,repair_success,safe_rejection_correct,end_to_end_success,errors
+qsi_011,trend_following,live_raw_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"root: Value error, entry_rules[0].left references unknown alias 'close'"
+qsi_011,trend_following,live_qsga_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"root: Value error, entry_rules[0].left references unknown alias 'close'"
+qsi_012,trend_following,live_raw_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,backtest_metrics.num_trades: The backtest has too few trades for a reliable sample.; backtest_metrics.sharpe_ratio: The strategy Sharpe ratio is low.
+qsi_012,trend_following,live_qsga_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"exit_rules: List should have at least 1 item after validation, not 0"
+qsi_013,trend_following,live_raw_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,backtest_metrics.sharpe_ratio: The strategy Sharpe ratio is low.
+qsi_013,trend_following,live_qsga_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,backtest_metrics.sharpe_ratio: The strategy Sharpe ratio is low.
+qsi_014,trend_following,live_raw_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"indicators.0: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']"
+qsi_014,trend_following,live_qsga_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"indicators.0: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']; indicators.1: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']"
+qsi_015,trend_following,live_raw_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"root: Value error, entry_rules[0].left references unknown alias 'close'"
+qsi_015,trend_following,live_qsga_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,backtest_metrics.sharpe_ratio: The strategy Sharpe ratio is low.
+qsi_016,mean_reversion,live_raw_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,
+qsi_016,mean_reversion,live_qsga_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,
+qsi_017,mean_reversion,live_raw_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"indicators.0: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']"
+qsi_017,mean_reversion,live_qsga_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"indicators.0: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']; indicators.1: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']"
+qsi_018,mean_reversion,live_raw_qyir::qwen3.6-flash,False,False,True,True,True,True,False,False,False,True,True,backtest_metrics.sharpe_ratio: The strategy Sharpe ratio is low.
+qsi_018,mean_reversion,live_qsga_qyir::qwen3.6-flash,False,False,True,True,False,False,False,False,False,True,False,Exit rule 0 failed: 'float' object has no attribute 'shift'
+qsi_019,mean_reversion,live_raw_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"root: Value error, exit_rules[0].left references unknown alias 'close'"
+qsi_019,mean_reversion,live_qsga_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"root: Value error, exit_rules[0].left references unknown alias 'close'"
+qsi_020,mean_reversion,live_raw_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"indicators.0: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']; indicators.1: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']"
+qsi_020,mean_reversion,live_qsga_qyir::qwen3.6-flash,False,False,False,False,False,False,False,False,False,True,False,"indicators.0: Value error, BOLLINGER.output must be one of ['upper', 'middle', 'lower']"

@@ -1,0 +1,3 @@
+model,method
+qwen3.6-flash,live_qsga_qyir::qwen3.6-flash
+qwen3.6-flash,live_raw_qyir::qwen3.6-flash

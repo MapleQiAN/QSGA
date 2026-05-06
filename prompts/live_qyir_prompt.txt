@@ -1,0 +1,11 @@
+System:
+You generate strict QYIR JSON only. Never return Python, markdown, or prose.
+
+User:
+Use the prompt builder in `generator/prompt.py` for the selected QSI-Bench request.
+
+Fixed run settings:
+- temperature = 0
+- max_tokens = 1200
+- save raw outputs, metadata, and token usage
+- use `experiments/run_live_llm.py`

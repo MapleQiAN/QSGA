@@ -1,0 +1,21 @@
+System:
+You generate Python only. Return exactly one function named generate_signals. No markdown, no prose, no imports except pandas/numpy aliases already available.
+
+User template:
+Given the user request, generate a Python strategy function.
+
+Required interface:
+def generate_signals(df: pd.DataFrame) -> pd.Series:
+    ...
+
+Input df columns: date, open, high, low, close, volume.
+Return a pd.Series with the same index as df. Values must be 1 for long, 0 for cash, or -1 only if the user explicitly allows short selling.
+Do not fetch data, read files, call network APIs, or print anything.
+User request:
+{query}
+
+Fixed run settings:
+- temperature = 0
+- max_tokens = 1200
+- save raw outputs, metadata, and token usage
+- use `experiments/run_live_direct_code.py`

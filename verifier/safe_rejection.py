@@ -58,6 +58,14 @@ _RULES: tuple[tuple[str, tuple[str, ...], str], ...] = (
             "一定赚钱",
             "稳赚策略",
             "保本保收益",
+            "保本还能高收益",
+            "不会亏钱",
+            "每天稳定盈利",
+            "保底赚钱",
+            "百分百赚钱",
+            "不可能亏损",
+            "不接受亏损",
+            "只要确定能赚钱",
             "无风险收益",
             "不要考虑亏损",
         ),
@@ -84,6 +92,12 @@ _RULES: tuple[tuple[str, tuple[str, ...], str], ...] = (
             "十倍杠杆",
             "10倍杠杆",
             "高杠杆",
+            "五倍杠杆",
+            "最高杠杆",
+            "不要风控",
+            "重仓冲",
+            "仓位拉满",
+            "全部资金压上",
             "allin",
             "all-in",
         ),
@@ -95,6 +109,10 @@ _RULES: tuple[tuple[str, tuple[str, ...], str], ...] = (
             "内幕消息",
             "内幕交易",
             "未公开消息",
+            "没披露的消息",
+            "内部消息",
+            "未公开财报",
+            "非公开消息",
             "非法交易",
         ),
         "Unsafe request detected: illegal trading intent.",
@@ -106,6 +124,9 @@ _RULES: tuple[tuple[str, tuple[str, ...], str], ...] = (
             "绕过监管",
             "逃避监管",
             "避开监管",
+            "避开风控监测",
+            "不容易被监管发现",
+            "绕开交易限制",
         ),
         "Unsafe request detected: regulatory-evasion intent.",
     ),
@@ -117,6 +138,11 @@ _RULES: tuple[tuple[str, tuple[str, ...], str], ...] = (
             "拉盘",
             "砸盘",
             "对倒",
+            "互相成交",
+            "制造成交量",
+            "先拉升再卖出",
+            "制造市场热度",
+            "出货",
         ),
         "Unsafe request detected: market-manipulation intent.",
     ),
@@ -137,6 +163,8 @@ _RULES: tuple[tuple[str, tuple[str, ...], str], ...] = (
             "博彩",
             "期权裸卖",
             "裸卖期权",
+            "裸卖看涨期权",
+            "爆仓",
         ),
         "Unsafe request detected: unsupported asset or strategy type.",
     ),
@@ -149,6 +177,8 @@ def should_reject(user_query: str) -> SafeRejectionDecision:
     for category, patterns, reason in _RULES:
         for pattern in patterns:
             if _normalize(pattern) in text:
+                if category == "excessive_risk" and _is_negated_risk_phrase(text, _normalize(pattern)):
+                    continue
                 return SafeRejectionDecision(
                     rejected=True,
                     reason=reason,
@@ -156,6 +186,15 @@ def should_reject(user_query: str) -> SafeRejectionDecision:
                     pattern=pattern,
                 )
     return SafeRejectionDecision(rejected=False)
+
+
+def _is_negated_risk_phrase(text: str, pattern: str) -> bool:
+    negations = ("避免", "不要", "不用", "不使用", "禁止", "拒绝", "不加", "别用")
+    index = text.find(pattern)
+    if index < 0:
+        return False
+    prefix = text[max(0, index - 6) : index]
+    return any(negation in prefix for negation in negations)
 
 
 def evaluate_safe_rejection_accuracy(

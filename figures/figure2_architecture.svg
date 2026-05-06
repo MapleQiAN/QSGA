@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="600" viewBox="0 0 1280 600">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#243142"/>
+    </marker>
+    <style>
+      .title { font: 700 26px Arial, sans-serif; fill: #111827; }
+      .stage { font: 700 15px Arial, sans-serif; fill: #111827; }
+      .desc { font: 12px Arial, sans-serif; fill: #475569; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 8; }
+      .gate { fill: #fef3c7; stroke: #b45309; }
+      .core { fill: #eff6ff; stroke: #2563eb; }
+      .exec { fill: #ecfdf5; stroke: #047857; }
+      .repair { fill: #fdf2f8; stroke: #be185d; }
+      .arrow { stroke: #243142; stroke-width: 2; marker-end: url(#arrow); fill: none; }
+      .loop { stroke: #be185d; stroke-width: 2; stroke-dasharray: 7 5; marker-end: url(#arrow); fill: none; }
+    </style>
+  </defs>
+  <rect width="1280" height="600" fill="#f8fafc"/>
+  <text x="48" y="52" class="title">Figure 2. QSGA Architecture</text>
+
+  <rect x="55" y="135" width="130" height="90" class="box"/>
+  <text x="88" y="170" class="stage">User</text>
+  <text x="78" y="193" class="desc">request</text>
+
+  <rect x="235" y="120" width="145" height="120" class="box gate"/>
+  <text x="267" y="158" class="stage">Boundary</text>
+  <text x="280" y="181" class="stage">Check</text>
+  <text x="263" y="210" class="desc">reject / clarify</text>
+
+  <rect x="430" y="120" width="145" height="120" class="box core"/>
+  <text x="462" y="158" class="stage">QYIR</text>
+  <text x="450" y="181" class="stage">Generator</text>
+  <text x="454" y="210" class="desc">slots and rules</text>
+
+  <rect x="625" y="120" width="155" height="120" class="box core"/>
+  <text x="658" y="153" class="stage">Schema /</text>
+  <text x="657" y="176" class="stage">Semantic</text>
+  <text x="668" y="199" class="stage">Verifier</text>
+  <text x="654" y="222" class="desc">typed errors</text>
+
+  <rect x="830" y="120" width="145" height="120" class="box exec"/>
+  <text x="866" y="158" class="stage">Compiler</text>
+  <text x="855" y="190" class="desc">signals from IR</text>
+
+  <rect x="1025" y="120" width="145" height="120" class="box exec"/>
+  <text x="1059" y="158" class="stage">Backtester</text>
+  <text x="1052" y="190" class="desc">execution check</text>
+
+  <rect x="830" y="365" width="145" height="120" class="box exec"/>
+  <text x="860" y="403" class="stage">Risk</text>
+  <text x="850" y="426" class="stage">Auditor</text>
+  <text x="850" y="455" class="desc">constraint check</text>
+
+  <rect x="625" y="365" width="155" height="120" class="box repair"/>
+  <text x="674" y="403" class="stage">Repair</text>
+  <text x="652" y="435" class="desc">localized updates</text>
+
+  <rect x="235" y="365" width="270" height="120" class="box"/>
+  <text x="298" y="403" class="stage">Final Output</text>
+  <text x="278" y="435" class="desc">QYIR, report, explanation, limits</text>
+
+  <path d="M185 180 L235 180" class="arrow"/>
+  <path d="M380 180 L430 180" class="arrow"/>
+  <path d="M575 180 L625 180" class="arrow"/>
+  <path d="M780 180 L830 180" class="arrow"/>
+  <path d="M975 180 L1025 180" class="arrow"/>
+  <path d="M1098 240 C1098 315 970 333 920 365" class="arrow"/>
+  <path d="M830 425 L780 425" class="loop"/>
+  <path d="M702 365 C700 305 703 275 705 240" class="loop"/>
+  <path d="M830 425 C720 535 540 500 505 425" class="arrow"/>
+  <path d="M625 425 C560 425 540 425 505 425" class="arrow"/>
+</svg>

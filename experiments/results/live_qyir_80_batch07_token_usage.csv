@@ -1,0 +1,3 @@
+model,method,calls,prompt_tokens,completion_tokens,total_tokens,api_errors
+qwen3.6-flash,live_raw_qyir::qwen3.6-flash,5,0,0,0,5
+qwen3.6-flash,live_qsga_qyir::qwen3.6-flash,5,0,0,0,5

@@ -126,6 +126,7 @@ def run_live_direct_code(
     seed: int = 20260505,
     max_tokens: int = DEFAULT_MAX_TOKENS,
     allow_coding_plan: bool = False,
+    checkpoint_dir: str | Path | None = None,
 ) -> tuple[list[DirectCodeResult], list[RawCall], dict[str, Any]]:
     api_key = read_api_key(api_key_file)
     guard_api_terms(api_key, base_url, allow_coding_plan)
@@ -134,6 +135,9 @@ def run_live_direct_code(
     audit: list[RawCall] = []
     results: list[DirectCodeResult] = []
     normalized_models = [normalize_model_name(model) for model in models]
+    checkpoint = Path(checkpoint_dir) if checkpoint_dir is not None else None
+    if checkpoint is not None:
+        checkpoint.mkdir(parents=True, exist_ok=True)
 
     for model in normalized_models:
         for record in selected:
@@ -153,8 +157,12 @@ def run_live_direct_code(
                 raw = client.generate(prompt)
             except Exception as exc:
                 results.append(_failed_result(record, method, f"api_error: {type(exc).__name__}: {exc}"))
-                continue
-            results.append(evaluate_direct_code(record, method, raw, price_data))
+            else:
+                results.append(evaluate_direct_code(record, method, raw, price_data))
+            if checkpoint is not None:
+                write_direct_results(results, checkpoint / "live_direct_code_results.partial.csv")
+                write_method_results(results, checkpoint / "live_direct_code_method_results.partial.csv")
+                write_audit_jsonl(audit, checkpoint / "live_direct_code_raw_outputs.partial.jsonl")
 
     metadata = {
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -169,6 +177,40 @@ def run_live_direct_code(
         "methods": [f"live_direct_code::{model}" for model in normalized_models],
     }
     return results, audit, metadata
+
+
+def replay_live_direct_code(
+    *,
+    raw_output_path: str | Path,
+    metadata_path: str | Path,
+    benchmark_path: str | Path = DEFAULT_BENCHMARK_PATH,
+    data_path: str | Path = DEFAULT_DATA_PATH,
+) -> list[DirectCodeResult]:
+    """Recompute live direct-code metrics from saved raw outputs without API calls."""
+    metadata = json.loads(Path(metadata_path).read_text(encoding="utf-8"))
+    records = {str(record["id"]): record for record in load_benchmark(benchmark_path)}
+    selected: list[dict[str, Any]] = []
+    for case_id in metadata["case_ids"]:
+        case_key = str(case_id)
+        if case_key not in records:
+            raise ValueError(f"Metadata references unknown case id: {case_key}")
+        selected.append(records[case_key])
+
+    price_data = pd.read_csv(data_path)
+    raw_calls = _load_raw_calls(raw_output_path)
+    calls_by_key = {(call.method, call.case_id): call for call in raw_calls}
+    results: list[DirectCodeResult] = []
+    for model in [str(model) for model in metadata["models"]]:
+        method = f"live_direct_code::{model}"
+        for record in selected:
+            call = calls_by_key.get((method, str(record["id"])))
+            if call is None:
+                results.append(_failed_result(record, method, "replay_error: missing raw call"))
+            elif call.error:
+                results.append(_failed_result(record, method, f"api_error: {call.error}"))
+            else:
+                results.append(evaluate_direct_code(record, method, call.raw_output, price_data))
+    return results
 
 
 def evaluate_direct_code(
@@ -258,6 +300,29 @@ def write_direct_results(results: Iterable[DirectCodeResult], output_path: str |
 
 def write_method_results(results: Iterable[DirectCodeResult], output_path: str | Path) -> None:
     results_to_csv([result.to_method_result() for result in results], output_path)
+
+
+def _load_raw_calls(raw_output_path: str | Path) -> list[RawCall]:
+    calls: list[RawCall] = []
+    for line in Path(raw_output_path).read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        calls.append(
+            RawCall(
+                model=str(row["model"]),
+                method=str(row["method"]),
+                case_id=str(row["case_id"]),
+                attempt=int(row["attempt"]),
+                prompt=str(row["prompt"]),
+                raw_output=str(row["raw_output"]),
+                prompt_tokens=row.get("prompt_tokens"),
+                completion_tokens=row.get("completion_tokens"),
+                total_tokens=row.get("total_tokens"),
+                error=row.get("error"),
+            )
+        )
+    return calls
 
 
 def _extract_code(raw_output: str) -> str:
@@ -397,7 +462,25 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--raw-output", default="experiments/results/live_direct_code_raw_outputs.jsonl")
     parser.add_argument("--metadata-output", default="experiments/results/live_direct_code_metadata.json")
     parser.add_argument("--usage-output", default="experiments/results/live_direct_code_token_usage.csv")
+    parser.add_argument("--checkpoint-dir", default=None, help="Optional directory for partial results during long live runs.")
+    parser.add_argument("--replay-raw-output", default=None, help="Recompute results from saved direct-code raw JSONL.")
+    parser.add_argument("--replay-metadata", default=None, help="Metadata JSON for --replay-raw-output.")
     args = parser.parse_args(argv)
+
+    if args.replay_raw_output:
+        if not args.replay_metadata:
+            parser.error("--replay-metadata is required with --replay-raw-output")
+        results = replay_live_direct_code(
+            raw_output_path=args.replay_raw_output,
+            metadata_path=args.replay_metadata,
+            benchmark_path=args.benchmark,
+            data_path=args.data,
+        )
+        write_direct_results(results, args.output)
+        write_method_results(results, args.method_output)
+        print(f"Replayed {len(results)} direct-code rows to {args.output}")
+        print(f"Wrote MethodResult-compatible rows to {args.method_output}")
+        return 0
 
     case_limit = None if args.case_limit == 0 else args.case_limit
     results, audit, metadata = run_live_direct_code(
@@ -411,6 +494,7 @@ def main(argv: list[str] | None = None) -> int:
         seed=args.seed,
         max_tokens=args.max_tokens,
         allow_coding_plan=args.allow_coding_plan_automation,
+        checkpoint_dir=args.checkpoint_dir,
     )
     write_direct_results(results, args.output)
     write_method_results(results, args.method_output)

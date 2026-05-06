@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#2f3a4a"/>
+    </marker>
+    <style>
+      .title { font: 700 26px Arial, sans-serif; fill: #1f2937; }
+      .label { font: 700 17px Arial, sans-serif; fill: #111827; }
+      .text { font: 14px Arial, sans-serif; fill: #374151; }
+      .small { font: 12px Arial, sans-serif; fill: #4b5563; }
+      .box { fill: #ffffff; stroke: #344256; stroke-width: 2; rx: 8; }
+      .risk { fill: #fff7ed; stroke: #c2410c; }
+      .ir { fill: #eef6ff; stroke: #1d4ed8; }
+      .ok { fill: #eefdf4; stroke: #047857; }
+      .arrow { stroke: #2f3a4a; stroke-width: 2.2; marker-end: url(#arrow); fill: none; }
+    </style>
+  </defs>
+  <rect width="1200" height="520" fill="#f8fafc"/>
+  <text x="48" y="54" class="title">Figure 1. Problem and Technical Route</text>
+
+  <rect x="55" y="115" width="185" height="115" class="box"/>
+  <text x="82" y="151" class="label">Natural-language</text>
+  <text x="105" y="174" class="label">intent</text>
+  <text x="80" y="204" class="small">novice strategy request</text>
+
+  <rect x="300" y="80" width="250" height="185" class="box risk"/>
+  <text x="335" y="116" class="label">Failure pressure</text>
+  <text x="326" y="150" class="text">ambiguous intent</text>
+  <text x="326" y="178" class="text">unsafe premise</text>
+  <text x="326" y="206" class="text">invalid rules / aliases</text>
+  <text x="326" y="234" class="text">risk-control violation</text>
+
+  <rect x="615" y="115" width="205" height="115" class="box ir"/>
+  <text x="693" y="151" class="label">QYIR</text>
+  <text x="654" y="181" class="text">semantic slots</text>
+  <text x="654" y="207" class="text">compilable rules</text>
+
+  <rect x="875" y="80" width="265" height="185" class="box ok"/>
+  <text x="930" y="116" class="label">Verification route</text>
+  <text x="910" y="150" class="text">schema and semantic checks</text>
+  <text x="910" y="178" class="text">deterministic compilation</text>
+  <text x="910" y="206" class="text">backtest execution</text>
+  <text x="910" y="234" class="text">risk audit and repair</text>
+
+  <rect x="405" y="355" width="390" height="95" class="box"/>
+  <text x="470" y="390" class="label">Executable strategy artifact</text>
+  <text x="478" y="420" class="text">report with scope, metrics, risk audit, and limitations</text>
+
+  <path d="M240 172 L300 172" class="arrow"/>
+  <path d="M550 172 L615 172" class="arrow"/>
+  <path d="M820 172 L875 172" class="arrow"/>
+  <path d="M1007 265 C1007 330 790 350 755 370" class="arrow"/>
+  <path d="M615 172 C560 245 525 302 520 355" class="arrow"/>
+</svg>
