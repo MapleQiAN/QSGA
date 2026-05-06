@@ -23,8 +23,10 @@ from experiments.baselines import (
     BenchmarkRecord,
     MethodResult,
     build_qyir_from_record,
+    clarification_result,
     expected_slots_match,
     load_benchmark,
+    query_needs_clarification,
     results_to_csv,
 )
 from qyir.validator import validate_qyir
@@ -50,8 +52,6 @@ def extract_slots_from_query(record: BenchmarkRecord) -> dict[str, Any]:
             slots["strategy_type"] = "momentum"
         else:
             slots["strategy_type"] = "trend_following"
-    else:
-        slots["safe_action"] = "clarify"
 
     windows = _extract_windows(query)
     if windows:
@@ -84,6 +84,8 @@ def extract_slots_from_query(record: BenchmarkRecord) -> dict[str, Any]:
         slots["asset_hint"] = "spy"
 
     if any(token in query for token in ("参数你自己看着办", "差不多", "不要太激进", "风险别太大")):
+        slots["safe_action"] = "clarify"
+    if query_needs_clarification(query):
         slots["safe_action"] = "clarify"
 
     return slots
@@ -122,6 +124,8 @@ def run_no_oracle_method(record: BenchmarkRecord, price_data: pd.DataFrame) -> M
 
     predicted_record = dict(record)
     predicted_record["expected_slots"] = extract_slots_from_query(record)
+    if dict(predicted_record["expected_slots"]).get("safe_action") == "clarify":
+        return clarification_result(record, METHOD_NAME)
     qyir = build_qyir_from_record(predicted_record)
 
     validation = validate_qyir(qyir)
@@ -236,6 +240,8 @@ def _result(
         repair_triggered=False,
         repair_success=False,
         safe_rejection_correct=(rejected == should_reject) if should_reject else not rejected,
+        clarification_requested=False,
+        clarification_correct=False,
         end_to_end_success=end_to_end_success,
         errors=errors,
     )

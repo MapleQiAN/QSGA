@@ -1,2 +1,2 @@
 method,schema_validity,semantic_consistency,compile_success,backtest_success,risk_violation,repair_success,safe_rejection_accuracy,clarification_accuracy,construction_success,end_to_end_success
-live_direct_code::qwen3.6-flash,0.0,0.5454545454545454,1.0,0.8727272727272727,0.16363636363636364,0.0,0.0,0.0,0.509090909090909,0.35
+live_direct_code_shared_rejection::qwen3.6-flash,0.0,0.5454545454545454,1.0,0.8727272727272727,0.16363636363636364,0.0,1.0,0.0,0.509090909090909,0.5375

@@ -32,6 +32,7 @@ python -m experiments.run_no_oracle --output experiments/results/no_oracle_resul
 python -m experiments.eval_metrics --input experiments/results/no_oracle_results.csv --output experiments/results/no_oracle_metrics.csv
 python -m experiments.run_multi_asset_smoke --output experiments/results/multi_asset_smoke_results.csv
 python -m experiments.run_safe_paraphrase --output experiments/results/safe_paraphrase_results.csv --metrics-output experiments/results/safe_paraphrase_metrics.csv
+python -m experiments.run_semantic_corruption --output experiments/results/semantic_corruption_results.csv --metrics-output experiments/results/semantic_corruption_metrics.csv
 python -m experiments.paper_tables --metrics experiments/results/baseline_metrics.csv --results experiments/results/baseline_results.csv --ablation-metrics experiments/results/ablation_metrics.csv --output-dir experiments/tables
 ```
 
@@ -62,7 +63,10 @@ Replay saved direct-code outputs:
 
 ```powershell
 python -m experiments.run_live_direct_code --replay-raw-output experiments/results/live_direct_code_raw_outputs.jsonl --replay-metadata experiments/results/live_direct_code_metadata.json --output experiments/results/live_direct_code_replay_results.csv --method-output experiments/results/live_direct_code_replay_method_results.csv
-python -m experiments.eval_metrics --input experiments/results/live_direct_code_method_results.csv --output experiments/results/live_direct_code_metrics.csv
+python -m experiments.eval_metrics --input experiments/results/live_direct_code_replay_method_results.csv --output experiments/results/live_direct_code_metrics.csv
+python -m experiments.run_live_direct_code_wrapper --replay-raw-output experiments/results/live_direct_code_raw_outputs.jsonl --replay-metadata experiments/results/live_direct_code_metadata.json --output experiments/results/live_direct_code_shared_rejection_results.csv
+python -m experiments.eval_metrics --input experiments/results/live_direct_code_shared_rejection_results.csv --output experiments/results/live_direct_code_shared_rejection_metrics.csv
 ```
 
 Current saved result: `live_direct_code::qwen3.6-flash` reaches `0.350` E2E on 80 cases.
+Shared-rejection replay result: `live_direct_code_shared_rejection::qwen3.6-flash` reaches `0.538` E2E on 80 cases.

@@ -25,8 +25,10 @@ from experiments.baselines import (
     DEFAULT_BENCHMARK_PATH,
     DEFAULT_DATA_PATH,
     MethodResult,
+    clarification_result,
     expected_slots_match,
     load_benchmark,
+    query_needs_clarification,
     results_to_csv,
 )
 from generator.llm_client import LLMClient
@@ -411,6 +413,8 @@ def _replay_method(
                 end_to_end_success=expected_reject,
                 errors=[rejection.reason or "safe rejection"],
             )
+        if query_needs_clarification(str(record["user_query"])):
+            return clarification_result(record, method)
 
     call = calls_by_key.get((method, str(record["id"])))
     if call is None:
@@ -509,6 +513,8 @@ def _run_live_qsga_qyir(
             end_to_end_success=expected_reject,
             errors=[rejection.reason or "safe rejection"],
         )
+    if query_needs_clarification(query):
+        return clarification_result(record, method)
 
     client: LLMClient = AuditedOpenAIClient(
         api_key=api_key,
@@ -682,6 +688,8 @@ def _method_result(
         repair_triggered=repair_triggered,
         repair_success=repair_success,
         safe_rejection_correct=(rejected == should_reject) if should_reject else not rejected,
+        clarification_requested=False,
+        clarification_correct=False,
         end_to_end_success=end_to_end_success,
         errors=errors,
     )

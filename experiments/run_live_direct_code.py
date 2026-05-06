@@ -109,6 +109,8 @@ class DirectCodeResult:
             repair_triggered=False,
             repair_success=False,
             safe_rejection_correct=False if self.should_reject else not self.rejected,
+            clarification_requested=False,
+            clarification_correct=False,
             end_to_end_success=self.end_to_end_success,
             errors=self.errors,
         )

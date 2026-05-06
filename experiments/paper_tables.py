@@ -41,6 +41,8 @@ def _write_main_table(metrics: pd.DataFrame, path: Path) -> Path:
             "compile_success": "Compile Success ↑",
             "backtest_success": "Backtest Success ↑",
             "risk_violation": "Risk Violation ↓",
+            "clarification_accuracy": "Clarification Accuracy ↑",
+            "construction_success": "Construction Success ↑",
             "end_to_end_success": "E2E Success ↑",
         }
     )
@@ -51,6 +53,8 @@ def _write_main_table(metrics: pd.DataFrame, path: Path) -> Path:
         "Compile Success ↑",
         "Backtest Success ↑",
         "Risk Violation ↓",
+        "Clarification Accuracy ↑",
+        "Construction Success ↑",
         "E2E Success ↑",
     ]
     path.write_text(_to_markdown(renamed[cols]), encoding="utf-8")
@@ -76,6 +80,7 @@ def _write_repair_table(results: pd.DataFrame, path: Path) -> Path:
 
 def _write_safe_rejection_table(results: pd.DataFrame, path: Path) -> Path:
     unsafe = results[results["should_reject"] == True]  # noqa: E712
+    unsafe = unsafe[~unsafe["method"].isin(["direct_code", "direct_json"])]
     rows = []
     for method, group in unsafe.groupby("method", sort=False):
         rows.append(
@@ -101,6 +106,8 @@ def _write_ablation_table(metrics: pd.DataFrame, path: Path) -> Path:
             "risk_violation": "Risk Violation ↓",
             "safe_rejection_accuracy": "Safe Rejection Accuracy ↑",
             "repair_success": "Repair Success ↑",
+            "clarification_accuracy": "Clarification Accuracy ↑",
+            "construction_success": "Construction Success ↑",
             "end_to_end_success": "E2E Success ↑",
         }
     )
@@ -110,6 +117,8 @@ def _write_ablation_table(metrics: pd.DataFrame, path: Path) -> Path:
         "Risk Violation ↓",
         "Safe Rejection Accuracy ↑",
         "Repair Success ↑",
+        "Clarification Accuracy ↑",
+        "Construction Success ↑",
         "E2E Success ↑",
     ]
     path.write_text(_to_markdown(renamed[cols]), encoding="utf-8")

@@ -1,6 +1,6 @@
 # QSGA Experiment Results Summary
 
-Generated from the cleaned experiment run on 2026-05-05.
+Generated from the cleaned experiment runs through 2026-05-06.
 
 ## Benchmark Composition
 
@@ -16,42 +16,55 @@ Generated from the cleaned experiment run on 2026-05-05.
 
 ## Main Comparison
 
-| Method | Schema Validity ↑ | Semantic Consistency ↑ | Compile Success ↑ | Backtest Success ↑ | Risk Violation ↓ | E2E Success ↑ |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| direct_code | 0.000 | 0.615 | 0.846 | 0.615 | 0.231 | 0.500 |
-| direct_json | 0.769 | 0.569 | 0.769 | 0.769 | 0.415 | 0.400 |
-| qsga_no_repair | 0.600 | 0.477 | 0.600 | 0.600 | 0.354 | 0.375 |
-| qsga_no_risk_audit | 1.000 | 0.800 | 1.000 | 1.000 | 0.508 | 0.512 |
-| qsga_full | 1.000 | 0.800 | 1.000 | 1.000 | 0.000 | 0.838 |
+| Method | Schema Validity ↑ | Semantic Consistency ↑ | Compile Success ↑ | Backtest Success ↑ | Risk Violation ↓ | Clarification Accuracy ↑ | Construction Success ↑ | E2E Success ↑ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| direct_code | 0.000 | 0.727 | 1.000 | 0.727 | 0.273 | 0.000 | 0.727 | 0.500 |
+| direct_json | 0.727 | 0.673 | 0.727 | 0.727 | 0.364 | 0.000 | 0.309 | 0.400 |
+| qsga_no_repair | 0.582 | 0.564 | 0.582 | 0.582 | 0.291 | 1.000 | 0.273 | 0.500 |
+| qsga_no_risk_audit | 1.000 | 0.945 | 1.000 | 1.000 | 0.473 | 1.000 | 0.473 | 0.637 |
+| qsga_full | 1.000 | 0.945 | 1.000 | 1.000 | 0.000 | 1.000 | 0.945 | 0.963 |
 
 ## Ablation Study
 
-| Method | Semantic Consistency ↑ | Risk Violation ↓ | Safe Rejection Accuracy ↑ | Repair Success ↑ | E2E Success ↑ |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| qsga_full | 0.800 | 0.000 | 1.000 | 1.000 | 0.838 |
-| wo_semantic_verification | 0.800 | 0.000 | 1.000 | 1.000 | 0.838 |
-| wo_risk_audit | 0.800 | 0.508 | 1.000 | 1.000 | 0.512 |
-| wo_repair | 0.477 | 0.354 | 1.000 | 0.000 | 0.375 |
-| wo_safe_rejection | 0.800 | 0.000 | 0.000 | 1.000 | 0.650 |
+| Method | Semantic Consistency ↑ | Risk Violation ↓ | Safe Rejection Accuracy ↑ | Repair Success ↑ | Clarification Accuracy ↑ | Construction Success ↑ | E2E Success ↑ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| qsga_full | 0.945 | 0.000 | 1.000 | 1.000 | 1.000 | 0.945 | 0.963 |
+| wo_qyir | 0.418 | 0.364 | 0.000 | 0.000 | 0.000 | 0.236 | 0.163 |
+| wo_semantic_verification | 0.945 | 0.000 | 1.000 | 1.000 | 0.000 | 0.945 | 0.838 |
+| wo_risk_audit | 0.945 | 0.473 | 1.000 | 1.000 | 0.000 | 0.473 | 0.512 |
+| wo_repair | 0.564 | 0.291 | 1.000 | 0.000 | 0.000 | 0.273 | 0.375 |
+| wo_safe_rejection | 0.945 | 0.000 | 0.000 | 1.000 | 0.000 | 0.945 | 0.650 |
 
 ## Repair Effect
 
 | Method | Before Repair | After Repair | Repair Success |
 | --- | ---: | ---: | ---: |
 | direct_json | 15 | 0 | 0.000 |
-| qsga_no_repair | 26 | 0 | 0.000 |
-| qsga_no_risk_audit | 26 | 26 | 1.000 |
-| qsga_full | 49 | 49 | 1.000 |
+| qsga_no_repair | 23 | 0 | 0.000 |
+| qsga_no_risk_audit | 23 | 23 | 1.000 |
+| qsga_full | 39 | 39 | 1.000 |
 
 ## Safe Rejection
 
 | Method | Unsafe Samples | Correct Rejection | Accuracy |
 | --- | ---: | ---: | ---: |
-| direct_code | 15 | 15 | 1.000 |
-| direct_json | 15 | 15 | 1.000 |
 | qsga_no_repair | 15 | 15 | 1.000 |
 | qsga_no_risk_audit | 15 | 15 | 1.000 |
 | qsga_full | 15 | 15 | 1.000 |
+
+## Live Direct-Code Shared Rejection Replay
+
+| Method | Safe Rejection Accuracy | Risk Violation | E2E Success |
+| --- | ---: | ---: | ---: |
+| live_direct_code_shared_rejection::qwen3.6-flash | 1.000 | 0.164 | 0.538 |
+
+## Semantic Slot-Corruption
+
+| Check | Result |
+| --- | ---: |
+| Schema-valid corrupted cases | 7/7 |
+| Pass-through without semantic verification | 1.000 |
+| Detection with semantic verification | 1.000 |
 
 ## Case Analysis
 
@@ -63,8 +76,9 @@ Generated from the cleaned experiment run on 2026-05-05.
 
 ## Key Takeaways
 
-1. Full QSGA achieves the strongest end-to-end success rate at 0.838 while reducing measured risk violations to 0.000.
-2. Removing risk audit increases risk violation to 0.508 and reduces E2E success to 0.512, supporting the risk-aware design claim.
+1. No-oracle QSGA is the main deterministic prototype result; oracle-slot full QSGA is an upper-bound verification-chain result with E2E 0.963.
+2. Removing risk audit increases risk violation to 0.473 and reduces E2E success to 0.512, supporting the risk-aware design claim.
 3. Removing repair reduces E2E success to 0.375 and repair success to 0.000, supporting the verification-guided repair claim.
 4. Removing safe rejection drops safe rejection accuracy to 0.000 and E2E success to 0.650, supporting the boundary-control claim.
-5. The semantic verification ablation is not independently stronger than full QSGA in this deterministic setup; it should be framed as part of the multi-stage verification chain rather than as a standalone source of measured improvement.
+5. The semantic verification ablation is not independently stronger than full QSGA in the oracle-slot setup, but the slot-corruption check shows that semantic verification catches schema-valid explicit-slot conflicts.
+6. The shared-rejection direct-code replay improves unsafe handling for saved direct-code outputs, but it is boundary-control evidence only, not QYIR interpretability or repairability.

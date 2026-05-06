@@ -60,6 +60,8 @@ class MethodResult:
     repair_triggered: bool
     repair_success: bool
     safe_rejection_correct: bool
+    clarification_requested: bool
+    clarification_correct: bool
     end_to_end_success: bool
     errors: list[str] = field(default_factory=list)
 
@@ -79,6 +81,8 @@ class MethodResult:
             "repair_triggered": self.repair_triggered,
             "repair_success": self.repair_success,
             "safe_rejection_correct": self.safe_rejection_correct,
+            "clarification_requested": self.clarification_requested,
+            "clarification_correct": self.clarification_correct,
             "end_to_end_success": self.end_to_end_success,
             "errors": "; ".join(self.errors),
         }
@@ -141,6 +145,59 @@ def run_methods(
     """Run methods on benchmark records."""
     price_data = pd.read_csv(data_path)
     return [run_method(record, method, price_data) for method in methods for record in records]
+
+
+def record_requires_clarification(record: BenchmarkRecord) -> bool:
+    """Return whether a benchmark case expects clarification instead of construction."""
+    slots = dict(record.get("expected_slots") or {})
+    return str(record.get("category")) == "ambiguous_intent" or slots.get("safe_action") == "clarify"
+
+
+def query_needs_clarification(query: str) -> bool:
+    """Conservative deterministic ambiguity gate for live and no-oracle prototypes."""
+    if any(
+        cue in query
+        for cue in (
+            "参数你自己看着办",
+            "差不多",
+            "风险别太大",
+            "不要太激进",
+            "适合现在行情",
+            "看到机会",
+            "比较聪明",
+            "稳一点",
+            "不要太复杂",
+            "能赚钱",
+            "趋势好",
+            "低买高卖",
+        )
+    ):
+        return True
+    return False
+
+
+def clarification_result(record: BenchmarkRecord, method: str, reason: str = "clarification requested") -> MethodResult:
+    """Build a terminal result for ambiguous intent that asks for clarification."""
+    correct = record_requires_clarification(record)
+    return MethodResult(
+        case_id=str(record["id"]),
+        category=str(record["category"]),
+        method=method,
+        should_reject=bool(record["should_reject"]),
+        rejected=False,
+        schema_valid=False,
+        semantic_consistent=correct,
+        compile_success=False,
+        backtest_success=False,
+        risk_violation=False,
+        repair_triggered=False,
+        repair_success=False,
+        safe_rejection_correct=not bool(record["should_reject"]),
+        clarification_requested=True,
+        clarification_correct=correct,
+        end_to_end_success=correct,
+        errors=[reason],
+    )
 
 
 def _run_direct_code(record: BenchmarkRecord) -> MethodResult:
@@ -212,6 +269,9 @@ def _run_qyir_method(
             end_to_end_success=False,
             errors=["unsafe request was not rejected by rules"],
         )
+
+    if method.startswith("qsga") and record_requires_clarification(record):
+        return clarification_result(record, method)
 
     qyir = build_qyir_from_record(record)
     if direct_json:
@@ -602,6 +662,8 @@ def _result(
     errors: list[str],
 ) -> MethodResult:
     should_reject = bool(record["should_reject"])
+    clarification_requested = False
+    clarification_correct = False
     return MethodResult(
         case_id=str(record["id"]),
         category=str(record["category"]),
@@ -616,6 +678,8 @@ def _result(
         repair_triggered=repair_triggered,
         repair_success=repair_success,
         safe_rejection_correct=(rejected == should_reject) if should_reject else not rejected,
+        clarification_requested=clarification_requested,
+        clarification_correct=clarification_correct,
         end_to_end_success=end_to_end_success,
         errors=errors,
     )

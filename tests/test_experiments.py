@@ -9,6 +9,7 @@ import pandas as pd
 from experiments.baselines import build_qyir_from_record, load_benchmark, run_methods
 from experiments.eval_metrics import compute_metrics
 from experiments.paper_tables import generate_paper_tables
+from experiments.run_no_oracle import run_no_oracle_method
 from experiments.run_live_direct_code import evaluate_direct_code, replay_live_direct_code
 from experiments.run_live_llm import normalize_model_name, select_records
 from experiments.run_multi_asset_smoke import run_multi_asset_smoke
@@ -41,6 +42,17 @@ def test_semantic_ablation_is_still_scored_against_gold_slots() -> None:
     assert result.end_to_end_success is False
 
 
+def test_no_oracle_ambiguous_intent_requests_clarification() -> None:
+    record = next(record for record in load_benchmark() if record["category"] == "ambiguous_intent")
+    data = pd.read_csv("data/raw/spy_sample.csv")
+
+    result = run_no_oracle_method(record, data)
+
+    assert result.clarification_requested is True
+    assert result.clarification_correct is True
+    assert result.end_to_end_success is True
+
+
 def test_full_method_can_repair_risk_constraint_violations() -> None:
     record = load_benchmark()[0]
 
@@ -64,9 +76,12 @@ def test_metric_aggregation_uses_expected_columns() -> None:
             "repair_triggered": False,
             "repair_success": False,
             "safe_rejection_correct": True,
+            "clarification_requested": False,
+            "clarification_correct": False,
             "end_to_end_success": False,
         },
         {
+            "category": "unsafe_request",
             "method": "m",
             "should_reject": True,
             "schema_valid": False,
@@ -77,6 +92,24 @@ def test_metric_aggregation_uses_expected_columns() -> None:
             "repair_triggered": False,
             "repair_success": False,
             "safe_rejection_correct": True,
+            "clarification_requested": False,
+            "clarification_correct": False,
+            "end_to_end_success": True,
+        },
+        {
+            "category": "ambiguous_intent",
+            "method": "m",
+            "should_reject": False,
+            "schema_valid": False,
+            "semantic_consistent": True,
+            "compile_success": False,
+            "backtest_success": False,
+            "risk_violation": False,
+            "repair_triggered": False,
+            "repair_success": False,
+            "safe_rejection_correct": True,
+            "clarification_requested": True,
+            "clarification_correct": True,
             "end_to_end_success": True,
         },
     ]
@@ -90,10 +123,13 @@ def test_metric_aggregation_uses_expected_columns() -> None:
         "risk_violation",
         "repair_success",
         "safe_rejection_accuracy",
+        "clarification_accuracy",
+        "construction_success",
         "end_to_end_success",
     ]
     assert metrics.loc[0, "schema_validity"] == 1.0
     assert metrics.loc[0, "safe_rejection_accuracy"] == 1.0
+    assert metrics.loc[0, "clarification_accuracy"] == 1.0
 
 
 def test_generate_paper_tables(tmp_path) -> None:
@@ -108,6 +144,8 @@ def test_generate_paper_tables(tmp_path) -> None:
                 "risk_violation": 0.0,
                 "repair_success": 1.0,
                 "safe_rejection_accuracy": 1.0,
+                "clarification_accuracy": 1.0,
+                "construction_success": 1.0,
                 "end_to_end_success": 1.0,
             }
         ]

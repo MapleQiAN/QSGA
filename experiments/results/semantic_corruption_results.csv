@@ -1,0 +1,8 @@
+case_id,category,label,schema_valid,without_semantic_passes,with_semantic_detects,detected_slots,violation_paths,violation_messages
+qsi_023,mean_reversion,no_short_but_allow_short,True,True,True,"no_full_position,no_short",risk_control.allow_short,"User explicitly forbids short selling, but QYIR allows short selling."
+qsi_048,risk_constrained,drawdown_limit_loosened,True,True,True,"drawdown_control,low_risk,stop_loss_required",risk_control.max_drawdown_limit,"User specifies a drawdown limit, but QYIR uses a looser max_drawdown_limit."
+qsi_041,risk_constrained,low_risk_full_position,True,True,True,"drawdown_control,low_risk,no_leverage,novice_friendly",risk_control.position_size,Conservative or novice-friendly intent conflicts with high position size.
+qsi_039,momentum,no_full_position_near_full,True,True,True,no_full_position,risk_control.position_size,"User forbids full-position trading, but QYIR uses near full position."
+qsi_042,risk_constrained,stop_loss_removed,True,True,True,"low_risk,stop_loss_required",risk_control.stop_loss,"User explicitly asks for stop-loss, but QYIR does not set stop_loss."
+qsi_055,risk_constrained,novice_full_position,True,True,True,"novice_friendly,stop_loss_required",risk_control.position_size,Conservative or novice-friendly intent conflicts with high position size.
+qsi_006,trend_following,long_horizon_short_windows,True,True,True,"drawdown_control,long_horizon",indicators,"User asks for a long-term strategy, but QYIR uses only short lookback windows."

@@ -18,27 +18,33 @@ METRIC_COLUMNS = [
     "risk_violation",
     "repair_success",
     "safe_rejection_accuracy",
+    "clarification_accuracy",
+    "construction_success",
     "end_to_end_success",
 ]
 
 
 def compute_metrics(results: pd.DataFrame) -> pd.DataFrame:
     """Compute phase-12 metrics from per-case result rows."""
+    results = _with_metric_defaults(results.copy())
     rows: list[dict[str, Any]] = []
     for method, group in results.groupby("method", sort=False):
-        non_rejected = group[group["should_reject"] == False]  # noqa: E712
+        constructible = group[(group["should_reject"] == False) & (group["category"] != "ambiguous_intent")]  # noqa: E712
         unsafe = group[group["should_reject"] == True]  # noqa: E712
+        ambiguous = group[group["category"] == "ambiguous_intent"]
         repair_cases = group[group["repair_triggered"] == True]  # noqa: E712
         rows.append(
             {
                 "method": method,
-                "schema_validity": _mean(non_rejected, "schema_valid"),
-                "semantic_consistency": _mean(non_rejected, "semantic_consistent"),
-                "compile_success": _mean(non_rejected, "compile_success"),
-                "backtest_success": _mean(non_rejected, "backtest_success"),
-                "risk_violation": _mean(non_rejected, "risk_violation"),
+                "schema_validity": _mean(constructible, "schema_valid"),
+                "semantic_consistency": _mean(constructible, "semantic_consistent"),
+                "compile_success": _mean(constructible, "compile_success"),
+                "backtest_success": _mean(constructible, "backtest_success"),
+                "risk_violation": _mean(constructible, "risk_violation"),
                 "repair_success": _mean(repair_cases, "repair_success"),
                 "safe_rejection_accuracy": _mean(unsafe, "safe_rejection_correct"),
+                "clarification_accuracy": _mean(ambiguous, "clarification_correct"),
+                "construction_success": _mean(constructible, "end_to_end_success"),
                 "end_to_end_success": _mean(group, "end_to_end_success"),
             }
         )
@@ -61,6 +67,16 @@ def _mean(group: pd.DataFrame, column: str) -> float:
     return float(group[column].astype(bool).mean())
 
 
+def _with_metric_defaults(results: pd.DataFrame) -> pd.DataFrame:
+    if "category" not in results.columns:
+        results["category"] = ""
+    if "clarification_requested" not in results.columns:
+        results["clarification_requested"] = False
+    if "clarification_correct" not in results.columns:
+        results["clarification_correct"] = False
+    return results
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point for metric aggregation."""
     parser = argparse.ArgumentParser(description="Aggregate QSGA experiment metrics.")
@@ -76,4 +92,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
