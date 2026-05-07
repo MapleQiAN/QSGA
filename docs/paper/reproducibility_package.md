@@ -131,10 +131,11 @@ Replay saved live direct-code outputs with the shared safe-rejection gate:
 Generate paper tables:
 
 ```powershell
+.venv\Scripts\python.exe -m experiments.run_slot_diagnostics --csv-output experiments\results\no_oracle_slot_diagnostics.csv --md-output experiments\tables\no_oracle_slot_diagnostics.md
 .venv\Scripts\python.exe -m experiments.paper_tables --metrics experiments\results\baseline_metrics.csv --results experiments\results\baseline_results.csv --ablation-metrics experiments\results\ablation_metrics.csv --output-dir experiments\tables
 ```
 
-The generated Markdown tables cover the baseline, ablation, repair, and safe-rejection summaries. The no-oracle table in the draft is copied from `experiments\results\no_oracle_metrics.csv` after running the no-oracle aggregation command above.
+The generated Markdown tables cover the baseline, ablation, repair, safe-rejection, and no-oracle slot-diagnostic summaries. The no-oracle aggregate table in the draft is copied from `experiments\results\no_oracle_metrics.csv` after running the no-oracle aggregation command above.
 
 ## Expected Metrics
 
@@ -145,6 +146,16 @@ Main no-oracle result:
 | Method | Semantic Consistency | Clarification Accuracy | Construction Success | E2E Success |
 |---|---:|---:|---:|---:|
 | qsga_no_oracle_slots | 0.836 | 1.000 | 0.836 | 0.887 |
+
+No-oracle slot diagnostics:
+
+| Slot Group | Precision | Recall | F1 |
+|---|---:|---:|---:|
+| market | 0.400 | 0.182 | 0.250 |
+| indicators | 0.648 | 0.627 | 0.637 |
+| entry_rules | 0.000 | 0.000 | 0.000 |
+| exit_rules | 0.000 | 0.000 | 0.000 |
+| risk_control | 0.841 | 0.578 | 0.685 |
 
 Upper-bound oracle-slot verification-chain result:
 

@@ -312,3 +312,21 @@
 - 可复现信息：Wilson intervals computed from local metric denominators: E2E over 80 cases and construction over 55 constructible cases
 - 失败信息：No new live experiment was run in this revision; single-model live evidence and human approval gates remain
 - 后续动作：run consistency checks/tests and keep submission/public release blocked on human review
+
+## AUDIT-20260507-002
+
+- 时间：2026-05-07 13:15:14 +08:00
+- 操作 Agent：Codex
+- 操作类型：Revise / Claim-strength audit / Synchronize
+- 输入：`docs/paper/ccf_c_reviewer_report_v5.md`; `docs/ai-research-assistant/AI_RULES.md`; `docs/ai-research-assistant/SOP.md`; `docs/ai-research-assistant/QUALITY_GUARDRAILS.md`; `docs/paper/qsga_ccf_c_draft.md`
+- 输出：V5 route-A paper revision centering QYIR as the verifiable and repairable IR; abstract now reports 0.963 oracle E2E, 0.887 no-oracle E2E, and 0.091 live construction success; Introduction RQs split into IR verification and live bottleneck diagnosis; Method adds BNF grammar, validity conjunction, operand type system, compilation semantics, explicit semantic-slot algorithm, and repair invariants; Results reorder oracle component validation before no-oracle feasibility and live bottleneck analysis; no-oracle slot diagnostics added; Discussion and Conclusion rewritten conservatively
+- 使用工具 / Skill / Plugin：apply_patch; shell
+- 关联任务：QSGA paper hardening according to V5 route-A reviewer report
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：High
+- 是否需要人审：Yes
+- 人审状态：Pending for final claims/submission
+- 证据来源：`docs/paper/ccf_c_reviewer_report_v5.md`; `docs/paper/qsga_ccf_c_draft.md`; `experiments/results/baseline_metrics.csv`; `experiments/results/no_oracle_metrics.csv`; `experiments/results/no_oracle_slot_diagnostics.csv`; `experiments/results/live_qyir_80_metrics.csv`; `docs/ai-research-assistant/DRAFT_STATUS.md`; `docs/ai-research-assistant/RISKS.md`
+- 可复现信息：`.venv\Scripts\python.exe -m experiments.run_slot_diagnostics`; `.\scripts\reproduce_all.ps1` completed with 179 passed and regenerated deterministic metrics, slot diagnostics, saved live QYIR replay metrics, and saved live direct-code replay metrics
+- 失败信息：Slot diagnostics show weak market recall and near-zero fine-grained entry/exit extraction under strict key-value grouping; reproduce run emitted existing pandas/backtester runtime warnings but exited successfully
+- 后续动作：run markdown/claim consistency checks; optional next step is improving extractor or adding constrained parser before stronger NL-to-QYIR parsing claims

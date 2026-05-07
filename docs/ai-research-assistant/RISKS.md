@@ -346,3 +346,67 @@ No
 Resolution:
 
 open as future-work risk; mitigated for current CCF C draft by claim weakening
+
+### RISK-20260507-002
+
+Status: mitigated
+Priority: P2
+Raised by: V5 reviewer-risk report / Codex
+Related task: QSGA paper V5 route-A revision
+Related decision: none
+
+Risk:
+
+The deterministic no-oracle result originally reported case-level semantic consistency without slot-level precision, recall, and F1 for market, indicators, entry rules, exit rules, and risk-control slots.
+
+Evidence:
+
+`experiments/results/no_oracle_results.csv` stores case-level pass/fail metrics. `docs/paper/ccf_c_reviewer_report_v5.md` recommends adding slot-level diagnostics before making stronger claims about front-end slot extraction. This run added `experiments/results/no_oracle_slot_diagnostics.csv` and `experiments/tables/no_oracle_slot_diagnostics.md`.
+
+Impact:
+
+The no-oracle result can support bounded prototype feasibility, but it should not be used to claim robust natural-language-to-QYIR parsing. The new diagnostics show weak market recall and near-zero fine-grained entry/exit slot extraction under the strict key-value grouping.
+
+Mitigation:
+
+`docs/paper/qsga_ccf_c_draft.md` now reports the slot diagnostics and keeps the no-oracle result scoped as prototype feasibility evidence.
+
+Human review required:
+
+No
+
+Resolution:
+
+mitigated for current draft by adding slot diagnostics and claim weakening; further extractor improvements remain future work
+
+### RISK-20260507-003
+
+Status: open
+Priority: P1
+Raised by: V5 reviewer-risk report / Codex
+Related task: QSGA paper V5 route-A revision
+Related decision: DEC-20260505-003
+
+Risk:
+
+Final title, abstract, contribution framing, and conclusion now follow route A, but final claim freeze still requires human review under the AI research assistant rules.
+
+Evidence:
+
+`docs/paper/qsga_ccf_c_draft.md` was revised to center QYIR/QSGA as an IR verification and repair system, and `docs/ai-research-assistant/DRAFT_STATUS.md` marks these sections as revised after V5 with human review required.
+
+Impact:
+
+The draft should not be treated as submission-ready until a human accepts the route-A framing, remaining citation risks, and public-release/submission boundaries.
+
+Mitigation:
+
+Keep submission, authorship, and public-release actions blocked on existing human approval gates. Continue non-blocking work such as citation verification, slot-level diagnostics, and reproducibility checks.
+
+Human review required:
+
+Yes
+
+Resolution:
+
+open until final human review

@@ -24,6 +24,8 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $Python -m experiments.eval_metrics --input experiments/results/no_oracle_results.csv --output experiments/results/no_oracle_metrics.csv
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $Python -m experiments.run_slot_diagnostics --csv-output experiments/results/no_oracle_slot_diagnostics.csv --md-output experiments/tables/no_oracle_slot_diagnostics.md
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 & $Python -m experiments.run_multi_asset_smoke --output experiments/results/multi_asset_smoke_results.csv
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

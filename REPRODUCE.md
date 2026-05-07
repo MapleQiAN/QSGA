@@ -30,6 +30,7 @@ python -m experiments.run_ablation --output experiments/results/ablation_results
 python -m experiments.eval_metrics --input experiments/results/ablation_results.csv --output experiments/results/ablation_metrics.csv
 python -m experiments.run_no_oracle --output experiments/results/no_oracle_results.csv
 python -m experiments.eval_metrics --input experiments/results/no_oracle_results.csv --output experiments/results/no_oracle_metrics.csv
+python -m experiments.run_slot_diagnostics --csv-output experiments/results/no_oracle_slot_diagnostics.csv --md-output experiments/tables/no_oracle_slot_diagnostics.md
 python -m experiments.run_multi_asset_smoke --output experiments/results/multi_asset_smoke_results.csv
 python -m experiments.run_safe_paraphrase --output experiments/results/safe_paraphrase_results.csv --metrics-output experiments/results/safe_paraphrase_metrics.csv
 python -m experiments.run_semantic_corruption --output experiments/results/semantic_corruption_results.csv --metrics-output experiments/results/semantic_corruption_metrics.csv

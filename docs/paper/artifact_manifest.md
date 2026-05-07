@@ -30,6 +30,7 @@ Date: 2026-05-06
 | `experiments/run_baselines.py` | `experiments/results/baseline_results.csv` |
 | `experiments/run_ablation.py` | `experiments/results/ablation_results.csv` |
 | `experiments/run_no_oracle.py` | `experiments/results/no_oracle_results.csv` |
+| `experiments/run_slot_diagnostics.py` | `experiments/results/no_oracle_slot_diagnostics.csv`; `experiments/tables/no_oracle_slot_diagnostics.md` |
 | `experiments/run_live_llm.py` | live QYIR results, raw outputs, metadata, token usage |
 | `experiments/run_live_direct_code.py` | executable live direct-code results, raw outputs, metadata, token usage |
 | `experiments/run_multi_asset_smoke.py` | `experiments/results/multi_asset_smoke_results.csv` |
@@ -42,7 +43,7 @@ Date: 2026-05-06
 | Item | Current State |
 |---|---|
 | Python lockfile | `uv.lock` present |
-| Test status | 179 passed on 2026-05-06 via `scripts/reproduce_all.ps1` |
+| Test status | 179 passed on 2026-05-07 via `scripts/reproduce_all.ps1` |
 | CI | not provided in this artifact version |
 | Container | not provided in this artifact version |
 | Live raw outputs | QYIR 80-case qwen3.6-flash run present; executable direct-code 80-case qwen3.6-flash run present |

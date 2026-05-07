@@ -1,16 +1,18 @@
-# QSGA: An IR-First Verification Framework for Reliable Rule-Based Quantitative Strategy Construction
+# QYIR: A Verifiable and Repairable Intermediate Representation for Rule-Based Quantitative Strategy Construction
 
 > Draft status: CCF C candidate draft generated from the current QSGA prototype and reproducible experiment artifacts on 2026-05-05. Human review is still required before submission, especially for final claims, authorship, target venue, and public release.
 
 ## Abstract
 
-Large language models make it possible for novice users to express quantitative investment ideas in natural language. However, directly translating such intents into executable strategy code can introduce semantic omissions, invalid programs, hidden financial assumptions, and uncontrolled risk exposure.
+Large language models make it possible for novice users to express quantitative investment ideas in natural language. However, directly translating such intents into executable trading code can introduce semantic omissions, invalid programs, hidden financial assumptions, and uncontrolled risk exposure.
 
-We propose QSGA, an IR-first verification-guided framework built around QYIR, a constrained quantitative strategy intermediate representation that exposes market scope, indicators, entry and exit rules, and risk controls as explicit slots. QSGA applies schema verification, semantic slot checking, deterministic compilation, execution validation, risk auditing, explicit unsafe-intent rejection, clarification, and localized repair before producing a strategy output.
+This paper studies a narrower problem: whether bounded rule-based quantitative strategy specifications can be made more verifiable, compilable, risk-aware, and repairable by introducing a domain-specific intermediate representation before execution.
 
-We construct QSI-Bench v1, an 80-sample benchmark covering trend-following, mean-reversion, momentum, risk-constrained, ambiguous, and unsafe strategy requests. We evaluate QSGA through a three-level evidence hierarchy: a deterministic no-oracle prototype, an oracle-slot upper-bound verification-chain evaluation, and saved-output live LLM diagnostics over QYIR and executable direct code.
+We propose QYIR, a constrained strategy intermediate representation that exposes market scope, indicators, entry and exit rules, and risk controls as explicit verifiable fields. Based on QYIR, we design QSGA, a verification-guided pipeline that performs schema checking, semantic slot verification, deterministic compilation, execution validation, risk auditing, explicit unsafe-intent rejection, clarification, and localized repair.
 
-Results show that QYIR-based construction improves measured reliability when valid or partially valid strategy specifications can be constructed. At the same time, live diagnostics reveal that prompt-only QYIR generation remains the main bottleneck. The paper therefore does not claim to solve open-domain natural-language trading strategy generation; it studies whether an explicit, constrained strategy IR can make rule-based quantitative strategy construction more verifiable, executable, risk-aware, and repairable in a bounded novice-facing setting.
+On QSI-Bench v1, an oracle-slot evaluation shows that the downstream QYIR verification chain achieves 96.3% end-to-end success, while a deterministic no-oracle prototype achieves 88.7%. Saved-output live LLM diagnostics further show that prompt-only QYIR generation remains the main bottleneck, with only 9.1% construction success.
+
+These results suggest that QYIR and its verification-repair infrastructure are effective for making bounded rule-based strategy specifications more auditable and executable, while robust natural-language-to-QYIR generation remains an open challenge.
 
 ## 1. Introduction
 
@@ -20,18 +22,26 @@ The challenge is that quantitative strategy generation is not ordinary text-to-c
 
 Existing LLM code generation methods have shown strong progress in translating natural language into programs, but code correctness remains difficult to guarantee without task-specific constraints and verification. Constrained decoding can enforce output format, but format validity alone does not guarantee that a trading strategy has valid indicators, coherent rule references, executable semantics, or risk-aware behavior. Tool-using agents can call compilers or backtesters, but without an explicit domain intermediate representation, failures are harder to localize and repair.
 
-This paper studies the following question: can rule-based quantitative strategy construction be made more reliable by introducing an explicit strategy intermediate representation and verifying each stage before execution? We answer this question with QSGA, a QYIR-based verification-guided framework for a deliberately bounded daily stock/ETF strategy space. This positioning is narrower than recent trading-code benchmarks that evaluate broader LLM strategy generation ability; QSGA focuses on an IR-first reliability mechanism and explicit boundary control.
+This paper studies two narrower questions:
+
+```text
+RQ1: Given a bounded rule-based quantitative strategy space, can an explicit strategy intermediate representation improve the verifiability, compilability, risk-constraint checking, and repairability of candidate strategy specifications?
+
+RQ2: Where do current prompt-only LLMs fail when producing such intermediate representations from natural-language strategy requests?
+```
+
+We answer these questions with QYIR and QSGA in a deliberately bounded daily stock/ETF strategy space. This positioning is narrower than recent trading-code benchmarks that evaluate broader LLM strategy generation ability. QSGA focuses on an IR-first verification mechanism and explicit boundary control; it does not present live prompt-only generation as solved.
 
 The artifact package includes three editable/vector figures: Figure 1 summarizes the problem route from natural-language intent through QYIR and verification, Figure 2 shows the QSGA architecture, and Figure 3 contrasts QYIR with generic JSON Schema. Source SVG and exported PDF versions are stored under `figures/`. Section 10.7 summarizes QSGA's position against the closest trading-strategy generation, financial LLM, and domain-IR benchmarks.
 
 Our contributions are:
 
-1. We instantiate and evaluate a bounded formulation of novice-oriented rule-based quantitative strategy generation as a constrained, verifiable, and risk-aware program synthesis problem, with explicit failure types including schema failure, semantic inconsistency, compilation failure, execution failure, risk violation, unsupported intent, and unsafe intent.
-2. We propose QYIR, a constrained strategy intermediate representation that structures investment intents into interpretable, compilable, verifiable, and repairable strategy slots.
-3. We design QSGA, a verification-guided framework that integrates schema checking, semantic slot verification, deterministic compilation, execution validation, risk auditing, explicit unsafe-intent rejection, clarification, and localized repair.
-4. We construct QSI-Bench v1 and evaluate QSGA through deterministic no-oracle construction, oracle-slot upper-bound verification, live LLM diagnostics, ablation studies, and failure analysis.
+1. We formulate bounded rule-based quantitative strategy specification as an IR-centered verification problem rather than open-ended trading-code generation.
+2. We propose QYIR, a constrained domain-specific intermediate representation that exposes market scope, indicators, entry and exit rules, and risk controls as verifiable and compilable fields.
+3. We design QSGA, a verification-guided pipeline that performs schema checking, semantic slot verification, deterministic compilation, execution validation, risk auditing, explicit unsafe-intent rejection, clarification, and localized repair over QYIR artifacts.
+4. We construct QSI-Bench v1 and conduct a layered evaluation, showing that QYIR-based verification is effective under oracle-slot and deterministic no-oracle settings, while identifying prompt-only LLM-based QYIR generation as the current bottleneck.
 
-We intentionally restrict the scope. QSGA does not generate profitable strategies, guarantee safety in real trading, support high-frequency or options strategies, or understand arbitrary financial intent. The target is reliability of rule-based strategy construction, not return maximization.
+We intentionally restrict the scope. QSGA does not generate profitable strategies, guarantee safety in real trading, support high-frequency or options strategies, or understand arbitrary financial intent. The target is auditability and validity of bounded rule-based strategy specifications, not return maximization or open-domain natural-language strategy generation.
 
 ## 2. Background and Motivation
 
@@ -53,9 +63,9 @@ Intermediate representations are useful when a system needs to separate user int
 
 For example, a QYIR rule references an indicator alias. This is not merely a string-field constraint. It is a compilation and semantic constraint: the alias must correspond to a defined indicator series, the rule must use a supported operator, and the compiled signal must be executable over the selected price data.
 
-### 2.3 Reliability as Boundary Control
+### 2.3 Boundary Control
 
-For financial strategy generation, reliability includes knowing when not to generate. Ambiguous requests should trigger clarification. Unsupported requests should be rejected as out of scope. Unsafe requests should be refused with an explanation. In this prototype, explicit unsafe-intent rejection is treated as one reliability dimension, not as a complete solution to financial safety or compliance.
+For financial strategy specification, boundary control includes knowing when not to construct an artifact. Ambiguous requests should trigger clarification. Unsupported requests should be rejected as out of scope. Unsafe requests should be refused with an explanation. In this prototype, explicit unsafe-intent rejection is treated as one controlled evaluation dimension, not as a complete solution to financial safety or compliance.
 
 ## 3. Problem Formulation
 
@@ -67,10 +77,10 @@ y in Y: an executable strategy configuration or signal program
 r in R: an explanation and risk report
 ```
 
-The system objective is:
+The verification objective is:
 
 ```text
-maximize reliability(x, z, y, r)
+accept only if the candidate specification satisfies:
 subject to:
   z is valid QYIR
   y = Compile(z)
@@ -81,7 +91,7 @@ subject to:
 
 where `C` denotes risk constraints specified by the user or imposed by the supported strategy space.
 
-We use "strategy specification generation" rather than full general-purpose program synthesis in the strictest sense. QYIR v1 has a bounded grammar, fixed operator set, deterministic compilation semantics, and limited repair operators. The synthesis problem studied here is therefore constrained strategy specification construction over QYIR, not open-ended program search over arbitrary trading code.
+We use "strategy specification construction" rather than full general-purpose program synthesis in the strictest sense. QYIR v1 has a bounded grammar, fixed operator set, deterministic compilation semantics, and limited repair operators. The studied problem is therefore constrained candidate-specification construction and verification over QYIR, not open-ended program search over arbitrary trading code.
 
 We define seven failure types:
 
@@ -105,6 +115,28 @@ S = <M, I, E_in, E_out, R>
 
 where `M` is market and data scope, `I` is a set of indicators, `E_in` and `E_out` are entry and exit rules, and `R` is risk control.
 
+The compact grammar is:
+
+```text
+Strategy     ::= { market, indicators, entry_rules, exit_rules, risk_control }
+
+Market       ::= { symbol, asset_type, timeframe, data_frequency }
+
+Indicator    ::= { alias: ID, type: IndicatorType, params: ParamMap }
+IndicatorSet ::= { Indicator+ }
+
+IndicatorType ::= SMA | EMA | RSI | MACD | BOLLINGER
+
+Rule         ::= { type: RuleType, operand_a: Ref, operand_b: Ref | Literal }
+RuleType     ::= cross_over | cross_under | greater_than | less_than | between
+
+Ref          ::= indicator_alias | market_field
+market_field ::= open | high | low | close | volume
+
+RiskControl  ::= { position_size, stop_loss, take_profit,
+                   max_drawdown_limit, leverage, allow_short }
+```
+
 The implemented QYIR v1 supports:
 
 | Dimension | Supported in QYIR v1 |
@@ -126,18 +158,28 @@ QYIR is designed around four properties:
 | Verifiability | Schema, semantic, compilation, execution, and risk checks can inspect it |
 | Repairability | Errors can be localized to fields and repaired without regenerating the whole strategy |
 
-A QYIR strategy is valid in the implemented QYIR v1 scope only if all of the following conditions hold:
+A QYIR strategy is valid in the implemented QYIR v1 scope only if the following conjunction holds:
 
 ```text
-1. all indicators belong to the supported indicator set;
-2. all rule operands resolve to either market fields or indicator aliases;
-3. all rule operators belong to the supported operator set;
-4. risk-control fields satisfy hard constraints such as leverage = 1.0;
-5. explicit user risk constraints are not weakened by generation or repair;
-6. the compiled strategy produces executable signal series over the target data schema.
+QYIRValidity(z, x, D) =
+    SchemaValidity(z)
+  and ReferenceValidity(z)
+  and OperatorValidity(z)
+  and RiskSlotValidity(z, x)
+  and CompilationValidity(z, D)
 ```
 
-### 4.1 Schema and Semantic Constraints
+| Validity component | Meaning |
+|---|---|
+| SchemaValidity | Required fields exist, field types and enum values are within the supported schema |
+| ReferenceValidity | Every rule operand that names an indicator resolves to a defined indicator alias |
+| OperatorValidity | Every rule type belongs to the allowed operator set and has a compiler rule |
+| RiskSlotValidity | Hard risk constraints and explicit user risk slots are not weakened |
+| CompilationValidity | The artifact deterministically compiles into executable signal series over the data schema |
+
+This definition makes QYIR more than a shape contract. A JSON object with the right fields can still fail reference validity, operand typing, compilation validity, or risk-slot validity.
+
+### 4.1 Schema and Field Groups
 
 QYIR v1 uses a compact top-level schema:
 
@@ -154,7 +196,7 @@ QYIR = {
 }
 ```
 
-The schema is intentionally smaller than a full trading-system DSL. Its purpose is to expose the minimum set of fields needed for reliable rule-based strategy construction and verification. The main field groups are:
+The schema is intentionally smaller than a full trading-system DSL. Its purpose is to expose the minimum set of fields needed for verifiable rule-based strategy specification and pre-execution checking. The main field groups are:
 
 | Field Group | Key Constraints | Verification Role |
 |---|---|---|
@@ -164,6 +206,43 @@ The schema is intentionally smaller than a full trading-system DSL. Its purpose 
 | `risk_control` | position size bounds, optional stop-loss, leverage fixed to 1.0 | exposes user risk constraints to auditing and repair |
 
 Two design choices are important for the paper's claim. First, QYIR stores rule operands as references to indicator aliases, so reference validity can be checked before execution. Second, user-facing risk statements such as "no leverage" or "low risk" are mapped into explicit fields, which allows the verifier to reject or repair violations instead of relying on soft prompt compliance.
+
+### 4.2 Operand Type System
+
+The validator and compiler use a small operand type system:
+
+```text
+MarketField    in { open, high, low, close, volume }
+IndicatorAlias in AliasSet(z)
+Scalar         in R
+
+Series ::= MarketField | IndicatorAlias
+Signal ::= Rule(Series, Series or Scalar)
+```
+
+The type system prevents category errors before execution. For example, `cross_over(sma_20, sma_60)` is valid because both operands resolve to time series, while `cross_over(position_size, sma_60)` is invalid because `position_size` is a risk scalar rather than a computable price or indicator series.
+
+### 4.3 Rule Compilation Semantics
+
+Each supported rule has a deterministic signal semantics. Representative rules are:
+
+```text
+cross_over(a, b)[t] =
+  (a[t-1] <= b[t-1]) and (a[t] > b[t])
+
+cross_under(a, b)[t] =
+  (a[t-1] >= b[t-1]) and (a[t] < b[t])
+
+greater_than(a, theta)[t] =
+  a[t] > theta
+
+less_than(a, theta)[t] =
+  a[t] < theta
+```
+
+The compiler therefore does not treat QYIR as a passive configuration file. It interprets validated rules as signal definitions over market and indicator series, and compilation failure can be localized to an unresolved alias, unsupported operator, invalid operand type, or unavailable data field.
+
+### 4.4 QYIR versus JSON Schema
 
 QYIR differs from ordinary JSON schema in where the semantics are enforced. A JSON schema can say that `entry_rules` is an array; QYIR also requires that every rule type has a deterministic compilation meaning and that every alias reference resolves to a computable signal series. JSON Schema checks shape; QYIR checks domain meaning. This is why the paper treats QYIR as a domain intermediate representation rather than merely a structured output format.
 
@@ -199,7 +278,7 @@ flowchart TD
 The current implementation evaluates QSGA as a deterministic prototype. The algorithm below describes the intended system behavior while keeping the empirical claim limited to the implemented deterministic components.
 
 ```text
-Algorithm 1: Verification-Guided Strategy Generation with QSGA
+Algorithm 1: Verification-Guided Strategy Specification with QSGA
 
 Input:
   x: natural-language user request
@@ -241,7 +320,7 @@ Output:
 
 The key property is that each failure has a typed location: a schema path, semantic slot, compilation reference, execution error, or risk metric. This location becomes the input to repair and to the final explanation.
 
-The implementation is evaluated with an explicit evidence hierarchy. The no-oracle deterministic extractor is the main end-to-end prototype because it reads only `user_query` before constructing QYIR. The oracle-slot mode is reported as an upper-bound verification-chain evaluation: benchmark expected slots are used to construct candidate QYIR artifacts, and then verification, compilation, backtesting, risk auditing, repair, clarification, and rejection are evaluated. The live QYIR runs are diagnostic rather than the main result because they test whether current prompting-based LLM outputs can reliably enter the QYIR chain. This boundary is central to the claim: QSGA studies reliable construction and verification after a valid or partially valid strategy specification is available; it does not yet solve natural-language slot extraction for arbitrary intents.
+The implementation is evaluated with an explicit evidence hierarchy. The oracle-slot mode is reported as an upper-bound verification-chain evaluation: benchmark expected slots are used to construct candidate QYIR artifacts, and then verification, compilation, backtesting, risk auditing, repair, clarification, and rejection are evaluated. The no-oracle deterministic extractor is reported as a bounded end-to-end prototype because it reads only `user_query` before constructing QYIR. The live QYIR runs are diagnostic rather than the main result because they test whether current prompting-based LLM outputs can consistently enter the QYIR chain. This boundary is central to the claim: QSGA studies candidate-specification verification after a valid or partially valid strategy specification is available; it does not yet solve natural-language slot extraction for arbitrary intents.
 
 ### 5.2 Verification Chain
 
@@ -255,6 +334,37 @@ The implementation is evaluated with an explicit evidence hierarchy. The no-orac
 | Risk auditing | Check backtest metrics and QYIR risk-control fields |
 
 Semantic verification in QSGA is intentionally limited to explicit or conservatively extracted intent slots. It does not claim to infer hidden investor preferences, subjective risk tolerance, or vague financial goals. Ambiguous intent should trigger clarification rather than forced semantic interpretation.
+
+```text
+Algorithm 2: Explicit Semantic Slot Verification
+
+Input:
+  C: explicit_constraints extracted from user request x
+  z.risk_control
+  z.entry_rules
+  z.exit_rules
+
+Output:
+  pass or list of field-level violations
+
+1. violations <- []
+2. for each constraint c in C:
+3.     if c.type = no_leverage:
+4.         require z.risk_control.leverage == 1.0
+5.     if c.type = no_short:
+6.         require z.risk_control.allow_short == false
+7.     if c.type = max_drawdown:
+8.         require z.risk_control.max_drawdown_limit <= c.threshold
+9.     if c.type = stop_loss_required:
+10.        require z.risk_control.stop_loss is not null
+11.    if c.type = low_risk or novice_friendly:
+12.        require z.risk_control.position_size <= supported_low_risk_bound
+13.    if a requirement fails:
+14.        append { field_path, expected, actual, constraint_type } to violations
+15. return pass if violations is empty else violations
+```
+
+The algorithm is deliberately slot-based. It verifies explicit constraints such as no leverage, no short selling, stop-loss requirements, drawdown bounds, and conservative position sizing. It does not use an LLM judge to decide whether the whole strategy is financially appropriate.
 
 Explicit unsafe-intent rejection in this paper refers only to explicit unsafe or unsupported requests in QSI-Bench v1 and the small paraphrase regression set, not to comprehensive investment safety, compliance, or suitability assessment.
 
@@ -271,14 +381,14 @@ When verification fails, QSGA avoids regenerating the entire strategy if the err
 
 This preserves the user's strategy intent more directly than full regeneration. It also makes repair auditable because the changed field and rationale are explicit.
 
-Repair is conservative by construction. The repair invariant is:
+Repair is conservative by construction. A repair operation is valid only if it satisfies the following invariants:
 
 ```text
-1. The system may reduce risk exposure.
-2. The system may add conservative risk controls.
-3. The system must not weaken user-specified constraints.
-4. The system must not change the strategy family unless explicitly allowed.
-5. Every repair must be recorded as a field-level diff.
+I1. It must not weaken explicit user constraints.
+I2. It must not increase financial risk exposure.
+I3. It must not change the strategy family unless clarification is triggered.
+I4. It must only modify fields involved in validator-reported violations.
+I5. It must record a field-level diff for auditability.
 ```
 
 The prototype repair operators are deliberately conservative. They do not modify the user's risk target to make the audit pass. For example, if `max_drawdown_limit` is violated, QSGA may reduce `position_size`; it should not silently increase the allowed drawdown threshold. This distinction is essential for avoiding a misleading repair loop.
@@ -405,15 +515,40 @@ The experiments are organized in three layers, each with a different proof oblig
 
 | Layer | Role in the claim |
 |---|---|
-| Main deterministic no-oracle prototype | Tests whether rule-based slot extraction plus QYIR can construct and verify strategies without gold slots |
 | Upper-bound oracle-slot verification-chain evaluation | Tests whether validation, compilation, risk auditing, clarification, rejection, and repair work when strategy semantics are already available |
+| Deterministic no-oracle prototype | Tests whether rule-based slot extraction plus QYIR can construct and verify strategies without gold slots |
 | Live LLM diagnostics | Tests where current prompting-based QYIR generation and executable direct code fail in realistic model outputs |
 
-This ordering is intentional. The main claim is not that live QYIR prompting already beats direct code generation. The supported claim is that QSGA improves reliability when valid or partially valid strategy specifications can be constructed, and that current live LLM-based QYIR generation is the major remaining bottleneck.
+This ordering is intentional. We first isolate the downstream verification chain under oracle specifications, then test a deterministic no-oracle prototype, and finally use live model outputs to diagnose the front-end construction bottleneck. The main claim is not that live QYIR prompting already beats direct code generation. The supported claim is that QYIR improves auditability and failure localization once a candidate specification is available, and that current live LLM-based QYIR generation is the major remaining bottleneck.
 
-The live LLM results are not used as the main evidence of QSGA's superiority over direct code generation. Instead, they are included as diagnostic evidence to identify whether current prompt-only models can reliably enter the QYIR verification chain. The main claim is based on the deterministic no-oracle prototype and the oracle-slot verification-chain evaluation.
+The live LLM results are not used as a broad comparison against direct code generation. Instead, they are included as diagnostic evidence to identify whether current prompt-only models can consistently enter the QYIR verification chain. The verification-chain claim is based on the oracle-slot evaluation, and the no-oracle result is reported as bounded prototype feasibility evidence.
 
-### 8.2 Main Deterministic End-to-End Prototype Evaluation without Gold Slots
+### 8.2 Component Validation under Oracle Specifications
+
+The oracle-slot setting constructs QYIR from benchmark expected slots and therefore should not be interpreted as raw natural-language generation performance. Its role is to isolate the downstream QYIR verification chain from the uncertainty of natural-language parsing and to test whether validation, compilation, risk auditing, clarification, explicit unsafe-intent rejection, and repair work when strategy semantics are already available.
+
+| Method | Schema Validity ↑ | Semantic Consistency ↑ | Compile Success ↑ | Backtest Success ↑ | Risk Violation ↓ | Clarification Accuracy ↑ | Construction Success ↑ | E2E Success ↑ |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Deterministic direct-code simulation | 0.000 | 0.727 | 1.000 | 0.727 | 0.273 | 0.000 | 0.727 | 0.500 |
+| Deterministic direct-JSON simulation | 0.727 | 0.673 | 0.727 | 0.727 | 0.364 | 0.000 | 0.309 | 0.400 |
+| QSGA oracle-slot upper bound without repair | 0.582 | 0.564 | 0.582 | 0.582 | 0.291 | 1.000 | 0.273 | 0.500 |
+| QSGA oracle-slot upper bound without risk audit | 1.000 | 0.945 | 1.000 | 1.000 | 0.473 | 1.000 | 0.473 | 0.637 |
+| QSGA oracle-slot upper bound | 1.000 | 0.945 | 1.000 | 1.000 | 0.000 | 1.000 | 0.945 | 0.963 |
+
+The full oracle-slot upper-bound verification chain reaches 0.963 E2E success. The difference between the oracle-slot upper-bound version without risk auditing and the full oracle-slot upper bound is particularly important: both compile and execute all constructible outputs, but the version without risk auditing has a counted risk-constraint violation rate of 0.473 and an end-to-end success rate of 0.637. This supports a narrow claim: execution success alone is not enough for the implemented reliability criteria.
+
+Category-level QSGA oracle-slot upper-bound results:
+
+| Category | Success | Total | Success Rate |
+|---|---:|---:|---:|
+| trend_following | 15 | 15 | 1.000 |
+| mean_reversion | 12 | 15 | 0.800 |
+| momentum | 10 | 10 | 1.000 |
+| risk_constrained | 15 | 15 | 1.000 |
+| ambiguous_intent | 10 | 10 | 1.000 |
+| unsafe_request | 15 | 15 | 1.000 |
+
+### 8.3 Deterministic No-Oracle Construction
 
 The no-oracle extractor constructs QYIR from `user_query` without reading benchmark `expected_slots`. It is rule-based and should be treated as a lightweight prototype, not an LLM replacement. Gold slots are used only for evaluation.
 
@@ -421,7 +556,7 @@ The no-oracle extractor constructs QYIR from `user_query` without reading benchm
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | QSGA no-oracle deterministic prototype | 1.000 | 0.836 | 1.000 | 1.000 | 0.000 | 1.000 | 0.836 | 0.887 |
 
-This is the main deterministic end-to-end prototype result. It shows that QYIR-based construction remains feasible without oracle slots, while the remaining semantic failures identify where the rule extractor loses information. Ambiguous-intent cases are now evaluated as clarification tasks: the system succeeds when it asks for missing strategy details instead of forcing a QYIR artifact.
+This result shows that bounded rule-based requests can enter the QYIR chain without gold slots in the current deterministic prototype. The remaining semantic failures identify where the rule extractor loses information. Ambiguous-intent cases are evaluated as clarification tasks: the system succeeds when it asks for missing strategy details instead of forcing a QYIR artifact.
 
 Category-level results:
 
@@ -434,30 +569,17 @@ Category-level results:
 | ambiguous_intent | 10 | 10 | 1.000 |
 | unsafe_request | 15 | 15 | 1.000 |
 
-### 8.3 Oracle-Slot Upper-Bound Verification-Chain Evaluation
+We also compute a slot-level diagnostic over constructible records whose expected action is `generate`. This diagnostic compares predicted and expected key-value slots by group; it is stricter than case-level E2E because it counts unmodeled fine-grained entry and exit labels as false negatives.
 
-The oracle-slot setting constructs QYIR from benchmark expected slots and therefore should not be interpreted as raw natural-language generation performance. Its role is to validate the downstream verification chain under ideal strategy-specification input.
+| Slot Group | TP | FP | FN | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|---:|
+| market | 2 | 3 | 9 | 0.400 | 0.182 | 0.250 |
+| indicators | 79 | 43 | 47 | 0.648 | 0.627 | 0.637 |
+| entry_rules | 0 | 0 | 15 | 0.000 | 0.000 | 0.000 |
+| exit_rules | 0 | 0 | 10 | 0.000 | 0.000 | 0.000 |
+| risk_control | 37 | 7 | 27 | 0.841 | 0.578 | 0.685 |
 
-| Method | Schema Validity ↑ | Semantic Consistency ↑ | Compile Success ↑ | Backtest Success ↑ | Risk Violation ↓ | Clarification Accuracy ↑ | Construction Success ↑ | E2E Success ↑ |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Deterministic direct-code simulation | 0.000 | 0.727 | 1.000 | 0.727 | 0.273 | 0.000 | 0.727 | 0.500 |
-| Deterministic direct-JSON simulation | 0.727 | 0.673 | 0.727 | 0.727 | 0.364 | 0.000 | 0.309 | 0.400 |
-| QSGA oracle-slot upper bound without repair | 0.582 | 0.564 | 0.582 | 0.582 | 0.291 | 1.000 | 0.273 | 0.500 |
-| QSGA oracle-slot upper bound without risk audit | 1.000 | 0.945 | 1.000 | 1.000 | 0.473 | 1.000 | 0.473 | 0.637 |
-| QSGA oracle-slot upper bound | 1.000 | 0.945 | 1.000 | 1.000 | 0.000 | 1.000 | 0.945 | 0.963 |
-
-The difference between the oracle-slot upper-bound version without risk auditing and the full oracle-slot upper bound is particularly important: both compile and execute all constructible outputs, but the version without risk auditing has a counted risk-constraint violation rate of 0.473 and an end-to-end success rate of 0.637. This supports a narrow claim: execution success alone is not enough for the implemented reliability criteria.
-
-Category-level QSGA oracle-slot upper-bound results:
-
-| Category | Success | Total | Success Rate |
-|---|---:|---:|---:|
-| trend_following | 15 | 15 | 1.000 |
-| mean_reversion | 12 | 15 | 0.800 |
-| momentum | 10 | 10 | 1.000 |
-| risk_constrained | 15 | 15 | 1.000 |
-| ambiguous_intent | 10 | 10 | 1.000 |
-| unsafe_request | 15 | 15 | 1.000 |
+This table reinforces the scoped interpretation of the no-oracle prototype. The current deterministic extractor can often produce a QYIR artifact that passes the downstream chain, but it is not a robust semantic parser. It captures many indicator and risk-control cues, while fine-grained entry and exit slot extraction remains a clear front-end weakness. The generated artifacts are stored in `experiments/results/no_oracle_slot_diagnostics.csv` and `experiments/tables/no_oracle_slot_diagnostics.md`.
 
 ### 8.4 Statistical Uncertainty for Major Proportions
 
@@ -474,7 +596,7 @@ Because QSI-Bench v1 has 80 samples and 55 constructible samples, we report Wils
 | Live QSGA-wrapped QYIR construction success | 5 / 55 | 0.091 | [0.039, 0.196] |
 | Live direct-code construction success | 28 / 55 | 0.509 | [0.381, 0.636] |
 
-### 8.5 Live QYIR Diagnostic Evaluation
+### 8.5 Bottleneck Analysis: Live LLM-based QYIR Generation
 
 After human approval, we ran saved-output live QYIR experiments with fixed prompts, temperature 0, raw-output logs, metadata, and token-usage files. The 12-case pilot remains useful for multi-model smoke evidence, while the 80-case qwen3.6-flash run is the main live QYIR diagnostic. Its purpose is to expose whether real model outputs can enter the QYIR verification chain and where prompting-based QYIR generation fails.
 
@@ -485,7 +607,7 @@ After human approval, we ran saved-output live QYIR experiments with fixed promp
 | live_raw_qyir::qwen3.6-flash | 0.200 | 0.200 | 0.200 | 0.200 | 0.091 | 0.000 | 0.000 | 0.109 | 0.075 |
 | Live QSGA-wrapped QYIR diagnostic::qwen3.6-flash | 0.182 | 0.182 | 0.164 | 0.164 | 0.073 | 1.000 | 1.000 | 0.091 | 0.375 |
 
-The live result is diagnostic, not the main proof of QSGA superiority. The wrapper improves overall E2E over raw QYIR prompting through unsafe-request rejection and ambiguous-intent clarification, but construction success on non-ambiguous strategy requests remains only 0.091. This is the clearest evidence that current prompting-based QYIR generation is the bottleneck. The next technical step is constrained generation, a fine-tuned parser, or structured decoding for QYIR, rather than stronger claims about the present live prompt.
+The live result is diagnostic, not the main evidence for QSGA's verification-chain claim. The wrapper improves overall E2E over raw QYIR prompting through unsafe-request rejection and ambiguous-intent clarification, but construction success on non-ambiguous strategy requests remains only 0.091. This is the clearest evidence that current prompting-based QYIR generation is the bottleneck. The next technical step is constrained generation, a fine-tuned parser, or structured decoding for QYIR, rather than stronger claims about the present live prompt.
 
 12-case multi-model pilot:
 
@@ -914,55 +1036,77 @@ The closest related work can be summarized as follows. The point of comparison i
 
 Overall, the related work establishes that trading-oriented LLM systems must be executable, auditable, and semantically faithful. QSGA narrows the problem rather than broadening it: it asks whether a small, explicit strategy IR can provide a clearer reliability boundary for novice-facing rule-based strategy construction.
 
-## 11. Threats to Validity
+## 11. Discussion
 
-### 11.1 Deterministic Prototype
+### 11.1 What QYIR Solves
+
+The results show that QYIR provides an effective audit boundary between natural-language strategy intent and executable trading code in the supported rule-based strategy space. Once a candidate specification is available, QSGA can localize schema, reference, operand-type, compilation, execution, and risk-related failures before deployment. This is the main value of the IR-centered design: a failure can be tied to a QYIR field, rule reference, risk slot, or compiler check rather than to opaque generated code.
+
+The oracle-slot evaluation supports this downstream verification-chain claim, and the deterministic no-oracle prototype shows that a lightweight extractor can enter the same chain for many bounded requests. The semantic-corruption and ablation results further show that surface schema validity is insufficient: schema-valid artifacts can still violate explicit risk or intent slots, and execution success alone can leave risk violations unhandled.
+
+### 11.2 What QYIR Does Not Solve
+
+The current study does not establish robust open-domain natural-language-to-QYIR generation. The saved-output live LLM diagnostic result indicates that prompt-only QYIR construction remains insufficient, motivating future work on constrained decoding, semantic parsers, stronger structured generation, and interactive clarification. The no-oracle extractor is also rule-based and benchmark-specific, so it should be read as prototype feasibility rather than evidence of broad language understanding.
+
+QYIR also does not make a strategy profitable, suitable, compliant, or safe for real trading. It makes a bounded strategy artifact more inspectable before execution. That distinction is important for both scientific validity and financial-risk communication.
+
+### 11.3 Why the Negative Live Result Matters
+
+The low live construction success should not be interpreted as a failure of QYIR verification. Instead, it separates two sources of difficulty: constructing a valid candidate specification and verifying it before execution. This separation is precisely the benefit of an IR-centered design. The 0.091 live construction success result identifies the current front-end bottleneck; the 0.963 oracle-slot verification-chain result shows that the downstream checks remain effective when the candidate specification is available.
+
+## 12. Threats to Validity
+
+### 12.1 Deterministic Prototype
 
 The main evaluation is still deterministic, and the live extension remains single-model at full 80-case scale. This improves reproducibility and cost control but limits claims about model-generalized LLM behavior. A stronger submission version should add another full 80-case live model, fixed model-version records, prompts, temperatures, saved raw outputs, and larger sample coverage.
 
-### 11.2 Rule-Based Extractor Bias
+### 12.2 Rule-Based Extractor Bias
 
 The no-oracle extractor may benefit from lexical overlap with QSI-Bench v1 because both are built within the same bounded strategy taxonomy. Therefore, the no-oracle result should be interpreted as prototype feasibility rather than robust open-domain natural-language understanding.
 
-### 11.3 Oracle-Slot Construction
+### 12.3 Oracle-Slot Construction
 
-The oracle-slot QSGA evaluation constructs QYIR candidates from benchmark expected slots. This validates downstream verification, compilation, execution, risk-auditing, repair, clarification, and rejection behavior, but it does not evaluate whether a model can infer those slots from raw natural language. The no-oracle extractor is therefore reported before the oracle-slot result, and the oracle-slot result remains labeled as upper-bound verification-chain evidence rather than full natural-language generation performance.
+The oracle-slot QSGA evaluation constructs QYIR candidates from benchmark expected slots. This validates downstream verification, compilation, execution, risk-auditing, repair, clarification, and rejection behavior, but it does not evaluate whether a model can infer those slots from raw natural language. It is therefore reported as upper-bound verification-chain evidence rather than full natural-language generation performance.
 
-### 11.4 Baseline Scope
+### 12.4 Baseline Scope
 
 The direct-code and direct-JSON baselines in the main 80-case deterministic evaluation are approximations. The new executable live direct-code baseline improves this evidence state by using saved qwen3.6-flash outputs over all 80 cases, but it is still only one model and one constrained prompt. Comparative claims against direct LLM-to-code should therefore remain descriptive and scoped rather than presented as a general model-ranking result.
 
-### 11.5 Benchmark Size and Scope
+### 12.5 Benchmark Size and Scope
 
 QSI-Bench v1 has 80 samples. It covers representative rule-based requests but is not a comprehensive financial benchmark. The results should be framed as evidence for feasibility and component effects, not as broad financial-language understanding.
 
-### 11.6 Benchmark Construction Bias
+### 12.6 Benchmark Construction Bias
 
 QSI-Bench v1 is curated to test predefined failure modes in the supported rule-based strategy space. It is not a naturally collected user-query corpus. Future work should include real novice-user queries, independent annotation, and broader linguistic variation before claiming user-population validity.
 
-### 11.7 Single Data Source
+### 12.7 Single Data Source
 
 The current backtest uses SPY sample data. This supports execution verification but does not establish cross-market robustness. Future experiments should include more symbols and periods if the paper wants to claim market generality.
 
-### 11.8 Risk Auditing Is Not Trading Safety
+### 12.8 Risk Auditing Is Not Trading Safety
 
 Historical backtest risk metrics do not guarantee future performance or investment safety. QSGA evaluates execution reliability and selected counted risk-constraint satisfaction under historical sample data, not future profitability. Passing QSGA verification means that the artifact is structurally valid, executable, and consistent with selected risk constraints under the prototype setting. It does not imply profitability, robustness, suitability, or deployability in real financial markets.
 
-### 11.9 Ambiguous Intent and Explicit Unsafe-Intent Rejection Coverage
+### 12.9 Ambiguous Intent and Explicit Unsafe-Intent Rejection Coverage
 
 The current explicit unsafe-intent rejection and clarification implementations are deterministic and partly keyword-based. They catch the explicit unsafe and ambiguous requests represented in QSI-Bench v1, but may miss subtle, adversarial, or interaction-dependent cases. Ambiguous intent should trigger clarification rather than forced semantic interpretation, but the present evidence measures only single-turn labels. The shared-rejection direct-code replay shows that the same boundary gate can improve unsafe handling for direct code, but it does not make the direct-code artifact interpretable or repairable. Strong claims about boundary-aware user interaction require live multi-turn clarification experiments, not only single-turn clarification labels.
 
-### 11.10 Novice-Facing Usability Is Not Yet Measured
+### 12.10 Novice-Facing Usability Is Not Yet Measured
 
 The paper uses "novice-facing" to describe the intended setting and the design motivation for explicit fields, explanations, and boundary control. It does not include a human-subject usability study. Therefore, the current evidence supports artifact-level inspectability and explicitness, not measured improvements in novice understanding, editability, or decision quality.
 
-## 12. Ethics and Compliance
+## 13. Ethics and Compliance
 
-QSGA is a research prototype for studying reliable strategy generation. It should not be used as investment advice. Generated strategies must be reviewed by qualified humans before any real trading. The benchmark uses synthetic or curated natural-language requests and sample market data. No human-subject data or private user data is used in the current repository. Public release of code, data, model prompts, or experiment logs requires human approval.
+QSGA is a research prototype for studying verifiable strategy specification, not an investment-advice system. It should not be used to make real trading decisions. Generated or repaired strategy artifacts must be reviewed by qualified humans before any real trading. The benchmark uses synthetic or curated natural-language requests and sample market data. No human-subject data or private user data is used in the current repository. Public release of code, data, model prompts, or experiment logs requires human approval.
 
-## 13. Conclusion
+## 14. Conclusion
 
-This paper presented QSGA, a verification-guided framework for reliable rule-based quantitative strategy construction within a bounded strategy space. By introducing QYIR as an explicit intermediate representation, QSGA separates generation from verification, compilation, execution, risk auditing, clarification, explicit unsafe-intent rejection, and repair. Experiments on QSI-Bench v1 show that the main deterministic no-oracle prototype reaches 0.836 construction success and 0.887 overall E2E success, while the oracle-slot upper-bound verification-chain evaluation reaches 0.945 construction success and 0.963 overall E2E success. The live QYIR runs are best interpreted as diagnostic evidence: QSGA-wrapped QYIR improves over raw QYIR prompting through clarification and explicit unsafe-intent rejection, but its live construction success remains low at 0.091. The executable live direct-code diagnostic shows the complementary failure mode: syntactically valid code can still fail semantic, unsafe-intent, and risk-control checks, while a shared rejection gate improves explicit unsafe handling without providing QYIR's interpretability or repairability. The results support a conservative conclusion: QSGA improves reliability when valid or partially valid strategy specifications can be constructed; current live LLM-based QYIR generation remains the major bottleneck.
+This paper presents QYIR, a constrained intermediate representation for bounded rule-based quantitative strategy specifications, and QSGA, a verification-guided pipeline for checking, compiling, auditing, rejecting, clarifying, and repairing QYIR artifacts before execution.
+
+Experiments on QSI-Bench v1 show that the downstream QYIR verification chain is effective under oracle-slot evaluation, reaching 0.963 E2E success, and remains practical under a deterministic no-oracle prototype, reaching 0.887 E2E success. However, saved-output live prompt-only QYIR generation remains weak, with 0.091 construction success, identifying natural-language-to-QYIR construction as the main bottleneck.
+
+These findings support a focused conclusion: QYIR improves auditability, failure localization, compilation control, and risk-aware repair for bounded strategy specifications, while robust natural-language-to-QYIR generation remains an important direction for future work.
 
 ## References
 
