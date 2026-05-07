@@ -31,6 +31,7 @@ env/
 .coverage
 .coverage.*
 htmlcov/
+.old/
 
 # BMAD local/user overrides and generated output
 *.user.toml
