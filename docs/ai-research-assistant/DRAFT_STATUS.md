@@ -6,12 +6,12 @@
 |---|---|---|---|---|---|
 | Abstract | revised after V5 | pending Level A | checked local claims | required | QYIR-centered problem statement; reports oracle 0.963, no-oracle 0.887, live construction 0.091 |
 | Introduction | revised after V5 | pending Level A | checked local claims | required | RQ split into IR verification and live LLM bottleneck diagnosis; contribution claims lowered |
-| Related Work | draft | P13-P17 Level A scaffold; others Level B | priority comparator claims checked | required | `related_work_verified.md` added |
+| Related Work | draft | P13-P17 Level A scaffold plus 2026-05-07 arXiv metadata refresh; others Level B | priority comparator claims checked | required | `related_work_verified.md` updated; final BibTeX refresh still required |
 | Method | revised after V5 | n/a | checked against QYIR spec/code | required | added QYIR grammar, validity conjunction, operand type system, compilation semantics, semantic-slot algorithm, repair invariants |
-| Experiments | revised after V5 | n/a | checked against experiment scripts | required | oracle verification chain moved before no-oracle prototype; live section framed as bottleneck analysis |
-| Results | revised after V5 | n/a | reproduced metrics | required | added no-oracle slot diagnostics; V5 reframing uses CSV metrics and saved-output live diagnostics |
-| Limitations | revised after V4 | n/a | checked | required | extractor bias, benchmark construction bias, novice usability, financial validity added |
-| Discussion/Conclusion | revised after V5 | n/a | checked | required | added QYIR-solves/does-not-solve discussion; conclusion limited to auditability, failure localization, compilation control, and risk-aware repair |
+| Experiments | revised after V5 + route-A polish | n/a | checked against experiment scripts | required | added claim matrix and explicit proof obligations for oracle/no-oracle/live/direct-code experiments |
+| Results | revised after V5 + route-A polish | n/a | reproduced metrics | required | added no-oracle slot diagnostics; sharpened direct-code low-friction vs QYIR post-construction verifiability comparison |
+| Limitations | revised after V5 + route-A polish | n/a | checked | required | reframed threats as scoped research boundaries; QSI-Bench described as controlled failure-mode benchmark |
+| Discussion/Conclusion | revised after V5 + route-A polish | n/a | checked | required | added scope-boundary discussion and direct-code/QYIR friction-verifiability tradeoff |
 | Ethics Statement | draft | n/a | checked | required | no investment advice claim |
 | Appendix | draft | n/a | checked | optional | artifact map and reproducibility package |
 
@@ -47,6 +47,8 @@
 | C16 | Results | Major proportions now include Wilson 95% confidence intervals to expose small-sample uncertainty | `qsga_ccf_c_draft.md` Section 8.4 | 中 | revised after V4 |
 | C17 | Abstract/Discussion/Conclusion | QYIR improves auditability, failure localization, compilation control, and risk-aware repair for bounded strategy specifications, while robust NL-to-QYIR generation remains open | `ccf_c_reviewer_report_v5.md`; `baseline_metrics.csv`; `no_oracle_metrics.csv`; `live_qyir_80_metrics.csv` | 中 | revised after V5 |
 | C18 | Results/Limitations | Slot-level no-oracle diagnostics show the extractor mainly captures indicator and risk-control cues, while fine-grained entry/exit extraction remains weak | `no_oracle_slot_diagnostics.csv`; `no_oracle_slot_diagnostics.md`; `run_slot_diagnostics.py` | 中 | revised after V5 |
+| C19 | Results/Discussion | Direct code has lower entry friction but weaker controllability; QYIR has higher construction difficulty but stronger post-construction verifiability | `live_direct_code_metrics.csv`; `live_qyir_80_metrics.csv`; `claim_policy.md` | 中 | revised after route-A polish |
+| C20 | Experiments/Claim Matrix | Each experiment has an explicit supported/not-claimed boundary | `citation_and_claim_matrix.md`; `qsga_ccf_c_draft.md` Section 8.1 | 强 | revised after route-A polish |
 
 ## 4. 禁止进入终稿的内容
 

@@ -330,3 +330,21 @@
 - 可复现信息：`.venv\Scripts\python.exe -m experiments.run_slot_diagnostics`; `.\scripts\reproduce_all.ps1` completed with 179 passed and regenerated deterministic metrics, slot diagnostics, saved live QYIR replay metrics, and saved live direct-code replay metrics
 - 失败信息：Slot diagnostics show weak market recall and near-zero fine-grained entry/exit extraction under strict key-value grouping; reproduce run emitted existing pandas/backtester runtime warnings but exited successfully
 - 后续动作：run markdown/claim consistency checks; optional next step is improving extractor or adding constrained parser before stronger NL-to-QYIR parsing claims
+
+## AUDIT-20260507-003
+
+- 时间：2026-05-07 14:43:50 +08:00
+- 操作 Agent：Codex
+- 操作类型：Revise / Claim-boundary hardening / Citation metadata refresh
+- 输入：human route-A feedback on over-defensive framing, live direct-code versus live QYIR interpretation, oracle-slot claim risk, QSI-Bench v1 size framing, agent wording, and related-work verification
+- 输出：paper draft now includes an experiment-to-claim matrix; Results and Discussion explicitly frame direct code as lower-friction but weakly auditable and QYIR as harder to construct but more verifiable after construction; Threats to Validity now uses scoped research-boundary language; QSI-Bench v1 is described as controlled failure-mode coverage; tool/agent wording reduced; claim policy and citation matrix synchronized; P13-P17 arXiv metadata refresh recorded
+- 使用工具 / Skill / Plugin：apply_patch; shell; web/arXiv metadata check
+- 关联任务：QSGA paper route-A polish after V5 revision
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：High
+- 是否需要人审：Yes
+- 人审状态：Pending for final claims/submission
+- 证据来源：`docs/paper/qsga_ccf_c_draft.md`; `docs/paper/citation_and_claim_matrix.md`; `docs/paper/claim_policy.md`; `docs/paper/related_work_verified.md`; `experiments/results/live_direct_code_metrics.csv`; `experiments/results/live_qyir_80_metrics.csv`
+- 可复现信息：No new experiment was run; changes use saved metrics and existing result artifacts only
+- 失败信息：live QSGA-wrapped QYIR construction success remains below live direct-code construction success; final submission still requires fresh BibTeX and arXiv version checks
+- 后续动作：run consistency checks over revised wording and keep public release/submission blocked on human review

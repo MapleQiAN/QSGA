@@ -32,6 +32,10 @@
 7. Added `experiments/run_slot_diagnostics.py` and generated no-oracle slot-level precision/recall/F1 artifacts.
 8. Added Discussion sections explaining what QYIR solves, what it does not solve, and why the negative live result matters.
 9. Updated Conclusion, Ethics, `DRAFT_STATUS.md`, `RISKS.md`, and `AUDIT_LOG.md`.
+10. Added a claim-navigation matrix to the paper and claim matrix, explicitly listing what oracle-slot, no-oracle, live QYIR, and live direct-code experiments support and do not support.
+11. Sharpened the live direct-code versus live QYIR interpretation: direct code has lower entry friction but weaker controllability, while QYIR has higher construction difficulty but stronger post-construction verifiability.
+12. Reframed Threats to Validity from defensive limitations into scoped research-boundary statements.
+13. Refreshed priority related-work metadata for P13-P17 against arXiv-indexed sources and recorded author/title checks in `related_work_verified.md`.
 
 ## Evidence State
 
@@ -39,6 +43,7 @@
 - Deterministic no-oracle E2E remains 0.887 from `experiments/results/no_oracle_metrics.csv`.
 - No-oracle slot diagnostics show indicator F1 0.637, risk-control F1 0.685, market F1 0.250, and fine-grained entry/exit F1 0.000 under strict key-value grouping.
 - Live QSGA-wrapped QYIR construction success remains 0.091 from `experiments/results/live_qyir_80_metrics.csv`.
+- Live direct-code construction success remains 0.509 from `experiments/results/live_direct_code_metrics.csv`; this is now framed as low-friction construction, not as evidence against QYIR's post-construction verification role.
 - No new live/API experiment was run in this revision.
 - `scripts/reproduce_all.ps1` completed successfully after the revision with 179 tests passing and saved live replays regenerated.
 

@@ -410,3 +410,35 @@ Yes
 Resolution:
 
 open until final human review
+
+### RISK-20260507-004
+
+Status: mitigated
+Priority: P1
+Raised by: human route-A feedback / Codex
+Related task: QSGA paper route-A polish after V5 revision
+Related decision: DEC-20260505-003
+
+Risk:
+
+The paper could over-signal weakness by over-explaining limitations, and the live direct-code result could be misread as refuting the value of QYIR because live direct-code construction success is higher than live QSGA-wrapped QYIR construction success.
+
+Evidence:
+
+`experiments/results/live_direct_code_metrics.csv` reports construction success 0.509 for qwen3.6-flash direct code. `experiments/results/live_qyir_80_metrics.csv` reports construction success 0.091 for live QSGA-wrapped QYIR. The draft previously scoped these results conservatively but did not make the low-friction versus verifiability tradeoff explicit enough in both Results and Discussion.
+
+Impact:
+
+Reviewers might infer that QYIR is weaker than direct code generation, rather than seeing the result as a separation between front-end construction difficulty and downstream verifiability.
+
+Mitigation:
+
+`docs/paper/qsga_ccf_c_draft.md` now adds a claim matrix, states that direct code has lower entry friction but weaker controllability, and states that QYIR has higher construction difficulty but stronger post-construction verifiability. Threats to Validity has also been reframed as scoped research-boundary language.
+
+Human review required:
+
+Yes
+
+Resolution:
+
+mitigated for current draft by claim-boundary hardening; final acceptance of route-A framing remains a human-review item

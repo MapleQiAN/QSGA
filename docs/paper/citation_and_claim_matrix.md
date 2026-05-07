@@ -14,7 +14,7 @@ Precision note: this matrix keeps exact CSV rates where useful. The paper draft 
 | P02 | Program Synthesis with Large Language Models | 2021 | https://arxiv.org/abs/2108.07732 | B | program synthesis framing |
 | P03 | Competition-Level Code Generation with AlphaCode | 2022 | https://arxiv.org/abs/2203.07814 | B | code generation progress |
 | P04 | PICARD: Parsing Incrementally for Constrained Auto-Regressive Decoding from Language Models | 2021 | https://arxiv.org/abs/2109.05093 | B | constrained decoding related work |
-| P05 | ReAct: Synergizing Reasoning and Acting in Language Models | 2022 | https://arxiv.org/abs/2210.03629 | B | tool-using agent background |
+| P05 | ReAct: Synergizing Reasoning and Acting in Language Models | 2022 | https://arxiv.org/abs/2210.03629 | B | tool-use and environment-interaction background |
 | P06 | Toolformer: Language Models Can Teach Themselves to Use Tools | 2023 | https://arxiv.org/abs/2302.04761 | B | tool-use related work |
 | P07 | Self-Refine: Iterative Refinement with Self-Feedback | 2023 | https://arxiv.org/abs/2303.17651 | B | iterative repair background |
 | P08 | LEVER: Learning to Verify Language-to-Code Generation with Execution | 2023 | https://arxiv.org/abs/2302.08468 | B | execution verification related work |
@@ -47,7 +47,7 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | C07 | Removing safe rejection lowers safe rejection accuracy to 0.000. | `experiments/results/ablation_metrics.csv` | Strong | verified local |
 | C08 | Main 80-case experiments are deterministic and the small live pilot does not prove online LLM generalization. | `experiments/baselines.py` module docstring; `experiments/results/live_llm_metrics.csv` | Strong | verified local |
 | C09 | Constrained decoding controls output structure, but QSGA focuses on strategy semantics, compilation, risk auditing, and repair. | P04 plus QYIR design | Medium | needs PDF-level citation check |
-| C10 | Tool-using agents motivate but do not replace explicit domain IR. | P05, P06 plus QSGA architecture | Medium | needs PDF-level citation check |
+| C10 | Tool-using systems motivate but do not replace explicit domain IR. | P05, P06 plus QSGA architecture | Medium | needs PDF-level citation check |
 | C11 | Direct trading-code benchmarks are closer comparators than broad financial LLM papers. | P13, P14, P15, P16 | Medium | needs PDF-level citation check |
 | C12 | QYIR is related to domain-specific financial IR/DSL approaches, especially OQL-style option-strategy representations. | P17 plus QYIR design | Medium | needs PDF-level citation check |
 | C13 | Current benchmark results do not measure raw natural-language slot extraction because QYIR candidates are constructed from expected slots. | `experiments/baselines.py`; `subagent_experiment_audit.md`; `subagent_adversarial_review.md` | Strong | verified local |
@@ -58,9 +58,20 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | C18 | Removing QYIR lowers E2E Success to 0.1625 in the deterministic ablation harness. | `experiments/results/ablation_metrics.csv`; `experiments/tables/ablation_comparison.md` | Strong but scoped | verified local |
 | C19 | A synthetic SPY/QQQ/GLD smoke check reaches 5/5 compile, backtest, and risk-audit runnability, but does not support profitability or market-robustness claims. | `experiments/results/multi_asset_smoke_results.csv`; `experiments/run_multi_asset_smoke.py` | Strong but smoke-only | verified local |
 | C20 | The executable live direct-code qwen3.6-flash baseline reaches 1.000 syntax/interface success but only 0.350 overall E2E Success on 80 QSI-Bench cases. | `experiments/results/live_direct_code_results.csv`; `experiments/results/live_direct_code_metrics.csv`; `experiments/results/live_direct_code_raw_outputs.jsonl` | Medium; one model and one prompt | verified local |
+| C20b | Live direct code has higher construction success than live QSGA-wrapped QYIR under the current prompt, but the paper uses this as a low-friction/weak-auditability versus high-friction/strong-verifiability diagnostic rather than a general superiority claim. | `experiments/results/live_direct_code_metrics.csv`; `experiments/results/live_qyir_80_metrics.csv`; `docs/paper/claim_policy.md` | Medium; one model and one prompt | verified local |
 | C23 | In the 80-case live qwen3.6-flash diagnostic, QSGA-wrapped QYIR reaches 0.375 overall E2E but only 0.0909 construction success, exposing live QYIR generation as the bottleneck. | `experiments/results/live_qyir_80_metrics.csv`; `experiments/results/live_qyir_80_raw_outputs.jsonl` | Medium; one model and one prompt | verified local |
 | C21 | Priority related-work comparators P13-P17 have PDF-level audit scaffolds. | `docs/paper/related_work_verified.md`; `docs/paper/citation_audit_backlog.md` | Strong for audited claims | verified PDF scaffold |
 | C22 | A 35-case safe-rejection paraphrase regression set reaches 1.000 accuracy and 0.000 unsafe-acceptance rate, but remains a small deterministic pattern-coverage test. | `benchmark/unsafe_paraphrase_bench.jsonl`; `experiments/results/safe_paraphrase_metrics.csv` | Strong but narrow | verified local |
+
+## Experiment-to-Claim Navigation Matrix
+
+| Claim | Supported by | Not claimed |
+|---|---|---|
+| QYIR improves downstream verification-chain reliability | oracle-slot evaluation, ablation study, and semantic-corruption checks | does not prove natural-language parser robustness |
+| Deterministic no-oracle extraction is feasible in the bounded strategy space | no-oracle prototype and slot diagnostics | does not prove open-domain language understanding |
+| Prompt-only QYIR generation is the current bottleneck | live QYIR diagnostics | does not refute QYIR's verification value |
+| Direct code can run but remains weakly auditable | live direct-code diagnostic and shared-rejection replay | not a universal model comparison |
+| QSI-Bench v1 supports mechanism validation | 80-case controlled benchmark and annotation guideline | not population-level model ranking or comprehensive financial-language coverage |
 
 ## Forbidden or Downgraded Claims
 
@@ -72,5 +83,5 @@ Verification note: these entries are verified at metadata/link level only. Befor
 | QSGA fully understands vague financial intent. | Forbidden; current clarification metric is deterministic and single-turn |
 | QSGA has been broadly validated on live LLM outputs. | Forbidden; current evidence is single-model full live diagnostics plus a small pilot |
 | QYIR improves semantic verification independently in current ablation. | Downgrade: current ablation does not show independent gain |
-| Current baselines prove superiority over direct LLM-to-code. | Forbidden; live pilot covers QYIR prompting, not executable live-code generation |
+| Current baselines prove superiority over direct LLM-to-code. | Forbidden; executable live direct-code is a one-model diagnostic, and live QYIR construction success remains lower |
 | The 0.000 risk-violation result means financial safety. | Forbidden; it only means zero counted violations under current harness |

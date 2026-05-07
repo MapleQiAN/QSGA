@@ -18,6 +18,20 @@ Verification convention: "PDF-verified" means that the claim was checked against
 | P16 | QuantEval: A Benchmark for Financial Quantitative Tasks in Large Language Models | https://arxiv.org/pdf/2601.08689 | Abstract; task taxonomy; dataset construction; main evaluation table; benchmark comparison |
 | P17 | From Natural Language to Executable Option Strategies via Large Language Models | https://arxiv.org/pdf/2603.16434 | Abstract; methodology; OQL design principles; neuro-symbolic execution flow; evaluation framing |
 
+## Metadata Refresh on 2026-05-07
+
+The priority related-work metadata was rechecked against arXiv abstract pages or arXiv-indexed metadata on 2026-05-07 before this revision:
+
+| Matrix ID | Current metadata status |
+|---|---|
+| P13 | arXiv:2604.15151 confirms the title `QuantCode-Bench: A Benchmark for Evaluating the Ability of Large Language Models to Generate Executable Algorithmic Trading Strategies`; authors: Aleksandr Khoroshilov, Kirill Ponomarev, Dmitrii Pilipenko, Evgeny Burnaev. |
+| P14 | arXiv:2604.04812 confirms the title `SysTradeBench: An Iterative Build-Test-Patch Benchmark for Strategy-to-Code Trading Systems with Drift-Aware Diagnostics`; authors: Yuchen Cao, Hanlin Zhang, Jacky Wai Keung, Yang Chen, Linqi Song. |
+| P15 | arXiv:2512.12264 confirms the title `Market-Bench: Evaluating Large Language Models on Introductory Quantitative Trading and Market Dynamics`; authors: Sanjay Srivastava, Stevan Taskov, Alex Stoyanov, Harold Stern, Igor Halperin. |
+| P16 | arXiv:2601.08689 confirms the title `QuantEval: A Benchmark for Financial Quantitative Tasks in Large Language Models`; authors: Bohan Kang, Dingli Yu, Yilong Xue, Mingxuan Wang, Ruiyi Zhang, Yilun Han, Yunji Li, Junda Wu, Musen Wen, Zhen Tan, Wen Wang, Ramesh Harjani, Jan Wiesemann, Huan Liu. |
+| P17 | arXiv:2603.16434 confirms the title `From Natural Language to Executable Option Strategies via Large Language Models`; authors: Jueping Luo, Arian Neshati, Nan Zhang, Lisong Qiu. |
+
+Remaining bibliography risk: these papers are recent arXiv preprints, so final BibTeX entries should still be refreshed immediately before submission.
+
 ## Verified Comparator Prose
 
 Recent trading-specific benchmarks evaluate LLMs beyond general code-generation tasks. QuantCode-Bench evaluates whether models can generate executable Backtrader strategies from English textual descriptions. Its dataset contains 400 tasks collected from Reddit, TradingView, StackExchange, GitHub, and synthetic sources, and its evaluation pipeline checks syntactic correctness, backtest execution, trade generation, and semantic alignment with the task description through an LLM judge. The paper explicitly argues that successful compilation is insufficient for trading strategies because executable code can still fail to trade or fail to match the intended strategy. This makes QuantCode-Bench a close comparator for QSGA's staged verification framing, although QSGA evaluates a smaller, Chinese, rule-based IR-first prototype rather than broad Backtrader code generation. Evidence: QuantCode-Bench abstract and Section 2.1-2.2, PDF P0-P3, lines 7-27 and 94-133; Section 3.1, PDF P3, lines 140-170.
