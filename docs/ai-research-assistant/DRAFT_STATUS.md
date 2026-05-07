@@ -4,13 +4,13 @@
 
 | 章节 | 状态 | 引用检查 | 证据检查 | 人审状态 | 备注 |
 |---|---|---|---|---|---|
-| Abstract | draft | pending Level A | checked local claims | required | three-layer evidence hierarchy included |
-| Introduction | draft | pending Level A | checked local claims | required | no-oracle main, oracle upper-bound, live diagnostic boundary retained |
+| Abstract | revised after V4 | pending Level A | checked local claims | required | four-part problem/method/evidence/boundary narrative; reduced metric stacking |
+| Introduction | revised after V4 | pending Level A | checked local claims | required | IR-first title/framing; closest-work positioning referenced early |
 | Related Work | draft | P13-P17 Level A scaffold; others Level B | priority comparator claims checked | required | `related_work_verified.md` added |
-| Method | draft | n/a | checked against QYIR spec/code | required | QYIR/QSGA sections complete |
-| Experiments | draft | n/a | checked against experiment scripts | required | no-oracle main result, oracle upper bound, 80-case live QYIR, executable live direct-code baseline |
-| Results | draft | n/a | reproduced metrics | required | clarification-aware metrics; descriptive rates only; live direct-code covers one model |
-| Limitations | draft | n/a | checked | required | deterministic prototype, single-model live scope, oracle upper-bound, live QYIR bottleneck included |
+| Method | revised after V4 | n/a | checked against QYIR spec/code | required | formal QYIR validity, QYIR-vs-JSON table, semantic/rejection/repair boundaries added |
+| Experiments | revised after V4 | n/a | checked against experiment scripts | required | display names distinguish no-oracle, oracle upper bound, and live diagnostics |
+| Results | revised after V4 | n/a | reproduced metrics | required | Wilson intervals, diagnostic live framing, case traces added |
+| Limitations | revised after V4 | n/a | checked | required | extractor bias, benchmark construction bias, novice usability, financial validity added |
 | Ethics Statement | draft | n/a | checked | required | no investment advice claim |
 | Appendix | draft | n/a | checked | optional | artifact map and reproducibility package |
 
@@ -18,7 +18,7 @@
 
 | 项目 | 状态 | 备注 |
 |---|---|---|
-| CCF C Reviewer Report | done | `docs/paper/ccf_c_reviewer_report.md` |
+| CCF C Reviewer Report | V4 applied | `docs/paper/ccf_c_reviewer_report_v4.md` |
 | Recommendation | Borderline as IR/prototype with single-model live diagnostics; Weak Reject if framed as broad empirical LLM benchmark | oracle-slot and single-model live risks remain; ambiguity metric is deterministic only |
 | P0/P1 风险已登记 | done | `RISKS.md`, `DECISIONS.md` |
 | 一票否决项检查 | open | public release/submission requires human approval |
@@ -31,7 +31,7 @@
 | C01 | Abstract/Conclusion | QSGA improves reliability when valid or partially valid strategy specifications can be constructed | `baseline_metrics.csv`; `no_oracle_metrics.csv` | 中 | draft |
 | C02 | Results | Risk audit reduces measured risk violations | `ablation_metrics.csv` | 中 | draft |
 | C03 | Results | Repair improves controlled prototype reliability | `ablation_metrics.csv` | 中 | draft |
-| C04 | Results | Safe rejection prevents explicit unsafe-request acceptance | `ablation_metrics.csv` | 中 | draft |
+| C04 | Results | Explicit unsafe-intent rejection prevents explicit unsafe-request acceptance | `ablation_metrics.csv` | 中 | draft |
 | C05 | Limitations | Current results do not prove live LLM generalization | `experiments/baselines.py` | 强 | draft |
 | C06 | Experiments/Limitations | Oracle-slot QSGA is an upper-bound verification-chain validation, not raw NL generation | `experiments/baselines.py` | 强 | draft |
 | C07 | Results/Limitations | Ambiguous cases are measured through clarification accuracy, but only with deterministic single-turn rules | `baseline_metrics.csv`; `no_oracle_metrics.csv` | 中 | draft |
@@ -42,7 +42,8 @@
 | C12 | Results/Limitations | Executable live direct-code qwen3.6-flash reaches 1.000 syntax/interface but 0.350 E2E | `live_direct_code_replay_results.csv` | 中 | draft |
 | C13 | Related Work | P13-P17 direct comparators support scoped positioning of QSGA | `related_work_verified.md` | 中 | draft |
 | C14 | Results | Semantic verifier detects schema-valid explicit intent-slot corruptions in 7/7 corruption cases | `semantic_corruption_metrics.csv` | 中 | draft |
-| C15 | Results/Limitations | Shared safe-rejection replay improves saved live direct-code E2E to 0.5375 mainly through unsafe handling | `live_direct_code_shared_rejection_metrics.csv` | 中 | draft |
+| C15 | Results/Limitations | Shared explicit unsafe-intent replay improves saved live direct-code E2E to 0.5375 mainly through unsafe handling | `live_direct_code_shared_rejection_metrics.csv` | 中 | draft |
+| C16 | Results | Major proportions now include Wilson 95% confidence intervals to expose small-sample uncertainty | `qsga_ccf_c_draft.md` Section 8.4 | 中 | revised after V4 |
 
 ## 4. 禁止进入终稿的内容
 
@@ -52,4 +53,4 @@
 4. 未处理伦理风险。
 5. 未记录失败实验。
 6. 伪装成真实审稿意见的模拟 reviewer 输出。
-7. 未处理 CCF C Reviewer Agent 的 P0/P1 拒稿风险。
+7. 未处理 CCF C Reviewer Agent 或 V4 reviewer-risk report 的 P0/P1 拒稿风险。

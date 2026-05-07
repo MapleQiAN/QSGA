@@ -294,3 +294,21 @@
 - 可复现信息：`.\\scripts\\reproduce_all.ps1` -> `179 passed`; regenerated baseline/no-oracle/ablation metrics; replayed 160 live QYIR rows and 80 live direct-code rows without new API calls
 - 失败信息：live QSGA QYIR construction success remains 0.0909 despite E2E rising to 0.375 through clarification and safe rejection; must remain diagnostic bottleneck evidence
 - 后续动作：final claim framing still needs human review before submission or public release
+
+## AUDIT-20260507-001
+
+- 时间：2026-05-07 00:00:00 +08:00
+- 操作 Agent：Codex
+- 操作类型：Revise / Verify / Synchronize
+- 输入：`docs/paper/ccf_c_reviewer_report_v4.md`; `docs/ai-research-assistant/AI_RULES.md`; `docs/ai-research-assistant/QUALITY_GUARDRAILS.md`; `docs/paper/qsga_ccf_c_draft.md`
+- 输出：V4-driven paper revision with safer IR-first title, four-part abstract, sharper contributions, formal QYIR validity conditions, QYIR-vs-JSON table, Wilson confidence intervals, conservative semantic/rejection/repair boundaries, live diagnostic case traces, and expanded threats to validity
+- 使用工具 / Skill / Plugin：apply_patch; shell
+- 关联任务：QSGA paper hardening according to V4 reviewer-risk report
+- 关联决策：DEC-20260505-001, DEC-20260505-002, DEC-20260505-003
+- 风险等级：High
+- 是否需要人审：Yes
+- 人审状态：Pending for final claims/submission
+- 证据来源：`docs/paper/ccf_c_reviewer_report_v4.md`; `docs/paper/qsga_ccf_c_draft.md`; `experiments/results/*metrics.csv`
+- 可复现信息：Wilson intervals computed from local metric denominators: E2E over 80 cases and construction over 55 constructible cases
+- 失败信息：No new live experiment was run in this revision; single-model live evidence and human approval gates remain
+- 后续动作：run consistency checks/tests and keep submission/public release blocked on human review

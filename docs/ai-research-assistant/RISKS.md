@@ -314,3 +314,35 @@ No
 Resolution:
 
 partially mitigated in draft and metrics; live multi-turn clarification remains future work
+
+### RISK-20260507-001
+
+Status: open
+Priority: P2
+Raised by: V4 reviewer-risk report / Codex
+Related task: QSGA paper V4 hardening
+Related decision: none
+
+Risk:
+
+The paper uses novice-facing motivation but does not include a human-subject usability study.
+
+Evidence:
+
+`docs/paper/ccf_c_reviewer_report_v4.md` recommends either weakening novice usability claims or adding a small user experiment. The current revision chose claim weakening and added a threat-to-validity subsection.
+
+Impact:
+
+The paper can claim artifact-level inspectability and explicitness, but cannot claim measured improvements in novice understanding, editability, or decision quality.
+
+Mitigation:
+
+`docs/paper/qsga_ccf_c_draft.md` now states that novice-facing usability is not yet measured. A future version may add a 6-10 participant study comparing QYIR and direct code interpretability.
+
+Human review required:
+
+No
+
+Resolution:
+
+open as future-work risk; mitigated for current CCF C draft by claim weakening

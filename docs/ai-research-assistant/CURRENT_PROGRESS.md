@@ -1,6 +1,6 @@
 # Current Progress
 
-Updated: 2026-05-06 20:40 +08:00
+Updated: 2026-05-07 00:00 +08:00
 
 ## Current Objective
 
@@ -30,6 +30,7 @@ Revise the QSGA CCF-C candidate draft according to the latest reviewer-risk sugg
 - Add a saved-output live direct-code shared-rejection replay experiment without new API calls.
 - Revise the paper draft, claim policy, results log, experiment plan, audit log, and risk register to match the new evidence and more conservative framing.
 - Add `clarification_requested` and `clarification_correct` result columns, update metric aggregation, regenerate baseline/no-oracle/ablation/live replay metrics, and rewrite the paper around the three-layer evidence hierarchy.
+- Apply V4 reviewer-risk revisions to the draft: safer IR-first title, less metric-heavy abstract, sharper contributions, formal QYIR validity conditions, QYIR-vs-JSON case table, Wilson intervals, explicit repair invariant, clearer oracle-slot/live diagnostic naming, added live QYIR and direct-code case traces, and expanded threats to validity.
 
 ## New Results In This Revision
 
@@ -48,6 +49,7 @@ Revise the QSGA CCF-C candidate draft according to the latest reviewer-risk sugg
 - Live direct-code qwen3.6-flash: syntax/interface 1.000; E2E 0.350.
 - Current live evidence shows boundary handling gains but does not show live QYIR construction outperforming live direct-code construction.
 - Safe rejection is deterministic, small-scope, and partly pattern-based.
+- V4 framing is now explicit: the paper does not claim to solve open-domain natural-language trading strategy generation; it studies a bounded IR-first verification framework.
 
 ## Next Automatic Steps
 
