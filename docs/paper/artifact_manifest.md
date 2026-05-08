@@ -1,6 +1,6 @@
 # QSGA Artifact Manifest
 
-Date: 2026-05-06
+Date: 2026-05-08
 
 ## Core Code
 
@@ -56,3 +56,4 @@ Date: 2026-05-06
 | Figure 1: Problem and Technical Route | `figures/figure1_problem_route.svg` | `figures/figure1_problem_route.pdf` |
 | Figure 2: QSGA Architecture | `figures/figure2_architecture.svg` | `figures/figure2_architecture.pdf` |
 | Figure 3: QYIR vs JSON Schema | `figures/figure3_qyir_vs_json_schema.svg` | `figures/figure3_qyir_vs_json_schema.pdf` |
+| Figure 4: Evidence Hierarchy Overview | `figures/figure4_evidence_hierarchy.svg` | not exported in this artifact version |
