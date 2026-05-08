@@ -132,7 +132,7 @@ Generate paper tables:
 
 ```powershell
 .venv\Scripts\python.exe -m experiments.run_slot_diagnostics --csv-output experiments\results\no_oracle_slot_diagnostics.csv --md-output experiments\tables\no_oracle_slot_diagnostics.md
-.venv\Scripts\python.exe -m experiments.paper_tables --metrics experiments\results\baseline_metrics.csv --results experiments\results\baseline_results.csv --ablation-metrics experiments\results\ablation_metrics.csv --output-dir experiments\tables
+.venv\Scripts\python.exe -m experiments.paper_tables --metrics experiments\results\baseline_metrics.csv --results experiments\results\baseline_results.csv --ablation-metrics experiments\results\ablation_metrics.csv --no-oracle-metrics experiments\results\no_oracle_metrics.csv --live-direct-code-metrics experiments\results\live_direct_code_metrics.csv --live-direct-code-shared-rejection-metrics experiments\results\live_direct_code_shared_rejection_metrics.csv --output-dir experiments\tables
 ```
 
 The generated Markdown tables cover the baseline, ablation, repair, safe-rejection, and no-oracle slot-diagnostic summaries. The no-oracle aggregate table in the draft is copied from `experiments\results\no_oracle_metrics.csv` after running the no-oracle aggregation command above.

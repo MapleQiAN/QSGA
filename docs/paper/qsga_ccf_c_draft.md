@@ -1,4 +1,4 @@
-# QYIR: A Verifiable and Repairable Intermediate Representation for Rule-Based Quantitative Strategy Construction
+# QYIR: A Verifiable and Repairable Intermediate Representation for Bounded Rule-Based Quantitative Strategy Construction
 
 > Draft status: CCF C candidate draft generated from the current QSGA prototype and reproducible experiment artifacts on 2026-05-05. Human review is still required before submission, especially for final claims, authorship, target venue, and public release.
 
@@ -536,19 +536,24 @@ Figure 4 summarizes this evidence hierarchy. The study begins with natural-langu
 
 ![Figure 4. Evidence hierarchy for bounded QYIR verification.](../../figures/figure4_evidence_hierarchy.svg)
 
+The main result table is intentionally compact. It keeps only the four rates needed to understand the trade-off: overall handling, constructible-strategy construction, counted risk violations, and explicit unsafe-intent rejection.
+
+| Method | E2E | Construction | Risk Violation | Unsafe Rejection |
+|---|---:|---:|---:|---:|
+| Direct code diagnostic | 0.350 | 0.509 | 0.164 | 0.000 |
+| Direct code + shared rejection | 0.538 | 0.509 | 0.164 | 1.000 |
+| QSGA no-oracle | 0.888 | 0.836 | 0.000 | 1.000 |
+| QSGA oracle-slot upper bound | 0.963 | 0.945 | 0.000 | 1.000 |
+
+The key finding is not that QYIR is easier to generate than code. It is not. Instead, QYIR trades generation difficulty for post-construction verifiability, typed failure localization, and conservative repair.
+
 ### 8.2 Component Validation under Oracle Specifications
 
 The oracle-slot setting constructs QYIR from benchmark expected slots and therefore should not be interpreted as raw natural-language generation performance. Its role is to isolate the downstream QYIR verification chain from the uncertainty of natural-language parsing and to test whether validation, compilation, risk auditing, clarification, explicit unsafe-intent rejection, and repair work when strategy semantics are already available.
 
 This design deliberately gives the system access to benchmark slot annotations before verification. The resulting 0.963 E2E score is therefore best read as an upper bound and component validation for the verification chain, not as evidence that QSGA can independently recover all strategy semantics from raw user text.
 
-| Method | Schema Validity ↑ | Semantic Consistency ↑ | Compile Success ↑ | Backtest Success ↑ | Risk Violation ↓ | Clarification Accuracy ↑ | Construction Success ↑ | E2E Success ↑ |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Deterministic direct-code simulation | 0.000 | 0.727 | 1.000 | 0.727 | 0.273 | 0.000 | 0.727 | 0.500 |
-| Deterministic direct-JSON simulation | 0.727 | 0.673 | 0.727 | 0.727 | 0.364 | 0.000 | 0.309 | 0.400 |
-| QSGA oracle-slot upper bound without repair | 0.582 | 0.564 | 0.582 | 0.582 | 0.291 | 1.000 | 0.273 | 0.500 |
-| QSGA oracle-slot upper bound without risk audit | 1.000 | 0.945 | 1.000 | 1.000 | 0.473 | 1.000 | 0.473 | 0.637 |
-| QSGA oracle-slot upper bound | 1.000 | 0.945 | 1.000 | 1.000 | 0.000 | 1.000 | 0.945 | 0.963 |
+The full oracle-slot metrics and component-removal variants are reported in the ablation table rather than repeated as the main result table.
 
 The full oracle-slot upper-bound verification chain reaches 0.963 E2E success under this component-validation setup. The difference between the oracle-slot upper-bound version without risk auditing and the full oracle-slot upper bound is particularly important: both compile and execute all constructible outputs, but the version without risk auditing has a counted risk-constraint violation rate of 0.473 and an end-to-end success rate of 0.637. This supports a narrow claim: execution success alone is not enough for the implemented reliability criteria.
 
@@ -1063,13 +1068,15 @@ The oracle-slot evaluation supports this downstream verification-chain claim as 
 
 This paper intentionally separates representation-level reliability from open-domain semantic parsing. The saved-output live LLM diagnostic result indicates that prompt-only QYIR construction remains the current front-end bottleneck, motivating future work on constrained decoding, semantic parsers, stronger structured generation, and interactive clarification. The no-oracle extractor is rule-based and benchmark-specific, so it is used as bounded prototype feasibility evidence rather than as a broad language-understanding claim.
 
+A near-term experiment should run 20 to 40 live QYIR cases with constrained JSON or grammar-guided output. This would test whether the 0.091 prompt-only construction success is mainly a syntax/control problem or a deeper semantic parsing problem. Until that experiment is run, constrained generation is treated as future work rather than as a reported result.
+
 QYIR also does not make a strategy profitable, suitable, compliant, or safe for real trading. It makes a bounded strategy artifact more inspectable before execution. That distinction is important for both scientific validity and financial-risk communication.
 
 ### 11.3 Why the Negative Live Result Matters
 
 The low live construction success should not be interpreted as a failure of QYIR verification. Instead, it separates two sources of difficulty: constructing a valid candidate specification and verifying it before execution. This separation is precisely the benefit of an IR-centered design. The 0.091 live QYIR construction success result identifies the current front-end bottleneck; the 0.963 oracle-slot verification-chain result shows that the downstream checks remain effective when the candidate specification is available.
 
-The live direct-code diagnostic sharpens this interpretation. Direct code reaches higher construction success under the same 55 constructible-case denominator, but it is weaker as an auditable object: syntax and interface success do not expose risk slots, declared indicators, rule references, or localized repair targets. QYIR is therefore not positioned as lower-friction prompting or as outperforming direct code in live construction. It is positioned as a stricter representation contract that trades construction difficulty for post-construction verifiability and repairability.
+The live direct-code diagnostic sharpens this interpretation. Direct code reaches higher construction success under the same 55 constructible-case denominator, but it is weaker as an auditable object: syntax and interface success do not expose risk slots, declared indicators, rule references, or localized repair targets. QYIR is therefore not positioned as lower-friction prompting or as outperforming direct code in live construction. The key finding is not that QYIR is easier to generate than code. It is not. Instead, QYIR trades generation difficulty for post-construction verifiability, typed failure localization, and conservative repair.
 
 ## 12. Threats to Validity
 
@@ -1123,7 +1130,7 @@ This paper presents QYIR, a constrained intermediate representation for bounded 
 
 Experiments on QSI-Bench v1 show that the downstream QYIR verification chain is effective under oracle-slot component validation, reaching 0.963 E2E success when benchmark strategy slots are already available. A deterministic no-oracle prototype reaches 0.887 case-level E2E success, but stricter slot-level diagnostics reveal unresolved fine-grained semantic parsing weaknesses. Saved-output live prompt-only QYIR generation remains weak, with 0.091 construction success, identifying natural-language-to-QYIR construction as the main bottleneck.
 
-These findings support a focused conclusion: QYIR improves auditability, failure localization, compilation control, and risk-aware repair for bounded rule-based strategy specification verification, while robust natural-language-to-QYIR construction remains an important direction for future work. Direct code is easier to construct in the current live diagnostic, whereas QYIR offers a stricter representation contract for post-construction verification and localized repair.
+These findings support a focused conclusion: QYIR's value is not easier generation. Its value is turning a generated strategy into an object that can be checked, localized, and repaired. Direct code is easier to construct in the current live diagnostic, whereas QYIR offers a stricter representation contract for post-construction verification and conservative repair.
 
 ## References
 

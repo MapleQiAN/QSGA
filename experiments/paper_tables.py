@@ -13,15 +13,28 @@ def generate_paper_tables(
     results_csv: str | Path,
     output_dir: str | Path = "experiments/tables",
     ablation_metrics_csv: str | Path | None = None,
+    no_oracle_metrics_csv: str | Path | None = None,
+    live_direct_code_metrics_csv: str | Path | None = None,
+    live_direct_code_shared_rejection_metrics_csv: str | Path | None = None,
 ) -> list[Path]:
     """Write main comparison, repair, safe-rejection, and case-analysis tables."""
     metrics = pd.read_csv(metrics_csv)
     results = pd.read_csv(results_csv)
+    main_metrics = [metrics]
+    for optional_csv in (
+        live_direct_code_metrics_csv,
+        live_direct_code_shared_rejection_metrics_csv,
+        no_oracle_metrics_csv,
+    ):
+        if optional_csv is not None:
+            optional_path = Path(optional_csv)
+            if optional_path.exists():
+                main_metrics.append(pd.read_csv(optional_path))
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
     paths = [
-        _write_main_table(metrics, out / "main_comparison.md"),
+        _write_main_table(pd.concat(main_metrics, ignore_index=True), out / "main_comparison.md"),
         _write_repair_table(results, out / "repair_effect.md"),
         _write_safe_rejection_table(results, out / "safe_rejection.md"),
         _write_case_table(out / "case_analysis.md"),
@@ -33,32 +46,54 @@ def generate_paper_tables(
 
 
 def _write_main_table(metrics: pd.DataFrame, path: Path) -> Path:
-    renamed = metrics.rename(
-        columns={
-            "method": "Method",
-            "schema_validity": "Schema Validity ↑",
-            "semantic_consistency": "Semantic Consistency ↑",
-            "compile_success": "Compile Success ↑",
-            "backtest_success": "Backtest Success ↑",
-            "risk_violation": "Risk Violation ↓",
-            "clarification_accuracy": "Clarification Accuracy ↑",
-            "construction_success": "Construction Success ↑",
-            "end_to_end_success": "E2E Success ↑",
-        }
+    rows: list[dict[str, object]] = []
+    for label, candidates in [
+        ("Direct code diagnostic", ["live_direct_code::qwen3.6-flash", "direct_code"]),
+        (
+            "Direct code + shared rejection",
+            ["live_direct_code_shared_rejection::qwen3.6-flash"],
+        ),
+        ("QSGA no-oracle", ["qsga_no_oracle_slots"]),
+        ("QSGA oracle-slot upper bound", ["qsga_full"]),
+    ]:
+        row = _first_metric_row(metrics, candidates)
+        if row is None:
+            continue
+        rows.append(
+            {
+                "Method": label,
+                "E2E": _format_main_rate(row["end_to_end_success"]),
+                "Construction": _format_main_rate(row["construction_success"]),
+                "Risk Violation": _format_main_rate(row["risk_violation"]),
+                "Unsafe Rejection": _format_main_rate(row["safe_rejection_accuracy"]),
+            }
+        )
+    table = pd.DataFrame(
+        rows
+        or [
+            {
+                "Method": "n/a",
+                "E2E": 0.0,
+                "Construction": 0.0,
+                "Risk Violation": 0.0,
+                "Unsafe Rejection": 0.0,
+            }
+        ]
     )
-    cols = [
-        "Method",
-        "Schema Validity ↑",
-        "Semantic Consistency ↑",
-        "Compile Success ↑",
-        "Backtest Success ↑",
-        "Risk Violation ↓",
-        "Clarification Accuracy ↑",
-        "Construction Success ↑",
-        "E2E Success ↑",
-    ]
-    path.write_text(_to_markdown(renamed[cols]), encoding="utf-8")
+    path.write_text(_to_markdown(table), encoding="utf-8")
     return path
+
+
+def _first_metric_row(metrics: pd.DataFrame, method_names: list[str]) -> pd.Series | None:
+    for method_name in method_names:
+        matched = metrics[metrics["method"] == method_name]
+        if not matched.empty:
+            return matched.iloc[0]
+    return None
+
+
+def _format_main_rate(value: object) -> str:
+    return f"{float(value) + 1e-12:.3f}"
 
 
 def _write_repair_table(results: pd.DataFrame, path: Path) -> Path:
@@ -176,10 +211,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--metrics", required=True)
     parser.add_argument("--results", required=True)
     parser.add_argument("--ablation-metrics")
+    parser.add_argument("--no-oracle-metrics")
+    parser.add_argument("--live-direct-code-metrics")
+    parser.add_argument("--live-direct-code-shared-rejection-metrics")
     parser.add_argument("--output-dir", default="experiments/tables")
     args = parser.parse_args(argv)
 
-    paths = generate_paper_tables(args.metrics, args.results, args.output_dir, args.ablation_metrics)
+    paths = generate_paper_tables(
+        args.metrics,
+        args.results,
+        args.output_dir,
+        args.ablation_metrics,
+        args.no_oracle_metrics,
+        args.live_direct_code_metrics,
+        args.live_direct_code_shared_rejection_metrics,
+    )
     for path in paths:
         print(path)
     return 0
