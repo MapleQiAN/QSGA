@@ -36,3 +36,4 @@ htmlcov/
 # BMAD local/user overrides and generated output
 *.user.toml
 _bmad-output/
+DSAPIKEY.txt
