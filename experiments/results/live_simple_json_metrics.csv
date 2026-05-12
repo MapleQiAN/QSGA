@@ -1,0 +1,2 @@
+method,json_parse_success,qyir_conversion_success,semantic_consistency,compile_success,risk_violation,safe_rejection_accuracy,construction_success,end_to_end_success
+live_simple_json_adapter::deepseek-v4-flash,1.0,0.23076923076923078,0.23076923076923078,0.15384615384615385,0.0,1.0,0.23076923076923078,0.45

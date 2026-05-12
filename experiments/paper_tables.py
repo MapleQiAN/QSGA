@@ -15,7 +15,10 @@ def generate_paper_tables(
     ablation_metrics_csv: str | Path | None = None,
     no_oracle_metrics_csv: str | Path | None = None,
     live_direct_code_metrics_csv: str | Path | None = None,
+    live_direct_code_feedback_repair_metrics_csv: str | Path | None = None,
     live_direct_code_shared_rejection_metrics_csv: str | Path | None = None,
+    live_constrained_qyir_metrics_csv: str | Path | None = None,
+    live_simple_json_metrics_csv: str | Path | None = None,
 ) -> list[Path]:
     """Write main comparison, repair, safe-rejection, and case-analysis tables."""
     metrics = pd.read_csv(metrics_csv)
@@ -23,7 +26,10 @@ def generate_paper_tables(
     main_metrics = [metrics]
     for optional_csv in (
         live_direct_code_metrics_csv,
+        live_direct_code_feedback_repair_metrics_csv,
         live_direct_code_shared_rejection_metrics_csv,
+        live_constrained_qyir_metrics_csv,
+        live_simple_json_metrics_csv,
         no_oracle_metrics_csv,
     ):
         if optional_csv is not None:
@@ -39,6 +45,10 @@ def generate_paper_tables(
         _write_safe_rejection_table(results, out / "safe_rejection.md"),
         _write_case_table(out / "case_analysis.md"),
     ]
+    if live_simple_json_metrics_csv is not None:
+        simple_json_path = Path(live_simple_json_metrics_csv)
+        if simple_json_path.exists():
+            paths.append(_write_simple_json_table(pd.read_csv(simple_json_path), out / "simple_json_baseline.md"))
     if ablation_metrics_csv is not None:
         ablation_metrics = pd.read_csv(ablation_metrics_csv)
         paths.append(_write_ablation_table(ablation_metrics, out / "ablation_comparison.md"))
@@ -50,9 +60,23 @@ def _write_main_table(metrics: pd.DataFrame, path: Path) -> Path:
     for label, candidates in [
         ("Direct code diagnostic", ["live_direct_code::qwen3.6-flash", "direct_code"]),
         (
+            "Direct code + execution-feedback repair",
+            ["live_direct_code_feedback_repair::deepseek-v4-flash+deepseek-v4-pro"],
+        ),
+        (
             "Direct code + shared rejection",
             ["live_direct_code_shared_rejection::qwen3.6-flash"],
         ),
+        (
+            "Live QYIR + constrained JSON",
+            [
+                "live_constrained_qyir::json_object::deepseek-v4-flash",
+                "live_constrained_qyir::json_schema::deepseek-v4-flash",
+                "live_constrained_qyir::json_object::qwen3.6-flash",
+                "live_constrained_qyir::json_schema::qwen3.6-flash",
+            ],
+        ),
+        ("Live Simple JSON + adapter", ["live_simple_json_adapter::deepseek-v4-flash"]),
         ("QSGA no-oracle", ["qsga_no_oracle_slots"]),
         ("QSGA oracle-slot upper bound", ["qsga_full"]),
     ]:
@@ -140,7 +164,7 @@ def _write_ablation_table(metrics: pd.DataFrame, path: Path) -> Path:
             "semantic_consistency": "Semantic Consistency ↑",
             "risk_violation": "Risk Violation ↓",
             "safe_rejection_accuracy": "Safe Rejection Accuracy ↑",
-            "repair_success": "Repair Success ↑",
+            "repair_success": "Conservative Repair Success ↑",
             "clarification_accuracy": "Clarification Accuracy ↑",
             "construction_success": "Construction Success ↑",
             "end_to_end_success": "E2E Success ↑",
@@ -151,10 +175,35 @@ def _write_ablation_table(metrics: pd.DataFrame, path: Path) -> Path:
         "Semantic Consistency ↑",
         "Risk Violation ↓",
         "Safe Rejection Accuracy ↑",
-        "Repair Success ↑",
+        "Conservative Repair Success ↑",
         "Clarification Accuracy ↑",
         "Construction Success ↑",
         "E2E Success ↑",
+    ]
+    path.write_text(_to_markdown(renamed[cols]), encoding="utf-8")
+    return path
+
+
+def _write_simple_json_table(metrics: pd.DataFrame, path: Path) -> Path:
+    renamed = metrics.rename(
+        columns={
+            "method": "Method",
+            "json_parse_success": "JSON Parse Success",
+            "qyir_conversion_success": "QYIR Conversion Success",
+            "semantic_consistency": "Semantic Consistency",
+            "compile_success": "Compile Success",
+            "risk_violation": "Risk Violation",
+            "end_to_end_success": "E2E Success",
+        }
+    )
+    cols = [
+        "Method",
+        "JSON Parse Success",
+        "QYIR Conversion Success",
+        "Semantic Consistency",
+        "Compile Success",
+        "Risk Violation",
+        "E2E Success",
     ]
     path.write_text(_to_markdown(renamed[cols]), encoding="utf-8")
     return path
@@ -213,7 +262,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ablation-metrics")
     parser.add_argument("--no-oracle-metrics")
     parser.add_argument("--live-direct-code-metrics")
+    parser.add_argument("--live-direct-code-feedback-repair-metrics")
     parser.add_argument("--live-direct-code-shared-rejection-metrics")
+    parser.add_argument("--live-constrained-qyir-metrics")
+    parser.add_argument("--live-simple-json-metrics")
     parser.add_argument("--output-dir", default="experiments/tables")
     args = parser.parse_args(argv)
 
@@ -224,7 +276,10 @@ def main(argv: list[str] | None = None) -> int:
         args.ablation_metrics,
         args.no_oracle_metrics,
         args.live_direct_code_metrics,
+        args.live_direct_code_feedback_repair_metrics,
         args.live_direct_code_shared_rejection_metrics,
+        args.live_constrained_qyir_metrics,
+        args.live_simple_json_metrics,
     )
     for path in paths:
         print(path)

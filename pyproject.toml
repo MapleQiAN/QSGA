@@ -1,7 +1,7 @@
 [project]
 name = "qsga-system"
 version = "0.1.0"
-description = "QSGA: Verification-Guided Program Synthesis for Reliable Quantitative Strategy Generation"
+description = "QSGA: QYIR-based verification for bounded quantitative strategy specifications"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

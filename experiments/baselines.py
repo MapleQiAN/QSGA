@@ -535,7 +535,7 @@ def _run_wo_qyir(record: BenchmarkRecord, price_data: pd.DataFrame) -> MethodRes
 
     The variant keeps a QYIR-shaped adapter only so existing compiler/backtester
     infrastructure can score it. It removes QYIR-specific advantages:
-    safe rejection, semantic verification, localized repair, and risk-slot repair.
+    safe rejection, semantic verification, conservative field repair, and risk-slot repair.
     """
     qyir = _damage_wo_qyir(record, build_qyir_from_record(record))
     validation = validate_qyir(qyir)

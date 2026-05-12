@@ -1,0 +1,2 @@
+model,method,calls,prompt_tokens,completion_tokens,total_tokens,api_errors
+deepseek-v4-flash,live_constrained_qyir::json_object::deepseek-v4-flash,20,10073,25221,35294,0

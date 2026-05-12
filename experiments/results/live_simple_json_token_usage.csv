@@ -1,0 +1,2 @@
+model,method,calls,prompt_tokens,completion_tokens,total_tokens,api_errors
+deepseek-v4-flash,live_simple_json_adapter::deepseek-v4-flash,13,3383,5215,8598,0

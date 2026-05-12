@@ -11,7 +11,9 @@ from experiments.eval_metrics import compute_metrics
 from experiments.paper_tables import generate_paper_tables
 from experiments.run_no_oracle import run_no_oracle_method
 from experiments.run_live_direct_code import evaluate_direct_code, replay_live_direct_code
+from experiments.run_live_constrained_qyir import build_response_format
 from experiments.run_live_llm import normalize_model_name, select_records
+from experiments.run_live_simple_json import simple_json_to_qyir, write_simple_json_metrics
 from experiments.run_multi_asset_smoke import run_multi_asset_smoke
 from qyir.validator import validate_qyir
 
@@ -175,6 +177,129 @@ def test_generate_paper_tables(tmp_path) -> None:
     assert (tmp_path / "tables" / "ablation_comparison.md").exists()
 
 
+def test_generate_paper_tables_includes_constrained_qyir_when_available(tmp_path) -> None:
+    baseline_metrics = pd.DataFrame(
+        [
+            {
+                "method": "qsga_full",
+                "schema_validity": 1.0,
+                "semantic_consistency": 1.0,
+                "compile_success": 1.0,
+                "backtest_success": 1.0,
+                "risk_violation": 0.0,
+                "repair_success": 1.0,
+                "safe_rejection_accuracy": 1.0,
+                "clarification_accuracy": 1.0,
+                "construction_success": 1.0,
+                "end_to_end_success": 1.0,
+            }
+        ]
+    )
+    constrained_metrics = pd.DataFrame(
+        [
+            {
+                "method": "live_constrained_qyir::json_object::deepseek-v4-flash",
+                "schema_validity": 0.538,
+                "semantic_consistency": 0.538,
+                "compile_success": 0.538,
+                "backtest_success": 0.538,
+                "risk_violation": 0.077,
+                "repair_success": 0.143,
+                "safe_rejection_accuracy": 1.0,
+                "clarification_accuracy": 1.0,
+                "construction_success": 0.462,
+                "end_to_end_success": 0.65,
+            }
+        ]
+    )
+    results = pd.DataFrame(
+        [
+            {
+                "method": "qsga_full",
+                "category": "unsafe_request",
+                "should_reject": True,
+                "repair_triggered": False,
+                "repair_success": False,
+                "safe_rejection_correct": True,
+            }
+        ]
+    )
+    baseline_csv = tmp_path / "baseline_metrics.csv"
+    constrained_csv = tmp_path / "constrained_metrics.csv"
+    results_csv = tmp_path / "results.csv"
+    baseline_metrics.to_csv(baseline_csv, index=False)
+    constrained_metrics.to_csv(constrained_csv, index=False)
+    results.to_csv(results_csv, index=False)
+
+    generate_paper_tables(
+        baseline_csv,
+        results_csv,
+        tmp_path / "tables",
+        live_constrained_qyir_metrics_csv=constrained_csv,
+    )
+
+    main_table = (tmp_path / "tables" / "main_comparison.md").read_text(encoding="utf-8")
+    assert "Live QYIR + constrained JSON" in main_table
+
+
+def test_simple_json_adapter_converts_basic_ma_json() -> None:
+    record = load_benchmark()[0]
+    simple_json = {
+        "strategy_type": "moving_average",
+        "asset": "SPY",
+        "indicators": ["SMA20", "SMA60"],
+        "buy_condition": "SMA20 crosses above SMA60",
+        "sell_condition": "SMA20 crosses below SMA60",
+        "risk": {"position_size": "low", "stop_loss": "8%", "leverage": "no"},
+    }
+
+    qyir, errors = simple_json_to_qyir(simple_json, record)
+
+    assert qyir is not None
+    assert validate_qyir(qyir).valid, errors
+    assert qyir["entry_rules"][0]["type"] == "cross_over"
+
+
+def test_simple_json_metrics_include_parse_and_conversion(tmp_path) -> None:
+    results = pd.DataFrame(
+        [
+            {
+                "method": "live_simple_json_adapter::test",
+                "category": "trend_following",
+                "should_reject": False,
+                "json_parse_success": True,
+                "qyir_conversion_success": False,
+                "semantic_consistent": False,
+                "compile_success": False,
+                "risk_violation": False,
+                "safe_rejection_correct": True,
+                "end_to_end_success": False,
+            },
+            {
+                "method": "live_simple_json_adapter::test",
+                "category": "unsafe_request",
+                "should_reject": True,
+                "json_parse_success": False,
+                "qyir_conversion_success": False,
+                "semantic_consistent": True,
+                "compile_success": False,
+                "risk_violation": False,
+                "safe_rejection_correct": True,
+                "end_to_end_success": True,
+            },
+        ]
+    )
+    results_csv = tmp_path / "simple_results.csv"
+    metrics_csv = tmp_path / "simple_metrics.csv"
+    results.to_csv(results_csv, index=False)
+
+    metrics = write_simple_json_metrics(results_csv, metrics_csv)
+
+    assert metrics.loc[0, "json_parse_success"] == 1.0
+    assert metrics.loc[0, "qyir_conversion_success"] == 0.0
+    assert metrics.loc[0, "safe_rejection_accuracy"] == 1.0
+
+
 def test_live_llm_subset_selection_is_reproducible_and_stratified() -> None:
     records = load_benchmark()
 
@@ -189,6 +314,16 @@ def test_live_llm_subset_selection_is_reproducible_and_stratified() -> None:
 def test_live_llm_model_aliases_match_approved_display_names() -> None:
     assert normalize_model_name("Qwen3.6-Plus") == "qwen3.6-plus"
     assert normalize_model_name("Qwen3.6-Plus(0402)") == "qwen3.6-plus-2026-04-02"
+
+
+def test_constrained_qyir_response_format_modes() -> None:
+    assert build_response_format("none") is None
+    assert build_response_format("json_object") == {"type": "json_object"}
+
+    json_schema_format = build_response_format("json_schema")
+    assert json_schema_format is not None
+    assert json_schema_format["type"] == "json_schema"
+    assert json_schema_format["json_schema"]["name"] == "qyir_v1"
 
 
 def test_wo_qyir_ablation_emits_canonical_result() -> None:

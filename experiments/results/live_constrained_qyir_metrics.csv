@@ -1,0 +1,2 @@
+method,schema_validity,semantic_consistency,compile_success,backtest_success,risk_violation,repair_success,safe_rejection_accuracy,clarification_accuracy,construction_success,end_to_end_success
+live_constrained_qyir::json_object::deepseek-v4-flash,0.5384615384615384,0.5384615384615384,0.5384615384615384,0.5384615384615384,0.07692307692307693,0.14285714285714285,1.0,1.0,0.46153846153846156,0.65

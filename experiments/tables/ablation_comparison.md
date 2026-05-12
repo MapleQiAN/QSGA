@@ -1,4 +1,4 @@
-| Method | Semantic Consistency ↑ | Risk Violation ↓ | Safe Rejection Accuracy ↑ | Repair Success ↑ | Clarification Accuracy ↑ | Construction Success ↑ | E2E Success ↑ |
+| Method | Semantic Consistency ↑ | Risk Violation ↓ | Safe Rejection Accuracy ↑ | Conservative Repair Success ↑ | Clarification Accuracy ↑ | Construction Success ↑ | E2E Success ↑ |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | qsga_full | 0.945 | 0.000 | 1.000 | 1.000 | 1.000 | 0.945 | 0.963 |
 | wo_qyir | 0.418 | 0.364 | 0.000 | 0.000 | 0.000 | 0.236 | 0.163 |

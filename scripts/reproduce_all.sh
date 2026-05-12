@@ -29,5 +29,15 @@ if [ -f experiments/results/live_direct_code_raw_outputs.jsonl ] && [ -f experim
   "$PYTHON_BIN" -m experiments.eval_metrics --input experiments/results/live_direct_code_replay_method_results.csv --output experiments/results/live_direct_code_metrics.csv
   "$PYTHON_BIN" -m experiments.run_live_direct_code_wrapper --replay-raw-output experiments/results/live_direct_code_raw_outputs.jsonl --replay-metadata experiments/results/live_direct_code_metadata.json --output experiments/results/live_direct_code_shared_rejection_results.csv
   "$PYTHON_BIN" -m experiments.eval_metrics --input experiments/results/live_direct_code_shared_rejection_results.csv --output experiments/results/live_direct_code_shared_rejection_metrics.csv
+  if [ -f experiments/results/live_direct_code_feedback_repair_method_results.csv ]; then
+    "$PYTHON_BIN" -m experiments.eval_metrics --input experiments/results/live_direct_code_feedback_repair_method_results.csv --output experiments/results/live_direct_code_feedback_repair_metrics.csv
+  fi
 fi
-"$PYTHON_BIN" -m experiments.paper_tables --metrics experiments/results/baseline_metrics.csv --results experiments/results/baseline_results.csv --ablation-metrics experiments/results/ablation_metrics.csv --no-oracle-metrics experiments/results/no_oracle_metrics.csv --live-direct-code-metrics experiments/results/live_direct_code_metrics.csv --live-direct-code-shared-rejection-metrics experiments/results/live_direct_code_shared_rejection_metrics.csv --output-dir experiments/tables
+if [ -f experiments/results/live_constrained_qyir_raw_outputs.jsonl ] && [ -f experiments/results/live_constrained_qyir_metadata.json ]; then
+  "$PYTHON_BIN" -m experiments.run_live_constrained_qyir --replay-raw-output experiments/results/live_constrained_qyir_raw_outputs.jsonl --replay-metadata experiments/results/live_constrained_qyir_metadata.json --output experiments/results/live_constrained_qyir_results.csv
+  "$PYTHON_BIN" -m experiments.eval_metrics --input experiments/results/live_constrained_qyir_results.csv --output experiments/results/live_constrained_qyir_metrics.csv
+fi
+if [ -f experiments/results/live_simple_json_raw_outputs.jsonl ] && [ -f experiments/results/live_simple_json_metadata.json ]; then
+  "$PYTHON_BIN" -m experiments.run_live_simple_json --replay-raw-output experiments/results/live_simple_json_raw_outputs.jsonl --replay-metadata experiments/results/live_simple_json_metadata.json --output experiments/results/live_simple_json_results.csv --metrics-output experiments/results/live_simple_json_metrics.csv
+fi
+"$PYTHON_BIN" -m experiments.paper_tables --metrics experiments/results/baseline_metrics.csv --results experiments/results/baseline_results.csv --ablation-metrics experiments/results/ablation_metrics.csv --no-oracle-metrics experiments/results/no_oracle_metrics.csv --live-direct-code-metrics experiments/results/live_direct_code_metrics.csv --live-direct-code-feedback-repair-metrics experiments/results/live_direct_code_feedback_repair_metrics.csv --live-direct-code-shared-rejection-metrics experiments/results/live_direct_code_shared_rejection_metrics.csv --live-constrained-qyir-metrics experiments/results/live_constrained_qyir_metrics.csv --live-simple-json-metrics experiments/results/live_simple_json_metrics.csv --output-dir experiments/tables

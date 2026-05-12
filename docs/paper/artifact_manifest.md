@@ -12,13 +12,13 @@ Date: 2026-05-08
 | `verifier/` | semantic, risk, and safe-rejection checks |
 | `compiler/` | indicator/rule compiler |
 | `backtester/` | sample execution and metrics |
-| `repair/` | localized repair operators |
+| `repair/` | conservative risk-field repair operators |
 
 ## Benchmarks and Data
 
 | Artifact | Status |
 |---|---|
-| `benchmark/qsi_bench_v1.jsonl` | 80-case benchmark |
+| `benchmark/qsi_bench_v1.jsonl` | 80-case controlled diagnostic suite |
 | `benchmark/unsafe_paraphrase_bench.jsonl` | 35-case safe-rejection paraphrase regression set |
 | `data/raw/spy_sample.csv` | synthetic/sample daily OHLCV data |
 | `data/raw/spy.csv` | SPY-like local CSV |
@@ -32,6 +32,8 @@ Date: 2026-05-08
 | `experiments/run_no_oracle.py` | `experiments/results/no_oracle_results.csv` |
 | `experiments/run_slot_diagnostics.py` | `experiments/results/no_oracle_slot_diagnostics.csv`; `experiments/tables/no_oracle_slot_diagnostics.md` |
 | `experiments/run_live_llm.py` | live QYIR results, raw outputs, metadata, token usage |
+| `experiments/run_live_constrained_qyir.py` | constrained-QYIR and same-runner unconstrained retry results, raw outputs, metadata, token usage |
+| `experiments/run_live_simple_json.py` | Simple JSON baseline results, adapter metrics, raw outputs, metadata, token usage |
 | `experiments/run_live_direct_code.py` | executable live direct-code results, raw outputs, metadata, token usage |
 | `experiments/run_multi_asset_smoke.py` | `experiments/results/multi_asset_smoke_results.csv` |
 | `experiments/run_safe_paraphrase.py` | `experiments/results/safe_paraphrase_results.csv` |
@@ -43,10 +45,10 @@ Date: 2026-05-08
 | Item | Current State |
 |---|---|
 | Python lockfile | `uv.lock` present |
-| Test status | 179 passed on 2026-05-07 via `scripts/reproduce_all.ps1` |
+| Test status | 183 passed on 2026-05-12 via `scripts/reproduce_all.ps1` |
 | CI | not provided in this artifact version |
 | Container | not provided in this artifact version |
-| Live raw outputs | QYIR 80-case qwen3.6-flash run present; executable direct-code 80-case qwen3.6-flash run present |
+| Live raw outputs | QYIR 80-case qwen3.6-flash run present; constrained-QYIR 20-case deepseek-v4-flash probe present; Simple JSON 20-case deepseek-v4-flash probe present; executable direct-code 80-case qwen3.6-flash run present |
 | Public release | human approval required |
 
 ## Figures
