@@ -1,0 +1,2 @@
+method,schema_validity,semantic_consistency,compile_success,backtest_success,risk_violation,repair_success,safe_rejection_accuracy,clarification_accuracy,construction_success,end_to_end_success
+live_route_b_slot_builder::deepseek-v4-flash,0.7090909090909091,0.7090909090909091,0.7090909090909091,0.7090909090909091,0.34545454545454546,0.0,1.0,0.3,0.36363636363636365,0.475

@@ -1,0 +1,9 @@
+case_id,category,method,should_reject,rejected,schema_valid,semantic_consistent,compile_success,backtest_success,risk_violation,repair_triggered,repair_success,safe_rejection_correct,clarification_requested,clarification_correct,end_to_end_success,errors
+qsi_011,trend_following,live_route_b_slot_builder::deepseek-v4-flash,False,False,False,False,False,False,False,False,False,True,False,False,False,"slot_schema: 1 validation error for StrategySlotSpec
+indicators.0.role
+  Input should be 'fast', 'slow', 'signal', 'threshold' or 'unknown' [type=literal_error, input_value='trend', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+qsi_018,mean_reversion,live_route_b_slot_builder::deepseek-v4-flash,False,False,False,False,False,False,False,False,False,True,False,False,False,json: Invalid slot JSON from LLM: Expecting value: line 1 column 1 (char 0)
+qsi_033,momentum,live_route_b_slot_builder::deepseek-v4-flash,False,False,False,False,False,False,False,False,False,True,False,False,False,json: Invalid slot JSON from LLM: Expecting value: line 1 column 1 (char 0)
+qsi_045,risk_constrained,live_route_b_slot_builder::deepseek-v4-flash,False,False,False,False,False,False,False,False,False,True,False,False,False,json: Invalid slot JSON from LLM: Unterminated string starting at: line 19 column 13 (char 446)
+qsi_062,ambiguous_intent,live_route_b_slot_builder::deepseek-v4-flash,False,False,False,True,False,False,False,False,False,True,True,True,True,"safe_action: Clarification required: strategy_family, market_scope, indicators, entry_logic.operator, entry_logic.left, entry_logic.right, exit_logic.operator, exit_logic.left, exit_logic.right, risk_constraints."

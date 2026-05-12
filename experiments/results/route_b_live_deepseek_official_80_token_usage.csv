@@ -1,0 +1,2 @@
+model,method,calls,prompt_tokens,completion_tokens,total_tokens,api_errors
+deepseek-v4-flash,live_route_b_slot_builder::deepseek-v4-flash,89,64976,24836,89812,0
