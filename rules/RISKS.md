@@ -28,7 +28,45 @@ High Active Risks：
 
 ## Resolved Risks
 
-暂无。
+### RISK-20260512-001
+
+```yaml
+Risk ID: RISK-20260512-001
+Title: Route B live smoke blocked by API authentication failure
+Status: resolved
+Level: High
+Type: Tooling
+Created: 2026-05-12
+Updated: 2026-05-12
+Related Task ID: TASK-20260512-009
+Related Claim ID: CLAIM-RB-002
+Description:
+  - Initial bounded deepseek-v4-flash Route B live smoke returned 401 invalid_api_key on the DashScope-compatible endpoint.
+Evidence:
+  - experiments/results/route_b_live_smoke_deepseek_flash_5_results.csv
+  - experiments/results/route_b_live_smoke_deepseek_flash_filekey_5_results.csv
+Resolution Evidence:
+  - experiments/results/route_b_live_smoke_deepseek_official_5_v4_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_metadata.json
+Impact:
+  - Authentication/endpoint no longer blocks Route B live diagnostics.
+Residual Risk:
+  - Official DeepSeek results are still single-model and provider-specific; claims must remain diagnostic.
+Likelihood: Low
+Mitigation Plan:
+  - Preserve official endpoint metadata and raw outputs.
+  - Keep future API experiments scoped and logged.
+Mitigation Applied:
+  - Switched to official DeepSeek OpenAI-compatible endpoint https://api.deepseek.com.
+  - Enabled JSON Output mode and disabled thinking for short structured slot extraction.
+Owner: Research Orchestrator
+Human Review Required: No
+Current Decision:
+  - DEC-20260512-002 accepted.
+Next Action:
+  - Continue paper revision and failure analysis using saved official DeepSeek artifacts.
+```
 
 ---
 
