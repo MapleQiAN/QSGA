@@ -215,6 +215,184 @@ Notes:
   - The official JSON Output integration uses response_format={"type":"json_object"} and disabled thinking for short slot extraction.
 ```
 
+### EXP-20260513-ROUTE-B-AMBIGUITY-GUARD-CHECK
+
+```yaml
+Experiment ID: EXP-20260513-ROUTE-B-AMBIGUITY-GUARD-CHECK
+Date: 2026-05-13
+Task ID: TASK-20260513-001
+Status: success
+Code Version: working tree Route B ambiguity guard changes
+Dataset Version:
+  - benchmark/qsi_bench_v1.jsonl
+Command:
+  - uv run python experiments/check_route_b_ambiguity_guard.py
+  - uv run pytest tests/test_route_b_pipeline.py tests/test_route_b_construction.py -q
+Seed: n/a
+Environment:
+  - Windows
+  - Python 3.12.7 via uv
+Raw Output Path:
+  - experiments/results/route_b_ambiguity_guard_check.csv
+  - experiments/tables/route_b_ambiguity_guard_check.md
+Metrics:
+  total_cases: 80
+  ambiguous_recall: 10/10
+  non_ambiguous_false_positive: 0/70
+  overall_accuracy: 80/80
+Failure:
+  - None in the deterministic guard check.
+Reproducibility Level: R4
+Claim Impact:
+  - Supports a local, no-API remediation for the ambiguous-intent semantic_mismatch bucket.
+  - Does not update official DeepSeek live metrics until a separately scoped live or saved-output replay is run.
+Notes:
+  - No API call made.
+```
+
+### EXP-20260513-ROUTE-B-SAVED-REPLAY-AFTER-AMBIGUITY-GUARD
+
+```yaml
+Experiment ID: EXP-20260513-ROUTE-B-SAVED-REPLAY-AFTER-AMBIGUITY-GUARD
+Date: 2026-05-13
+Task ID: TASK-20260513-002
+Status: success
+Code Version: working tree Route B replay and ambiguity guard changes
+Dataset Version:
+  - benchmark/qsi_bench_v1.jsonl
+  - experiments/results/route_b_live_deepseek_official_80_raw_outputs.jsonl
+Command:
+  - uv run python experiments/replay_live_route_b.py --output experiments/results/route_b_live_deepseek_official_80_replay_results.csv
+  - uv run python experiments/eval_metrics.py --input experiments/results/route_b_live_deepseek_official_80_replay_results.csv --output experiments/results/route_b_live_deepseek_official_80_replay_metrics.csv
+  - uv run python experiments/analyze_failure_breakdown.py --results experiments/results/route_b_live_deepseek_official_80_replay_results.csv --output experiments/results/route_b_live_deepseek_official_80_replay_failure_breakdown.csv --table-output experiments/tables/route_b_live_deepseek_official_80_replay_failure_breakdown.md
+Seed: n/a
+Environment:
+  - Windows
+  - Python 3.12.7 via uv
+Raw Output Path:
+  - experiments/results/route_b_live_deepseek_official_80_replay_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_metrics.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_failure_breakdown.csv
+  - experiments/tables/route_b_live_deepseek_official_80_replay_failure_breakdown.md
+Metrics:
+  total_cases: 80
+  schema_validity_constructible: 0.709
+  construction_success_constructible: 0.364
+  safe_rejection_accuracy: 1.000
+  clarification_accuracy: 1.000
+  end_to_end_success_all: 0.5625
+Failure:
+  - 19/80 risk_violation
+  - 12/80 clarification_failure on constructible unsupported/default issues
+  - 3/80 unsupported_indicator
+  - 1/80 schema_failure
+Reproducibility Level: R4
+Claim Impact:
+  - Supports a saved-output, no-API replay claim that deterministic ambiguity guard fixes the ambiguous-intent semantic_mismatch bucket.
+  - Does not replace the official live metric unless a new live run is separately scoped and executed.
+Notes:
+  - No API call made.
+```
+
+### EXP-20260513-ROUTE-B-SAVED-REPLAY-WITH-RISK-REPAIR
+
+```yaml
+Experiment ID: EXP-20260513-ROUTE-B-SAVED-REPLAY-WITH-RISK-REPAIR
+Date: 2026-05-13
+Task ID: TASK-20260513-003
+Status: success
+Code Version: working tree Route B risk-repair changes
+Dataset Version:
+  - benchmark/qsi_bench_v1.jsonl
+  - experiments/results/route_b_live_deepseek_official_80_raw_outputs.jsonl
+Command:
+  - uv run python experiments/replay_live_route_b.py --enable-risk-repair --output experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_results.csv
+  - uv run python experiments/eval_metrics.py --input experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_results.csv --output experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_metrics.csv
+  - uv run python experiments/analyze_failure_breakdown.py --results experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_results.csv --output experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_failure_breakdown.csv --table-output experiments/tables/route_b_live_deepseek_official_80_replay_risk_repair_failure_breakdown.md
+Seed: n/a
+Environment:
+  - Windows
+  - Python 3.12.7 via uv
+Raw Output Path:
+  - experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_metrics.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_failure_breakdown.csv
+  - experiments/tables/route_b_live_deepseek_official_80_replay_risk_repair_failure_breakdown.md
+Metrics:
+  total_cases: 80
+  schema_validity_constructible: 0.709
+  semantic_consistency_constructible: 0.709
+  compile_success_constructible: 0.709
+  backtest_success_constructible: 0.709
+  risk_violation_constructible: 0.000
+  repair_triggered: 19
+  repair_success: 19
+  repair_success_rate_triggered: 1.000
+  construction_success_constructible: 0.709
+  safe_rejection_accuracy: 1.000
+  clarification_accuracy: 1.000
+  end_to_end_success_all: 0.800
+Failure:
+  - 12/80 clarification_failure on constructible unsupported/default issues
+  - 3/80 unsupported_indicator
+  - 1/80 schema_failure
+Reproducibility Level: R4
+Claim Impact:
+  - Supports a saved-output, no-API component-remediation claim that bounded risk repair can remove counted risk violations in the official DeepSeek saved-output replay.
+  - Does not replace the official live metric and does not imply profitability or out-of-sample risk control.
+Notes:
+  - No API call made.
+  - The repair pass does not weaken max_drawdown_limit, increase leverage, or enable shorting.
+```
+
+### EXP-20260513-ROUTE-B-SAVED-REPLAY-POLICY-RISK-REPAIR
+
+```yaml
+Experiment ID: EXP-20260513-ROUTE-B-SAVED-REPLAY-POLICY-RISK-REPAIR
+Date: 2026-05-13
+Task ID: TASK-20260513-004
+Status: success
+Code Version: working tree Route B scope/defaulting policy changes
+Dataset Version:
+  - benchmark/qsi_bench_v1.jsonl
+  - experiments/results/route_b_live_deepseek_official_80_raw_outputs.jsonl
+Command:
+  - uv run python experiments/replay_live_route_b.py --enable-risk-repair --output experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_results.csv
+  - uv run python experiments/eval_metrics.py --input experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_results.csv --output experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_metrics.csv
+  - uv run python experiments/analyze_failure_breakdown.py --results experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_results.csv --output experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_failure_breakdown.csv --table-output experiments/tables/route_b_live_deepseek_official_80_replay_policy_risk_repair_failure_breakdown.md
+Seed: n/a
+Environment:
+  - Windows
+  - Python 3.12.7 via uv
+Raw Output Path:
+  - experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_metrics.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_failure_breakdown.csv
+  - experiments/tables/route_b_live_deepseek_official_80_replay_policy_risk_repair_failure_breakdown.md
+Metrics:
+  total_cases: 80
+  schema_validity_constructible: 0.727
+  semantic_consistency_constructible: 0.727
+  compile_success_constructible: 0.727
+  backtest_success_constructible: 0.727
+  risk_violation_constructible: 0.000
+  repair_success_rate_triggered: 1.000
+  construction_success_constructible: 0.727
+  safe_rejection_accuracy: 1.000
+  clarification_accuracy: 1.000
+  end_to_end_success_all: 0.8125
+Failure:
+  - 11/80 unsupported_semantics
+  - 4/80 clarification_failure
+Reproducibility Level: R4
+Claim Impact:
+  - Supports a saved-output, no-API policy-remediation claim that MA-deviation and short-term-momentum cases can be safely approximated while cross-sectional/portfolio-selection requests are explicitly kept out of QYIR v1.
+  - Does not replace the official live metric and does not solve unsupported QYIR v1 semantics.
+Notes:
+  - No API call made.
+  - qsi_028 and qsi_039 became E2E successes; qsi_040 is now correctly reported as unsupported_semantics rather than a false single-asset success.
+```
+
 ---
 
 ## Result Entry Template

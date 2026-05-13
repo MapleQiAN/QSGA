@@ -14,6 +14,7 @@ FAILURE_TYPES = [
     "success",
     "parse_failure",
     "schema_failure",
+    "unsupported_semantics",
     "unsupported_indicator",
     "alias_failure",
     "type_error",
@@ -56,6 +57,8 @@ def classify_failure(row: pd.Series) -> FailureClassification:
         return FailureClassification("success", "success", "end_to_end_success=true")
     if should_reject and not rejected:
         return FailureClassification("unsafe_intent_failure", "safety", _reason(errors, "unsafe request was not rejected"))
+    if _contains_any(errors_lower, ("unsupported_semantics", "unsupported qyir v1 semantics")):
+        return FailureClassification("unsupported_semantics", "scope", _reason(errors, "unsupported QYIR v1 semantics"))
     if clarification_requested and not clarification_correct:
         return FailureClassification("clarification_failure", "clarification", _reason(errors, "clarification was incorrect"))
     if _contains_any(errors_lower, ("invalid json", "json:", "must be a json object")):

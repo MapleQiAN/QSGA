@@ -10,7 +10,7 @@ We propose QSGA, a verification-guided natural-language-to-QYIR construction fra
 
 We construct QSI-Bench v1, an 80-sample benchmark covering trend-following, mean-reversion, momentum, risk-constrained, ambiguous, and unsafe strategy requests. We evaluate QSGA through a layered evidence hierarchy: saved-output live LLM diagnostics, deterministic expected-slot builder smoke tests, deterministic no-oracle and oracle-slot verification-chain evaluations, and bounded official DeepSeek Route B live experiments.
 
-Current results support three scoped claims. First, saved live-QYIR diagnostics show that prompt-only QYIR generation is dominated by schema, alias/reference, safety, and risk-audit failures. Second, under QSI-Bench expected-slot input, the deterministic Route B builder constructs valid QYIR for all current construct cases and correctly terminates clarify/reject cases. Third, an official DeepSeek `deepseek-v4-flash` Route B live run over all 80 QSI-Bench v1 cases reaches 0.709 schema validity over constructible cases, 0.364 construction success over constructible cases, 1.000 explicit unsafe-intent rejection accuracy, 0.300 ambiguous-intent clarification accuracy, and 0.475 overall E2E success. This is diagnostic rather than a broad model claim: risk-audit failures, unsupported momentum or low-volatility requests, and over-clarification remain major bottlenecks.
+Current results support three scoped claims and one replay-only remediation observation. First, saved live-QYIR diagnostics show that prompt-only QYIR generation is dominated by schema, alias/reference, safety, and risk-audit failures. Second, under QSI-Bench expected-slot input, the deterministic Route B builder constructs valid QYIR for all current construct cases and correctly terminates clarify/reject cases. Third, an official DeepSeek `deepseek-v4-flash` Route B live run over all 80 QSI-Bench v1 cases reaches 0.709 schema validity over constructible cases, 0.364 construction success over constructible cases, 1.000 explicit unsafe-intent rejection accuracy, 0.300 ambiguous-intent clarification accuracy, and 0.475 overall E2E success. This is diagnostic rather than a broad model claim: risk-audit failures, unsupported momentum or low-volatility requests, and over-clarification remain major bottlenecks. The replay-only observation is that a no-API saved-output replay with deterministic ambiguity guarding, bounded risk repair, and tighter unsupported-semantics/defaulting policy reduces the measured risk-violation bucket to 0.000 and reaches 0.8125 overall E2E on the same saved model outputs; we report this as component-remediation evidence, not as a new live-model result.
 
 ## 1. Introduction
 
@@ -328,6 +328,8 @@ Repair is conservative by construction. The repair invariant is:
 
 The prototype repair operators are deliberately conservative. They do not modify the user's risk target to make the audit pass. For example, if `max_drawdown_limit` is violated, QSGA may reduce `position_size`; it should not silently increase the allowed drawdown threshold. This distinction is essential for avoiding a misleading repair loop.
 
+The Route B saved-output remediation uses the same invariant. After a candidate compiles and backtests but violates counted risk constraints, QSGA enumerates a small set of more conservative risk controls, re-runs compile/backtest/risk audit, and keeps the first passing artifact. The current bounded candidate set only reduces `position_size`, enforces `leverage = 1.0`, disables shorting, and adds or tightens stop-loss; it does not modify the strategy rules or weaken `max_drawdown_limit`.
+
 ## 6. QSI-Bench v1
 
 QSI-Bench v1 contains 80 Chinese natural-language strategy requests. It is a small benchmark for prototype evaluation, not a comprehensive financial corpus.
@@ -407,11 +409,13 @@ The experiment artifacts are:
 
 - `benchmark/qsi_bench_v1.jsonl`
 - `data/raw/spy_sample.csv`
+- `qsgi/construction/risk_repair.py`
 - `experiments/baselines.py`
 - `experiments/run_ablation.py`
 - `experiments/run_no_oracle.py`
 - `experiments/run_live_llm.py`
 - `experiments/run_live_route_b.py`
+- `experiments/replay_live_route_b.py`
 - `experiments/run_live_direct_code.py`
 - `experiments/run_live_direct_code_wrapper.py`
 - `experiments/run_route_b_builder_smoke.py`
@@ -422,10 +426,10 @@ The experiment artifacts are:
 - `experiments/results/*.csv`
 - `experiments/tables/*.md`
 
-The current test suite most recently reported 205 passing tests with:
+The current test suite most recently reported 213 passing tests with:
 
 ```text
-.venv\Scripts\python.exe -m pytest tests -q
+uv run pytest tests -q
 ```
 
 The main scripts are:
@@ -437,6 +441,7 @@ The main scripts are:
 | `experiments/run_no_oracle.py` | runs deterministic no-oracle slot extraction |
 | `experiments/run_live_llm.py` | runs and replays budget-bounded live LLM QYIR pilots |
 | `experiments/run_live_route_b.py` | runs official DeepSeek Route B slot-extraction and deterministic-builder diagnostics |
+| `experiments/replay_live_route_b.py` | replays saved official DeepSeek Route B slot outputs without API calls |
 | `experiments/run_live_direct_code.py` | collects executable live direct-code baseline rows under a fixed `generate_signals(df)` interface |
 | `experiments/run_live_direct_code_wrapper.py` | replays saved direct-code outputs with the shared explicit unsafe-intent gate |
 | `experiments/run_route_b_builder_smoke.py` | runs expected-slot Route B builder smoke tests |
@@ -589,6 +594,21 @@ This is a stronger live-construction diagnostic than direct prompt-to-QYIR gener
 
 The saved artifacts are `experiments/results/route_b_live_deepseek_official_80_results.csv`, `experiments/results/route_b_live_deepseek_official_80_raw_outputs.jsonl`, `experiments/results/route_b_live_deepseek_official_80_metadata.json`, `experiments/results/route_b_live_deepseek_official_80_token_usage.csv`, `experiments/results/route_b_live_deepseek_official_80_metrics.csv`, and `experiments/tables/route_b_live_deepseek_official_80_failure_breakdown.md`.
 
+As a no-API remediation check, we replayed the saved official DeepSeek slot outputs after adding a deterministic ambiguity guard before LLM slot extraction. This saved-output replay improves ambiguous-intent clarification accuracy from 0.300 to 1.000 and overall E2E from 0.475 to 0.5625, while leaving constructible-case construction success unchanged at 0.364. This replay should be interpreted only as evidence for a deterministic boundary-control fix on saved outputs; it is not a new live model run.
+
+We then enabled the bounded risk-repair pass in the same saved-output replay. This pass is only attempted after a constructed QYIR artifact has passed schema, semantic, compilation, and backtest checks but fails counted risk constraints. It tries conservative field-level candidates and re-runs the downstream verifier chain. On the saved official DeepSeek outputs, all 19 previously counted risk-violation cases are repaired, reducing constructible risk violation from 0.345 to 0.000 and raising overall E2E to 0.800.
+
+Finally, we added a stricter policy layer for the remaining Route B failures. It permits a narrow MA-deviation default only when a mean-reversion request has concrete entry and exit logic, normalizes model role labels such as `momentum` to `unknown`, and explicitly marks cross-sectional rotation, ranking/top-k selection, low-volatility selection, and consecutive-day pattern rules as unsupported QYIR v1 semantics. This policy fixes qsi_028 and qsi_039 while preventing qsi_040-style cross-sectional selection from being miscounted as a valid single-asset strategy:
+
+| Route B Evidence Variant | Risk Violation | Explicit Unsafe-Intent Rejection Accuracy | Clarification Accuracy | Construction Success | E2E Success |
+|---|---:|---:|---:|---:|---:|
+| Official DeepSeek live diagnostic | 0.345 | 1.000 | 0.300 | 0.364 | 0.475 |
+| Saved-output replay after ambiguity guard | 0.345 | 1.000 | 1.000 | 0.364 | 0.562 |
+| Saved-output replay after ambiguity guard + bounded risk repair | 0.000 | 1.000 | 1.000 | 0.709 | 0.800 |
+| Saved-output replay after ambiguity guard + risk repair + scope policy | 0.000 | 1.000 | 1.000 | 0.727 | 0.8125 |
+
+This is an important mechanism result but still a replay result. It shows that the current risk failures are locally repairable under the prototype backtester and risk auditor, and that explicit scope boundaries prevent some false successes. It does not show that a new DeepSeek run would necessarily produce the same distribution or that the repaired strategies are profitable.
+
 ### 8.7 Executable Live Direct-Code Diagnostic Baseline
 
 The executable live direct-code baseline addresses the most important weakness of the simulated direct-code comparison. On the full 80-case QSI-Bench v1 set, qwen3.6-flash produced syntactically valid code and the required function interface for every case, but downstream reliability remained much lower than surface validity.
@@ -694,8 +714,12 @@ We include failure analysis to avoid presenting the prototype as more mature tha
 | Mean-reversion E2E failure in QSGA oracle-slot upper bound | 3 | expected mean-reversion variants not preserved by deterministic slot mapping | counted as failure |
 | Live QYIR schema failure | 9 | invalid Bollinger output fields in generated QYIR | schema verifier rejects or records failure |
 | Live QYIR compile failure | 3 | numeric operand compiled where a series was expected | compile failure recorded |
+| Live QYIR price-vs-indicator alias failure | 10 | generated QYIR uses `close` as a rule operand, but QYIR v1 only accepts indicator aliases | counted as a bounded representation-limit failure, not a compiler defect |
 | Live QYIR unsafe raw acceptance | 6 | raw live QYIR prompt has no explicit unsafe-intent gate | counted as raw-baseline failure |
 | Live Route B official DeepSeek success | 38 | slot extraction plus deterministic construction reaches end-to-end success | counted as diagnostic live success |
+| Live Route B saved-output replay after ambiguity guard | +7 E2E cases | deterministic pre-extraction ambiguity guard fixes forced construction on ambiguous requests | counted only as no-API replay evidence |
+| Live Route B saved-output replay after bounded risk repair | +19 E2E cases | conservative post-construction risk candidates resolve counted drawdown violations | counted only as no-API replay evidence |
+| Live Route B saved-output replay after scope/defaulting policy | net +1 E2E case | fixes MA-deviation and short-momentum approximations while marking cross-sectional ranking unsupported | counted only as no-API replay evidence |
 | Live Route B official DeepSeek risk violation | 19 | constructed and executable strategies fail backtest-risk thresholds | counted as risk-audit failure |
 | Live Route B official DeepSeek clarification failure | 12 | model asks for clarification on constructible requests | counted as over-clarification |
 | Live direct-code no-trade failure | 6 | generated function returns constant or non-changing positions | trade-validity failure |
@@ -703,7 +727,7 @@ We include failure analysis to avoid presenting the prototype as more mature tha
 | Live direct-code unsafe/boundary failure | 15 unsafe cases, 0 E2E | no refusal gate in direct-code prompt | counted as failure |
 | Semantic slot corruption | 7 schema-valid cases | corrupted QYIR conflicts with explicit user slots | semantic verifier detects conflicts |
 
-This table clarifies the main empirical story. Direct code generation can satisfy syntax and interface requirements while still failing semantic, trade-validity, unsafe-intent, and risk-control checks. Conversely, QSGA's deterministic pipeline performs well when requests are structurally grounded or should be clarified. Route B improves the live construction interface by moving from whole-QYIR prompting to structured slot extraction, but full live construction remains limited by unsupported strategy semantics, risk-audit failures, and over-clarification.
+This table clarifies the main empirical story. Direct code generation can satisfy syntax and interface requirements while still failing semantic, trade-validity, unsafe-intent, and risk-control checks. Conversely, QSGA's deterministic pipeline performs well when requests are structurally grounded or should be clarified. Route B improves the live construction interface by moving from whole-QYIR prompting to structured slot extraction. The saved-output remediations show that ambiguity and measured risk failures are locally addressable without changing QYIR v1, while unsupported-semantics guarding avoids counting cross-sectional ranking or low-volatility selection as solved by a single-asset approximation. Remaining live-construction limits are concentrated in unsupported strategy semantics, over-clarification on constructible but underspecified requests, and the alias-only rule-operand scope of QYIR v1. Price-vs-indicator expressions such as "close crosses above a moving average" are therefore reported as a bounded expressivity limitation when they cannot be converted safely, rather than as compiler defects.
 
 ## 9. Qualitative Cases
 
@@ -1040,6 +1064,8 @@ The current backtest uses SPY sample data. This supports execution verification 
 
 Historical backtest risk metrics do not guarantee future performance or investment safety. QSGA evaluates execution reliability and selected counted risk-constraint satisfaction under historical sample data, not future profitability. Passing QSGA verification means that the artifact is structurally valid, executable, and consistent with selected risk constraints under the prototype setting. It does not imply profitability, robustness, suitability, or deployability in real financial markets.
 
+The bounded risk-repair and scope-policy replays are subject to the same limitation. Their improvements come from replaying saved slot outputs, reducing exposure under one sample-data backtester and one risk-audit definition, and adding deterministic scope/defaulting rules. They should be read as evidence that typed risk locations and explicit support boundaries enable local repair and honest failure reporting, not as evidence of out-of-sample risk control or better investment performance.
+
 ### 11.9 Ambiguous Intent and Explicit Unsafe-Intent Rejection Coverage
 
 The current explicit unsafe-intent rejection and clarification implementations are deterministic and partly keyword-based. They catch the explicit unsafe and ambiguous requests represented in QSI-Bench v1, but may miss subtle, adversarial, or interaction-dependent cases. Ambiguous intent should trigger clarification rather than forced semantic interpretation, but the present evidence measures only single-turn labels. The shared-rejection direct-code replay shows that the same boundary gate can improve unsafe handling for direct code, but it does not make the direct-code artifact interpretable or repairable. Strong claims about boundary-aware user interaction require live multi-turn clarification experiments, not only single-turn clarification labels.
@@ -1048,13 +1074,17 @@ The current explicit unsafe-intent rejection and clarification implementations a
 
 The paper uses "novice-facing" to describe the intended setting and the design motivation for explicit fields, explanations, and boundary control. It does not include a human-subject usability study. Therefore, the current evidence supports artifact-level inspectability and explicitness, not measured improvements in novice understanding, editability, or decision quality.
 
+### 11.11 QYIR v1 Operand Scope
+
+QYIR v1 currently restricts rule operands to computed indicator aliases, which simplifies semantic validation and compiler determinism but limits the direct representation of price-vs-indicator conditions such as `close` crossing above a moving average. In Route B, such cases are approximated through alias-compatible transformations when possible. Extending QYIR with explicit market-field operands, such as `market.close`, `market.open`, and `market.volume`, is left as future work.
+
 ## 12. Ethics and Compliance
 
 QSGA is a research prototype for studying reliable strategy generation. It should not be used as investment advice. Generated strategies must be reviewed by qualified humans before any real trading. The benchmark uses synthetic or curated natural-language requests and sample market data. No human-subject data or private user data is used in the current repository. Public release of code, data, model prompts, or experiment logs requires human approval.
 
 ## 13. Conclusion
 
-This paper presented QSGA, a verification-guided framework for reliable rule-based quantitative strategy construction within a bounded strategy space. By introducing QYIR as an explicit intermediate representation, QSGA separates generation from verification, compilation, execution, risk auditing, clarification, explicit unsafe-intent rejection, and repair. Experiments on QSI-Bench v1 show that the main deterministic no-oracle prototype reaches 0.836 construction success and 0.887 overall E2E success, while the oracle-slot upper-bound verification-chain evaluation reaches 0.945 construction success and 0.963 overall E2E success. The live diagnostics sharpen the Route B story: prompt-only QYIR construction remains weak at 0.091 construction success, while the official DeepSeek Route B slot-builder reaches 0.364 construction success and 0.475 overall E2E success, with 1.000 explicit unsafe-intent rejection accuracy but only 0.300 ambiguous-intent clarification accuracy. The executable live direct-code diagnostic shows the complementary failure mode: syntactically valid code can still fail semantic, unsafe-intent, and risk-control checks, while a shared rejection gate improves explicit unsafe handling without providing QYIR's interpretability or repairability. The results support a conservative conclusion: QSGA improves reliability when valid or partially valid strategy specifications can be constructed; Route B makes live construction more auditable than whole-artifact prompting, but current live LLM-based construction is still limited by unsupported strategy semantics, risk-control failures, and over-clarification.
+This paper presented QSGA, a verification-guided framework for reliable rule-based quantitative strategy construction within a bounded strategy space. By introducing QYIR as an explicit intermediate representation, QSGA separates generation from verification, compilation, execution, risk auditing, clarification, explicit unsafe-intent rejection, and repair. Experiments on QSI-Bench v1 show that the main deterministic no-oracle prototype reaches 0.836 construction success and 0.887 overall E2E success, while the oracle-slot upper-bound verification-chain evaluation reaches 0.945 construction success and 0.963 overall E2E success. The live diagnostics sharpen the Route B story: prompt-only QYIR construction remains weak at 0.091 construction success, while the official DeepSeek Route B slot-builder reaches 0.364 construction success and 0.475 overall E2E success, with 1.000 explicit unsafe-intent rejection accuracy but only 0.300 ambiguous-intent clarification accuracy. Saved-output replays show that deterministic ambiguity guarding, bounded risk repair, and stricter scope/defaulting policy can raise the same saved-output Route B evaluation to 0.8125 E2E without additional API calls, but this remains component-remediation evidence rather than a new live result. The executable live direct-code diagnostic shows the complementary failure mode: syntactically valid code can still fail semantic, unsafe-intent, and risk-control checks, while a shared rejection gate improves explicit unsafe handling without providing QYIR's interpretability or repairability. The results support a conservative conclusion: QSGA improves reliability when valid or partially valid strategy specifications can be constructed; Route B makes live construction more auditable than whole-artifact prompting, but current live LLM-based construction is still limited by unsupported strategy semantics and over-clarification.
 
 ## References
 
@@ -1067,9 +1097,9 @@ This paper presented QSGA, a verification-guided framework for reliable rule-bas
 - Aman Madaan et al. Self-Refine: Iterative Refinement with Self-Feedback. arXiv:2303.17651. https://arxiv.org/abs/2303.17651
 - Ansong Ni et al. LEVER: Learning to Verify Language-to-Code Generation with Execution. arXiv:2302.08468. https://arxiv.org/abs/2302.08468
 - Bei Chen et al. CodeT: Code Generation with Generated Tests. arXiv:2207.10397. https://arxiv.org/abs/2207.10397
-- Xiao-Yang Liu et al. FinGPT: Open-Source Financial Large Language Models. arXiv:2306.06031. https://arxiv.org/abs/2306.06031
+- Hongyang Yang, Xiao-Yang Liu, and Christina Dan Wang. FinGPT: Open-Source Financial Large Language Models. arXiv:2306.06031. https://arxiv.org/abs/2306.06031
 - Yang et al. FinRobot: An Open-Source AI Agent Platform for Financial Applications using Large Language Models. arXiv:2405.14767. https://arxiv.org/abs/2405.14767
-- Xiao-Yang Liu et al. TradingAgents: Multi-Agents LLM Financial Trading Framework. arXiv:2412.20138. https://arxiv.org/abs/2412.20138
+- Yijia Xiao, Edward Sun, Di Luo, and Wei Wang. TradingAgents: Multi-Agents LLM Financial Trading Framework. arXiv:2412.20138. https://arxiv.org/abs/2412.20138
 - Alexey Khoroshilov et al. QuantCode-Bench: A Benchmark for Evaluating the Ability of Large Language Models to Generate Executable Algorithmic Trading Strategies. arXiv:2604.15151. https://arxiv.org/abs/2604.15151
 - Yuchen Cao et al. SysTradeBench: An Iterative Build-Test-Patch Benchmark for Strategy-to-Code Trading Systems with Drift-Aware Diagnostics. arXiv:2604.04812. https://arxiv.org/abs/2604.04812
 - Abhay Srivastava et al. Market-Bench: Evaluating Large Language Models on Introductory Quantitative Trading and Market Dynamics. arXiv:2512.12264. https://arxiv.org/abs/2512.12264

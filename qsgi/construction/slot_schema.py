@@ -87,6 +87,9 @@ class IndicatorSlot(BaseModel):
                 "risk_filter",
                 "condition",
                 "trigger",
+                "momentum",
+                "return_period",
+                "volatility",
             }:
                 return "unknown"
             return normalized

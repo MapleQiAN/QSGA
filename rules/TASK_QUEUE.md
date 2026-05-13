@@ -9,9 +9,9 @@
 当前任务状态：
 
 - P0 Active：暂无
-- P1 Active：TASK-20260512-014
-- Blocked Human：DEC-20260512-003（仅阻塞 QYIR market operand schema/compiler contract 修改）
-- 本轮推荐任务：执行 TASK-20260512-014，继续核验 Related Work 引用并补齐 Paper Matrix。
+- P1 Active：TASK-20260513-007
+- Blocked Human：暂无
+- 本轮推荐任务：执行 TASK-20260513-007，完成 bibliography venue/DOI formatting pass。
 
 选择规则：
 
@@ -500,8 +500,10 @@ Fallback if Blocked:
 Last Result:
   - 已在 DECISIONS.md 新增 DEC-20260512-003，比较 alias-only v1、正式支持 market field operands、v1.1/experimental layer 三种方案。
   - 推荐当前 paper cycle 保持 QYIR v1 alias-only contract，不直接修改 schema/compiler。
+  - 人工最终选择方案 A：QYIR v1 保持冻结，market-field operands 作为 future work。
+  - 已把 limitation / failure-analysis wording 写入 docs/paper/qsga_ccf_draft.md。
 Next Action:
-  - 等待人类对 DEC-20260512-003 的最终选择；非阻塞地继续 reviewer gate。
+  - 不修改 schema/compiler contract；继续 TASK-20260512-014。
 ```
 
 ### TASK-20260512-013
@@ -554,11 +556,11 @@ Next Action:
 ```yaml
 Task ID: TASK-20260512-014
 Title: 核验 Route B related work references and Paper Matrix
-Status: todo
+Status: done
 Priority: P1
 Owner: Literature / Reviewer Agent
 Created: 2026-05-12
-Updated: 2026-05-12
+Updated: 2026-05-13
 Inputs:
   - docs/paper/qsga_ccf_draft.md
   - rules/research/PAPER_MATRIX.md
@@ -584,8 +586,316 @@ Fallback if Blocked:
   - Mark unverified references as pending
 Last Result:
   - Partially verified QuantCode-Bench, SysTradeBench, Market-Bench, QuantEval, OQL, and CNFinBench in PAPER_MATRIX.md.
+  - Verified remaining general code-generation, constrained decoding, tool-use, execution-feedback, financial LLM, and trading-agent references against arXiv primary pages.
+  - Corrected FinGPT and TradingAgents reference author lines in docs/paper/qsga_ccf_draft.md.
+  - PAPER_MATRIX.md now records all current references as verified, with remaining work limited to final venue/DOI formatting.
 Next Action:
-  - Verify remaining general code-generation/tool-use/financial-LLM references before submission.
+  - Create next reviewer/statistics follow-up.
+```
+
+### TASK-20260513-001
+
+```yaml
+Task ID: TASK-20260513-001
+Title: Route B official DeepSeek failure remediation plan
+Status: done
+Priority: P1
+Owner: Experiment Designer / Developer Agent
+Created: 2026-05-13
+Updated: 2026-05-13
+Inputs:
+  - experiments/results/route_b_live_deepseek_official_80_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_failure_breakdown.csv
+  - experiments/tables/route_b_live_deepseek_official_80_failure_breakdown.md
+  - docs/paper/qsga_ccf_draft.md
+Outputs:
+  - Remediation plan for risk_violation, unsupported_indicator/semantics, and clarification_failure buckets
+  - Optional TASK_QUEUE follow-up tasks for bounded implementation or experiments
+Dependencies:
+  - TASK-20260512-014
+Blocking:
+  - Next Route B improvement cycle
+Evidence Required:
+  - Failure counts and representative cases
+  - Proposed fix mapped to component and expected metric movement
+Estimated Cost: Medium
+Risk Level: Medium
+Safe to Run Automatically: Yes
+Human Review Required: No
+Quality Gate:
+  - Do not edit schema/compiler contract
+  - Do not run new paid API experiments unless separately scoped
+  - Distinguish implementation fixes from paper-only limitations
+Fallback if Blocked:
+  - Add plan to CURRENT_PROGRESS.md and RESULTS_LOG notes
+Last Result:
+  - Added rules/research/ROUTE_B_REMEDIATION_PLAN.md with ranked remediation plan for risk_violation, clarification_failure, semantic_mismatch, and unsupported semantics.
+  - Implemented the first no-API remediation: deterministic ambiguity guard before LLM slot extraction.
+  - Added experiments/check_route_b_ambiguity_guard.py and generated route_b_ambiguity_guard_check.csv/md.
+  - Local guard check: ambiguous recall 10/10, non-ambiguous false positive 0/70, overall 80/80.
+  - `uv run pytest tests/test_route_b_pipeline.py tests/test_route_b_construction.py -q`: 20 passed.
+Next Action:
+  - Build saved raw slot-output replay harness before any new live API run.
+```
+
+### TASK-20260513-002
+
+```yaml
+Task ID: TASK-20260513-002
+Title: Build saved Route B slot-output replay harness
+Status: done
+Priority: P1
+Owner: Developer / Experiment Designer
+Created: 2026-05-13
+Updated: 2026-05-13
+Inputs:
+  - experiments/results/route_b_live_deepseek_official_80_raw_outputs.jsonl
+  - benchmark/qsi_bench_v1.jsonl
+  - qsgi/construction/pipeline.py
+  - experiments/run_live_route_b.py
+Outputs:
+  - Replay script that reuses saved slot JSON outputs without API calls
+  - Replay metrics for post-construction fixes
+Dependencies:
+  - TASK-20260513-001
+Blocking:
+  - Risk repair ablation
+  - No-API validation of clarification and unsupported-semantics fixes
+Evidence Required:
+  - Replay command
+  - Result CSV and metrics/table outputs
+Estimated Cost: Medium
+Risk Level: Low
+Safe to Run Automatically: Yes
+Human Review Required: No
+Quality Gate:
+  - No API calls
+  - Preserve original raw output artifacts
+  - Make replay deterministic and tied to saved call records
+Fallback if Blocked:
+  - Implement targeted unit tests for each remediation bucket
+Last Result:
+  - Added experiments/replay_live_route_b.py.
+  - Replayed saved official DeepSeek 80-case slot outputs through current pipeline without API calls.
+  - Generated route_b_live_deepseek_official_80_replay_results.csv, replay_metrics.csv, replay_failure_breakdown.csv, and replay_failure_breakdown.md.
+  - After ambiguity guard, saved-output replay reaches clarification_accuracy 1.000 and E2E 0.5625; constructible construction_success remains 0.364.
+Next Action:
+  - Prototype bounded risk repair using replay harness.
+```
+
+### TASK-20260513-003
+
+```yaml
+Task ID: TASK-20260513-003
+Title: Prototype bounded Route B risk-repair pass
+Status: done
+Priority: P1
+Owner: Developer / Experiment Designer
+Created: 2026-05-13
+Updated: 2026-05-13
+Inputs:
+  - experiments/replay_live_route_b.py
+  - experiments/results/route_b_live_deepseek_official_80_replay_results.csv
+  - risk_audit modules
+  - qsgi/construction/qyir_builder.py
+Outputs:
+  - Deterministic post-construction risk-repair implementation or ablation script
+  - No-API replay metrics/table
+Dependencies:
+  - TASK-20260513-002
+Blocking:
+  - Route B risk_violation reduction claim
+Evidence Required:
+  - Before/after risk_violation and E2E counts from saved-output replay
+Estimated Cost: Medium
+Risk Level: Medium
+Safe to Run Automatically: Yes
+Human Review Required: No
+Quality Gate:
+  - Do not weaken user risk constraints
+  - Do not increase leverage or enable shorting
+  - Do not claim profitability or live improvement without scoped live run
+Fallback if Blocked:
+  - Keep as future work in remediation plan
+Last Result:
+  - Added qsgi/construction/risk_repair.py with bounded conservative risk-repair candidates.
+  - Added --enable-risk-repair to experiments/replay_live_route_b.py.
+  - Added tests/test_route_b_risk_repair.py.
+  - Saved-output replay with ambiguity guard + risk repair reaches risk_violation 0.000, repair_success 19/19, construction_success 0.709, E2E 0.800.
+  - `uv run pytest tests/test_route_b_risk_repair.py tests/test_route_b_pipeline.py tests/test_route_b_construction.py -q`: 22 passed.
+Next Action:
+  - Execute TASK-20260513-004 to reduce remaining clarification/unsupported failure buckets.
+```
+
+### TASK-20260513-004
+
+```yaml
+Task ID: TASK-20260513-004
+Title: Tighten Route B clarification and unsupported-semantics handling
+Status: done
+Priority: P1
+Owner: Developer / Experiment Designer
+Created: 2026-05-13
+Updated: 2026-05-13
+Inputs:
+  - experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_failure_breakdown.csv
+  - qsgi/construction/pipeline.py
+  - qsgi/construction/slot_schema.py
+  - benchmark/qsi_bench_v1.jsonl
+Outputs:
+  - Deterministic clarification/defaulting or unsupported-semantics boundary updates
+  - No-API replay metrics/table
+Dependencies:
+  - TASK-20260513-003
+Blocking:
+  - Route B remaining failure reduction claim
+Evidence Required:
+  - Before/after clarification_failure, unsupported_indicator, schema_failure counts from saved-output replay
+Estimated Cost: Medium
+Risk Level: Medium
+Safe to Run Automatically: Yes
+Human Review Required: No
+Quality Gate:
+  - Do not force unsupported QYIR v1 semantics into invalid artifacts
+  - Do not modify QYIR v1 schema/compiler contract
+  - Distinguish defaultable missing fields from real unsupported strategy semantics
+Fallback if Blocked:
+  - Keep remaining failures as limitation / future work
+Last Result:
+  - Added unsupported-semantics guard for QYIR v1 out-of-scope rotation/ranking, top-k portfolio, low-volatility selection, and consecutive-day pattern requests.
+  - Tightened defaulting so momentum/risk-controlled requests are not defaulted into single-asset strategies solely because non-core fields are missing.
+  - Added narrow MA-deviation `entry_threshold` defaulting for concrete mean-reversion requests.
+  - Added role normalization for `momentum`, `return_period`, and `volatility`.
+  - Saved-output replay with policy+risk repair reaches construction_success 0.727, E2E 0.8125, unsupported_semantics 11/80, clarification_failure 4/80.
+  - `uv run pytest tests/test_route_b_pipeline.py tests/test_route_b_construction.py tests/test_route_b_risk_repair.py tests/test_failure_breakdown.py -q`: 30 passed.
+Next Action:
+  - Run full test suite and Research Ops checks, then update paper/ops final status.
+```
+
+### TASK-20260513-005
+
+```yaml
+Task ID: TASK-20260513-005
+Title: Full verification and Route B paper consistency check
+Status: done
+Priority: P1
+Owner: Developer / Reviewer Agent
+Created: 2026-05-13
+Updated: 2026-05-13
+Inputs:
+  - docs/paper/qsga_ccf_draft.md
+  - experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_metrics.csv
+  - rules/research/RESULTS_LOG.md
+  - tests/
+Outputs:
+  - Full pytest result
+  - Research Ops quality check result
+  - Final claim-boundary consistency updates if needed
+Dependencies:
+  - TASK-20260513-004
+Blocking:
+  - End-of-turn handoff
+Evidence Required:
+  - `uv run pytest tests -q`
+  - `uv run python rules/scripts/check_research_ops.py --root rules`
+Estimated Cost: Medium
+Risk Level: Low
+Safe to Run Automatically: Yes
+Human Review Required: No
+Quality Gate:
+  - No API calls
+  - Do not update official live metrics with replay-only numbers
+  - Ensure paper numbers match generated CSV artifacts
+Fallback if Blocked:
+  - Report failing tests/checks and leave TASK-20260513-005 in progress
+Last Result:
+  - Full test suite passed: `uv run pytest tests -q` -> 213 passed.
+  - Research Ops checker passed: `uv run python rules/scripts/check_research_ops.py --root rules` -> FAIL 0, WARN 0.
+  - Updated paper test-count statement to 213 passing tests.
+Next Action:
+  - Execute TASK-20260513-006 for final reviewer gate and submission-readiness assessment.
+```
+
+### TASK-20260513-006
+
+```yaml
+Task ID: TASK-20260513-006
+Title: Final Route B reviewer gate and submission-readiness assessment
+Status: done
+Priority: P1
+Owner: Reviewer / Writer Agent
+Created: 2026-05-13
+Updated: 2026-05-13
+Inputs:
+  - docs/paper/qsga_ccf_draft.md
+  - rules/research/DRAFT_STATUS.md
+  - rules/research/RESULTS_LOG.md
+  - experiments/tables/route_b_live_deepseek_official_80_replay_policy_risk_repair_failure_breakdown.md
+Outputs:
+  - Reviewer-gate findings or final draft patches
+  - Submission-readiness assessment with blocking/non-blocking issues
+Dependencies:
+  - TASK-20260513-005
+Blocking:
+  - Human decision on final submission target and any new live run
+Evidence Required:
+  - Claim-vs-evidence consistency review
+  - Limitations checked against replay/live distinction
+Estimated Cost: Medium
+Risk Level: Medium
+Safe to Run Automatically: Yes
+Human Review Required: No
+Quality Gate:
+  - Lead with blocking issues
+  - Do not claim CCF-B readiness unless evidence supports it
+  - Keep official live and replay-only metrics separated
+Fallback if Blocked:
+  - Record reviewer risks in DRAFT_STATUS.md
+Last Result:
+  - Updated abstract wording to separate scoped claims from replay-only remediation observation.
+  - Added Reviewer Gate Snapshot to DRAFT_STATUS.md.
+  - Blocking issues remain human-facing: target venue/authorship/public release, second full live model decision, final bibliography formatting, financial-safety wording review.
+  - Non-blocking status: live vs replay metrics are separated; QYIR v1 limitations are explicit; full validation passed.
+Next Action:
+  - Execute TASK-20260513-007 for final bibliography formatting pass.
+```
+
+### TASK-20260513-007
+
+```yaml
+Task ID: TASK-20260513-007
+Title: Final bibliography venue and DOI formatting pass
+Status: todo
+Priority: P1
+Owner: Literature / Writer Agent
+Created: 2026-05-13
+Updated: 2026-05-13
+Inputs:
+  - docs/paper/qsga_ccf_draft.md
+  - rules/research/PAPER_MATRIX.md
+Outputs:
+  - Reference formatting corrections
+  - Updated PAPER_MATRIX note if any venue/DOI data remains unavailable
+Dependencies:
+  - TASK-20260513-006
+Blocking:
+  - Submission packaging polish
+Evidence Required:
+  - Source URLs or primary bibliography pages for changed references
+Estimated Cost: Medium
+Risk Level: Low
+Safe to Run Automatically: Yes
+Human Review Required: No
+Quality Gate:
+  - Use primary sources where possible
+  - Do not change technical claims while formatting references
+  - Do not invent venue/DOI data
+Fallback if Blocked:
+  - Leave unresolved venue/DOI fields marked in PAPER_MATRIX.md
+Last Result:
+  - Not yet executed.
+Next Action:
+  - Check current references for venue/DOI completeness and update formatting conservatively.
 ```
 
 ---

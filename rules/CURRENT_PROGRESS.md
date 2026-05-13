@@ -78,9 +78,9 @@ Owner: Research Orchestrator
 
 ## Next Actions
 
-1. 执行 TASK-20260512-014，继续做外部相关工作引用核验和引用表补强。
-2. 进一步分析 Route B official DeepSeek 失败项：risk_violation、unsupported momentum/low-vol semantics、over-clarification。
-3. 等待 DEC-20260512-003 后再考虑 QYIR market operand schema/compiler contract 修改。
+1. 执行 TASK-20260513-007，完成 bibliography venue/DOI formatting pass。
+2. 若人类决定需要第二个 full 80-case live model，再创建需人审的 scoped API run 任务。
+3. 不修改 QYIR v1 schema/compiler contract；将 market-field operands 作为 future work，并继续使用 builder 层兼容转换。
 
 ---
 
@@ -102,10 +102,17 @@ Owner: Research Orchestrator
 
 - 已确认现有规则要求任务队列驱动、证据优先、禁止伪造数据。
 - docs/QSGA_Route_B_Modification_Plan.md 提供 Route B 方法和实验目标，但其中所有 XX 或成功率提升均为待实验验证。
-- `uv run pytest`：187 passed，说明新增构造模块未破坏现有 QYIR validator/compiler/generator 测试。
+- `uv run pytest tests -q`：213 passed，说明当前 Route B remediation 未破坏现有 QYIR validator/compiler/generator 测试。
 - EXP-20260512-LIVE-FAILURE-BREAKDOWN：saved qwen3.6-flash live-QYIR run 的主要失败桶已记录在 RESULTS_LOG。
 - EXP-20260512-ROUTE-B-BUILDER-SMOKE：expected-slot builder smoke 达到 construct 55/55，terminal correct 80/80；仅支持 gold-slot builder claim。
 - EXP-20260512-ROUTE-B-LIVE-DEEPSEEK-OFFICIAL-80：official `deepseek-v4-flash` Route B live 诊断达到 schema_validity 0.709、construction_success 0.364、E2E 0.475、unsafe rejection 1.000、clarification accuracy 0.300。
+- TASK-20260512-014：外部 related-work 引用已完成 arXiv primary-source 核验；剩余工作是最终 venue/DOI 格式化。
+- EXP-20260513-ROUTE-B-AMBIGUITY-GUARD-CHECK：deterministic ambiguity guard 在 QSI-Bench 上达到 ambiguous recall 10/10、non-ambiguous false positive 0/70、overall 80/80；尚未更新 official live metrics。
+- EXP-20260513-ROUTE-B-SAVED-REPLAY-AFTER-AMBIGUITY-GUARD：无 API replay 达到 clarification_accuracy 1.000、E2E 0.5625；这不是新的 live run。
+- EXP-20260513-ROUTE-B-SAVED-REPLAY-WITH-RISK-REPAIR：无 API replay + bounded risk repair 达到 risk_violation 0.000、repair_success 19/19、construction_success 0.709、E2E 0.800；这不是新的 live run。
+- EXP-20260513-ROUTE-B-SAVED-REPLAY-POLICY-RISK-REPAIR：无 API replay + scope/defaulting policy + risk repair 达到 construction_success 0.727、E2E 0.8125，并将 11/80 剩余样例明确标为 unsupported_semantics；这不是新的 live run。
+- Full verification：`uv run pytest tests -q` 通过 213 项测试；`uv run python rules/scripts/check_research_ops.py --root rules` 通过，FAIL 0 / WARN 0。
+- Reviewer gate snapshot：当前禁止声称 CCF-B ready；阻塞项为人类目标会议/作者/发布边界、是否追加第二个 full live model、最终 bibliography venue/DOI 格式、金融安全措辞人审。
 
 ---
 
@@ -120,7 +127,7 @@ Owner: Research Orchestrator
 ## Human Decision Summary
 
 - DEC-20260512-002：已接受官方 DeepSeek API endpoint/configuration；不再阻塞当前 Route B live 诊断。
-- DEC-20260512-003：待确认是否支持 `market.close` 等 market operands；仅阻塞 schema/compiler contract 修改，不阻塞论文审稿模拟。
+- DEC-20260512-003：人工选择方案 A；QYIR v1 保持 alias-only operand contract，market-field operands 作为 future work。
 
 ---
 

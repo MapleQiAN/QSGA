@@ -30,7 +30,7 @@ def test_slot_schema_normalizes_common_live_model_variants():
         {
             "strategy_family": "mean_reversion",
             "market_scope": {"symbol": "unknown", "asset_type": "UNKNOWN", "timeframe": "UNKNOWN"},
-            "indicators": [{"name": "RSI", "window": 14, "role": "entry_signal"}],
+            "indicators": [{"name": "RSI", "window": 14, "role": "momentum"}],
             "entry_logic": {"operator": "less_than", "left": "rsi14", "right": 35},
             "exit_logic": None,
             "risk_constraints": None,

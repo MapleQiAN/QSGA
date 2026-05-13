@@ -334,3 +334,210 @@ Safety:
   - Did not claim CCF-B readiness.
   - Left remaining general references marked for later verification.
 ```
+
+```yaml
+Time: 2026-05-13
+Actor: Human / Codex
+Action: QYIR market operand final decision applied
+Related Task ID: TASK-20260512-012
+Decision ID: DEC-20260512-003
+Files:
+  - rules/DECISIONS.md
+  - docs/paper/qsga_ccf_draft.md
+  - rules/TASK_QUEUE.md
+  - rules/CURRENT_PROGRESS.md
+  - rules/research/DRAFT_STATUS.md
+Summary:
+  - Human selected option A for the current paper cycle.
+  - QYIR v1 remains frozen; rule operands remain alias-only.
+  - market.close, market.open, market.volume and similar market-field operands are deferred to future QYIR extensions.
+  - Added limitation text and failure-analysis wording to frame price-vs-indicator failures as bounded expressivity limits rather than compiler defects.
+Safety:
+  - Did not modify schema/compiler contract.
+```
+
+```yaml
+Time: 2026-05-13
+Actor: Codex
+Action: Related work primary-source verification
+Related Task ID: TASK-20260512-014
+Files:
+  - docs/paper/qsga_ccf_draft.md
+  - rules/research/PAPER_MATRIX.md
+  - rules/TASK_QUEUE.md
+  - rules/CURRENT_PROGRESS.md
+  - rules/research/DRAFT_STATUS.md
+Summary:
+  - Verified current reference list against arXiv primary pages.
+  - Expanded PAPER_MATRIX.md with general code-generation, constrained decoding, execution-feedback, tool-use, financial LLM, trading-agent, and finance safety entries.
+  - Corrected FinGPT and TradingAgents author lines in the draft reference list.
+Result:
+  - All current related-work references are marked verified in PAPER_MATRIX.md; remaining bibliographic work is final venue/DOI formatting.
+Safety:
+  - Comparisons remain scoped; no new empirical claims were added.
+```
+
+```yaml
+Time: 2026-05-13
+Actor: Codex
+Action: Route B failure remediation plan and ambiguity guard
+Related Task ID: TASK-20260513-001
+Files:
+  - rules/research/ROUTE_B_REMEDIATION_PLAN.md
+  - qsgi/construction/ambiguity_guard.py
+  - qsgi/construction/pipeline.py
+  - qsgi/construction/__init__.py
+  - tests/test_route_b_pipeline.py
+  - experiments/check_route_b_ambiguity_guard.py
+  - experiments/results/route_b_ambiguity_guard_check.csv
+  - experiments/tables/route_b_ambiguity_guard_check.md
+  - rules/research/RESULTS_LOG.md
+  - rules/TASK_QUEUE.md
+  - rules/CURRENT_PROGRESS.md
+Summary:
+  - Converted official DeepSeek 80-case failure breakdown into a ranked remediation plan.
+  - Implemented deterministic ambiguity guard before LLM slot extraction.
+  - Added no-API ambiguity guard check over QSI-Bench v1.
+Result:
+  - Ambiguous recall 10/10, non-ambiguous false positive 0/70, overall 80/80 in local guard check.
+Validation:
+  - uv run pytest tests/test_route_b_pipeline.py tests/test_route_b_construction.py -q: 20 passed.
+Safety:
+  - No API call made.
+  - Official live metrics are not updated until a separately scoped replay or live run is performed.
+```
+
+```yaml
+Time: 2026-05-13
+Actor: Codex
+Action: Saved Route B slot-output replay harness
+Related Task ID: TASK-20260513-002
+Files:
+  - experiments/replay_live_route_b.py
+  - experiments/results/route_b_live_deepseek_official_80_replay_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_metrics.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_failure_breakdown.csv
+  - experiments/tables/route_b_live_deepseek_official_80_replay_failure_breakdown.md
+  - docs/paper/qsga_ccf_draft.md
+  - rules/research/RESULTS_LOG.md
+  - rules/TASK_QUEUE.md
+  - rules/CURRENT_PROGRESS.md
+Summary:
+  - Implemented no-API replay over saved official DeepSeek Route B slot outputs.
+  - Replayed current pipeline after ambiguity guard.
+Result:
+  - clarification_accuracy: 1.000
+  - end_to_end_success: 0.5625
+  - construction_success_constructible: 0.364
+Safety:
+  - No API call made.
+  - Replay result is labeled as saved-output remediation evidence, not a new live model run.
+```
+
+```yaml
+Time: 2026-05-13
+Actor: Codex
+Action: Bounded Route B risk-repair pass
+Related Task ID: TASK-20260513-003
+Files:
+  - qsgi/construction/risk_repair.py
+  - qsgi/construction/__init__.py
+  - experiments/replay_live_route_b.py
+  - tests/test_route_b_risk_repair.py
+  - experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_metrics.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_risk_repair_failure_breakdown.csv
+  - experiments/tables/route_b_live_deepseek_official_80_replay_risk_repair_failure_breakdown.md
+  - docs/paper/qsga_ccf_draft.md
+  - rules/research/RESULTS_LOG.md
+  - rules/research/ROUTE_B_REMEDIATION_PLAN.md
+  - rules/TASK_QUEUE.md
+  - rules/CURRENT_PROGRESS.md
+  - rules/research/DRAFT_STATUS.md
+Summary:
+  - Added conservative risk-repair candidates for Route B.
+  - Added replay mode that re-runs compile/backtest/risk audit for repaired candidates.
+  - Updated the paper draft with saved-output risk-repair evidence and boundaries.
+Result:
+  - Saved-output replay with risk repair reaches risk_violation 0.000, repair_success 19/19, construction_success 0.709, and E2E 0.800.
+Validation:
+  - uv run pytest tests/test_route_b_risk_repair.py tests/test_route_b_pipeline.py tests/test_route_b_construction.py -q: 22 passed.
+Safety:
+  - No API call made.
+  - The repair pass does not weaken user risk constraints, increase leverage, enable shorting, or claim live performance improvement.
+```
+
+```yaml
+Time: 2026-05-13
+Actor: Codex
+Action: Route B scope/defaulting policy replay
+Related Task ID: TASK-20260513-004
+Files:
+  - qsgi/construction/unsupported_semantics.py
+  - qsgi/construction/slot_schema.py
+  - qsgi/construction/pipeline.py
+  - qsgi/construction/__init__.py
+  - experiments/analyze_failure_breakdown.py
+  - tests/test_route_b_pipeline.py
+  - experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_results.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_metrics.csv
+  - experiments/results/route_b_live_deepseek_official_80_replay_policy_risk_repair_failure_breakdown.csv
+  - experiments/tables/route_b_live_deepseek_official_80_replay_policy_risk_repair_failure_breakdown.md
+  - docs/paper/qsga_ccf_draft.md
+Summary:
+  - Added unsupported-semantics guard for QYIR v1 out-of-scope requests.
+  - Added narrow defaulting for concrete MA-deviation mean-reversion slots.
+  - Prevented momentum/risk-controlled missing-field cases from being defaulted into single-asset strategies.
+Result:
+  - Saved-output replay with scope/defaulting policy and risk repair reaches construction_success 0.727 and E2E 0.8125.
+  - Remaining failures are unsupported_semantics 11/80 and clarification_failure 4/80.
+Validation:
+  - uv run pytest tests/test_route_b_pipeline.py tests/test_route_b_construction.py tests/test_route_b_risk_repair.py tests/test_failure_breakdown.py -q: 30 passed.
+Safety:
+  - No API call made.
+  - qsi_040-style cross-sectional ranking is explicitly not counted as solved by single-asset QYIR v1 approximation.
+```
+
+```yaml
+Time: 2026-05-13
+Actor: Codex
+Action: Full verification after Route B remediations
+Related Task ID: TASK-20260513-005
+Files:
+  - docs/paper/qsga_ccf_draft.md
+  - rules/TASK_QUEUE.md
+  - rules/CURRENT_PROGRESS.md
+  - rules/research/DRAFT_STATUS.md
+  - rules/AUDIT_LOG.md
+Summary:
+  - Ran full test suite and Research Ops consistency checker.
+  - Updated paper test-count statement.
+Result:
+  - uv run pytest tests -q: 213 passed.
+  - uv run python rules/scripts/check_research_ops.py --root rules: FAIL 0, WARN 0.
+Safety:
+  - No API call made.
+  - Official live metrics remain separated from replay-only remediation metrics.
+```
+
+```yaml
+Time: 2026-05-13
+Actor: Codex
+Action: Route B reviewer gate snapshot
+Related Task ID: TASK-20260513-006
+Files:
+  - docs/paper/qsga_ccf_draft.md
+  - rules/research/DRAFT_STATUS.md
+  - rules/TASK_QUEUE.md
+  - rules/CURRENT_PROGRESS.md
+  - rules/AUDIT_LOG.md
+Summary:
+  - Checked draft wording for live-vs-replay metric mixing and CCF-B readiness overclaim.
+  - Updated abstract wording to separate scoped claims from replay-only remediation observation.
+  - Added Reviewer Gate Snapshot to DRAFT_STATUS.md.
+Result:
+  - Blocking issues are human-facing: target venue/authorship/public release, second full live model decision, final bibliography formatting, and financial-safety wording review.
+Safety:
+  - Did not claim CCF-B readiness.
+  - Replay metrics remain labeled as no-API component-remediation evidence.
+```

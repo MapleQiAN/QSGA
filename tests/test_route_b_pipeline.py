@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from qsgi.construction import construct_qyir_from_query, extract_slots
+from qsgi.construction import construct_qyir_from_query, detect_ambiguous_intent, detect_unsupported_semantics, extract_slots
 from experiments.run_live_route_b import (
     DEFAULT_DEEPSEEK_BASE_URL,
     DEFAULT_DEEPSEEK_MODELS,
@@ -86,6 +86,29 @@ def test_construct_qyir_from_query_handles_clarification():
     assert "Clarification required" in result.errors[0]["message"]
 
 
+def test_construct_qyir_from_query_clarifies_vague_intent_before_llm():
+    client = FakeClient([])
+
+    result = construct_qyir_from_query("帮我做一个稳一点的策略。", client=client)
+
+    assert result.success is False
+    assert result.clarification_requested is True
+    assert result.errors[0]["path"] == "ambiguity_guard"
+    assert client.prompts == []
+
+
+def test_ambiguity_guard_allows_concrete_rules():
+    result = detect_ambiguous_intent("做一个稳健的20日均线上穿60日均线买入策略")
+
+    assert result.clarify is False
+
+
+def test_ambiguity_guard_does_not_block_risk_constrained_defaults():
+    result = detect_ambiguous_intent("我不要满仓，也不要杠杆，给我一个稳健的ETF策略。")
+
+    assert result.clarify is False
+
+
 def test_construct_qyir_from_query_defaults_non_core_clarification_slots():
     payload = _slot_payload()
     payload["safe_action"] = "clarify"
@@ -103,6 +126,55 @@ def test_construct_qyir_from_query_defaults_non_core_clarification_slots():
     assert result.clarification_requested is False
     assert result.slots is not None
     assert result.slots.safe_action == "construct"
+
+
+def test_construct_qyir_from_query_defaults_ma_deviation_threshold():
+    payload = _slot_payload()
+    payload["strategy_family"] = "mean_reversion"
+    payload["indicators"] = [{"name": "SMA", "window": 50, "role": "fast"}]
+    payload["entry_logic"] = {
+        "operator": "greater_than",
+        "left": "price",
+        "right": "sma50",
+        "natural_language": "price deviates too much above 50-day SMA",
+    }
+    payload["exit_logic"] = {
+        "operator": "less_than",
+        "left": "price",
+        "right": "sma50",
+        "natural_language": "price returns to 50-day SMA",
+    }
+    payload["safe_action"] = "clarify"
+    payload["ambiguity"] = {
+        "requires_clarification": True,
+        "missing_slots": ["entry_threshold"],
+        "ambiguous_phrases": ["价格偏离50日均线太多时买入"],
+    }
+    client = FakeClient([json.dumps(payload)])
+
+    result = construct_qyir_from_query("价格偏离50日均线太多时买入，回归均线后卖出", client=client)
+
+    assert result.success is True
+    assert result.clarification_requested is False
+    assert result.qyir is not None
+    assert {indicator["alias"] for indicator in result.qyir["indicators"]} == {"sma_20", "sma_50"}
+
+
+def test_construct_qyir_from_query_blocks_unsupported_rotation_before_llm():
+    client = FakeClient([])
+
+    result = construct_qyir_from_query("每月买入过去60天涨幅最高的3个ETF", client=client)
+
+    assert result.success is False
+    assert result.clarification_requested is True
+    assert result.errors[0]["path"] == "unsupported_semantics"
+    assert client.prompts == []
+
+
+def test_unsupported_semantics_guard_allows_single_asset_momentum_proxy():
+    result = detect_unsupported_semantics("根据过去20个交易日涨幅做短周期动量策略，但不要满仓。")
+
+    assert result.unsupported is False
 
 
 def test_live_route_b_prefers_explicit_key_file(tmp_path, monkeypatch):

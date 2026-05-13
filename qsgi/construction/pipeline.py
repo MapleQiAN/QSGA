@@ -6,10 +6,12 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from generator.llm_client import LLMClient
+from qsgi.construction.ambiguity_guard import detect_ambiguous_intent
 from qsgi.construction.canonicalizer import CanonicalizationEvent
 from qsgi.construction.qyir_builder import build_qyir_from_slots
 from qsgi.construction.slot_extractor import SlotExtractionResult, extract_slots
 from qsgi.construction.slot_schema import StrategySlotSpec
+from qsgi.construction.unsupported_semantics import detect_unsupported_semantics
 from verifier.safe_rejection import should_reject
 
 
@@ -44,6 +46,23 @@ def construct_qyir_from_query(
             rejected=True,
             rejection_reason=reason,
             errors=[{"path": "safe_rejection", "message": reason}],
+        )
+
+    unsupported = detect_unsupported_semantics(query)
+    if unsupported.unsupported:
+        return RouteBConstructionResult(
+            success=False,
+            clarification_requested=True,
+            errors=[{"path": "unsupported_semantics", "message": unsupported.reason}],
+        )
+
+    ambiguity = detect_ambiguous_intent(query)
+    if ambiguity.clarify:
+        missing = ", ".join(ambiguity.missing_slots)
+        return RouteBConstructionResult(
+            success=False,
+            clarification_requested=True,
+            errors=[{"path": "ambiguity_guard", "message": f"Clarification required: {missing}."}],
         )
 
     extraction = extract_slots(query, client=client, max_retries=max_retries)
@@ -104,9 +123,29 @@ def _clarification_can_be_defaulted(slots: StrategySlotSpec) -> bool:
         "risk_constraints",
     }
     missing = {item.strip() for item in slots.ambiguity.missing_slots}
+    if missing == {"entry_threshold"}:
+        return _can_default_entry_threshold(slots)
     if not missing or not missing.issubset(defaultable):
+        return False
+    if slots.strategy_family not in {"trend_following", "mean_reversion"}:
         return False
     has_supported_indicator = any(indicator.name != "UNKNOWN" for indicator in slots.indicators)
     has_entry = slots.entry_logic.operator not in {None, "unknown"} and slots.entry_logic.left is not None
     has_strategy_default = slots.strategy_family in {"trend_following", "mean_reversion"}
     return has_supported_indicator and (has_entry or has_strategy_default)
+
+
+def _can_default_entry_threshold(slots: StrategySlotSpec) -> bool:
+    """Allow MA-deviation style requests to use builder-level v1 approximation."""
+    has_supported_indicator = any(indicator.name != "UNKNOWN" for indicator in slots.indicators)
+    has_entry = (
+        slots.entry_logic.operator not in {None, "unknown"}
+        and slots.entry_logic.left is not None
+        and slots.entry_logic.right is not None
+    )
+    has_exit = (
+        slots.exit_logic.operator not in {None, "unknown"}
+        and slots.exit_logic.left is not None
+        and slots.exit_logic.right is not None
+    )
+    return slots.strategy_family == "mean_reversion" and has_supported_indicator and has_entry and has_exit
